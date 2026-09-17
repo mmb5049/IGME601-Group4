@@ -5,27 +5,31 @@ on:
   pull_request: {}
 
 jobs:
-  Godot:
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: [win32, win64]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Build
-        id: build
-        uses: manleydev/build-godot-action@v1.4.1
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v2
         with:
-          name: example
-          preset: ${{ matrix.platform }}
-          debugMode: "true"
+          version: 4.7.2
+          include-templates: true
 
-      - name: Upload Artifact
+      - name: Import project
+        run: godot --headless --editor --quit
+
+      - name: Build Windows
+        run: |
+          mkdir -p build/windows
+          godot --headless --export-release "Windows Desktop" "build/windows/Martial Matrix.exe"
+
+      - name: Upload Windows Build
         uses: actions/upload-artifact@v4
         with:
-          name: Client - ${{ matrix.platform }}
-          path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+          name: Windows Build
+          path: build/windows/
