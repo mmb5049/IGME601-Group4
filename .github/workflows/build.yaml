@@ -8,17 +8,8 @@ env:
   GODOT_VERSION: 4.7 # Change this to your exact Godot version 
   EXPORT_NAME: Martial Matrix # The name of your output file or project
 
-yaml- name: 🛠️ Setup Godot
-  uses: chickenandpork/setup-godot@v1
-  with:
-    # Specify the version of Godot you need
-    version: '4.7.0' 
-    # Set to true if you are using the C#/.NET version
-    use-mono: false 
-
 - name: 🚀 Run your script
   run: |
-    # Your script will now be able to find the 'godot' command
     godot --version 
     ./your-script.sh
 
