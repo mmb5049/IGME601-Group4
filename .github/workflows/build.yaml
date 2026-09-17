@@ -1,37 +1,42 @@
-name: "Godot Automated Builds"
+name: "Godot Build Pipeline"
+
 on:
   push:
-    branches:
-      - main # Triggers the build whenever you push to the main branch
-
-env:
-  GODOT_VERSION: 4.7 # Change this to your exact Godot version 
-  EXPORT_NAME: Martial Matrix # The name of your output file or project
-
-- name: 🚀 Run your script
-  run: |
-    godot --version 
-    ./your-script.sh
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
-  export-game:
-    name: Martial Matrix
+  export:
+    name: Build Godot Game
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # These names must match your Godot Export Preset names exactly
+        platform: [windows]
+
     steps:
+      # 1. Check out the repository (including Git LFS if you use heavy assets)
       - name: Checkout Source Code
         uses: actions/checkout@v4
-
-      - name: Setup Export Directories
-        run: |
-          mkdir -v -p build/windows
-          mkdir -v -p build/linux
-          mkdir -v -p build/mac
-
-      - name: Export Windows Desktop
-        run: godot --headless --export-release "Windows Desktop" build/windows/${{ env.EXPORT_NAME }}.exe
-
-      - name: Upload Build Artifacts
-        uses: actions/checkout@v4
         with:
-          name: game-builds
-          path: build/
+          lfs: true
+
+      # 2. Build the game using a trusted community GitHub Action
+      - name: Godot Export
+        id: export
+        uses: firebelley/godot-export@v5
+        with:
+          godot_executable_download_url: https://github.com
+          godot_export_templates_download_url: https://github.com
+          relative_project_path: ./
+          archive_output: true
+          export_preset: ${{ matrix.platform }}
+
+      # 3. Save the built binaries so you can download them from GitHub
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-build
+          path: ${{ steps.export.outputs.archive_directory }}
