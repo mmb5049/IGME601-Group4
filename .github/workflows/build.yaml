@@ -8,6 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./igme-601-group-4
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,11 +29,11 @@ jobs:
 
       - name: Build Windows
         run: |
-          mkdir build/windows
+          mkdir -p build/windows
           godot --headless --export-release "Windows Desktop" "build/windows/Martial Matrix.exe"
 
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
         with:
           name: Windows Build
-          path: ././igme-601-group-4/build/windows/
+          path: ./igme-601-group-4/build/windows/
