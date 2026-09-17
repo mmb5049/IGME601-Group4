@@ -25,7 +25,7 @@ jobs:
 
       - name: Build Windows
         run: |
-          mkdir -p build/windows
+          mkdir build/windows
           godot --headless --export-release "Windows Desktop" "build/windows/Martial Matrix.exe"
 
       - name: Upload Windows Build
