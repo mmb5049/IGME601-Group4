@@ -1,0 +1,32 @@
+name: "Godot Automated Builds"
+on:
+  push:
+    branches:
+      - main # Triggers the build whenever you push to the main branch
+
+env:
+  GODOT_VERSION: 4.7 # Change this to your exact Godot version (e.g., 4.2, 3.5, etc.)
+  EXPORT_NAME: Martial Matrix # The name of your output file or project
+
+jobs:
+  export-game:
+    name: Martial Matrix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Export Directories
+        run: |
+          mkdir -v -p build/windows
+          mkdir -v -p build/linux
+          mkdir -v -p build/mac
+
+      - name: Export Windows Desktop
+        run: godot --headless --export-release "Windows Desktop" build/windows/${{ env.EXPORT_NAME }}.exe
+
+      - name: Upload Build Artifacts
+        uses: actions/checkout@v4
+        with:
+          name: game-builds
+          path: build/
