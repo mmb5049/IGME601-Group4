@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://b0576k1jo61m6"]
+
+[ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_script.gd" id="1_2gd4f"]
+[ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Prefabs/Player.tscn" id="2_0g2wx"]
+
+[node name="Arena" type="Node3D" unique_id=353953738]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=918599208]
+transform = Transform3D(1, 0, 0, 0, 0.75544393, 0.6552133, 0, -0.6552133, 0.75544393, 0, 14.887062, 11.897637)
+
+[node name="HexGrid" type="Node3D" parent="." unique_id=616854683]
+script = ExtResource("1_2gd4f")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=995228414]
+transform = Transform3D(1, 0, 0, 0, 0.8074054, 0.58999705, 0, -0.58999705, 0.8074054, 0, 10.825689, 13.270031)
+
+[node name="CharacterBody3D" parent="." unique_id=372403699 instance=ExtResource("2_0g2wx")]
