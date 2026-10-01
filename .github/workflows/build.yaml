@@ -30,7 +30,7 @@ jobs:
       - name: Build Windows
         run: |
           mkdir -p build/windows
-          godot --headless --export-release "Windows Desktop" "build/windows/Martial Matrix.exe"
+          godot --headless --export-release "Windows Desktop" "build/windows/Combo Core.exe"
 
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
