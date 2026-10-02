@@ -17,6 +17,9 @@ var target_cell: Vector2i
 var is_moving := false
 var is_dashing := false
 
+@export_category("Abilities")
+@export var abilities: Array[Ability] = []
+var active_ability: Ability = null
 
 enum PlayerMode {
 	NONE,
@@ -44,7 +47,7 @@ func _physics_process(delta):
 
 
 func _unhandled_input(event):
-
+# All the key press below is for testing purposes
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
 
@@ -53,7 +56,8 @@ func _unhandled_input(event):
 				return
 
 			if event.keycode == KEY_D:
-				enter_dash_mode()
+				var dash := get_ability("Dash")
+				use_ability(dash)
 				return
 
 	if event is InputEventMouseButton:
@@ -147,10 +151,11 @@ func enter_move_mode():
 
 	hex_grid.highlight_movable_cells(current_cell)
 	
-func enter_dash_mode():
+func enter_dash_mode(ability: Ability):
 	if is_moving:
 		return
 
+	active_ability = ability
 	current_mode = PlayerMode.DASH
 
 	dash_path.clear()
@@ -295,7 +300,9 @@ func update_dash_preview():
 	# First find the full possible dash path
 	var full_path := hex_grid.highlight_dash_path(
 		current_cell,
-		direction
+		direction,
+		null,
+		active_ability.range
 	)
 
 	if full_path.is_empty():
@@ -324,3 +331,57 @@ func update_dash_preview():
 func is_valid_cell(coord: Vector2i) -> bool:
 	return hex_grid.valid_cells.has(coord)
 	
+func get_ability(ability_name: String) -> Ability:
+	for ability in abilities:
+		if ability.ability_name == ability_name:
+			return ability
+
+	return null
+	
+func use_ability(ability: Ability) -> void:
+	if ability == null:
+		return
+
+	if is_moving:
+		return
+
+	print("Using ability: ", ability.ability_name)
+
+	match ability.type:
+		Ability.AbilityType.MOVEMENT:
+			use_movement_ability(ability)
+
+		Ability.AbilityType.ATTACK:
+			use_attack_ability(ability)
+
+		Ability.AbilityType.TRAP:
+			use_trap_ability(ability)
+
+		Ability.AbilityType.STATUS:
+			use_status_ability(ability)
+
+		Ability.AbilityType.DEFENSE:
+			use_defense_ability(ability)	
+			
+			
+			
+func use_movement_ability(ability: Ability) -> void:
+	print("Movement ability placeholder: ", ability.ability_name)
+	if ability.ability_name == "Dash":
+		enter_dash_mode(ability)
+	
+
+func use_attack_ability(ability: Ability) -> void:
+	print("Attack ability placeholder: ", ability.ability_name)
+
+
+func use_trap_ability(ability: Ability) -> void:
+	print("Trap ability placeholder: ", ability.ability_name)
+
+
+func use_status_ability(ability: Ability) -> void:
+	print("Status ability placeholder: ", ability.ability_name)
+
+
+func use_defense_ability(ability: Ability) -> void:
+	print("Defense ability placeholder: ", ability.ability_name)

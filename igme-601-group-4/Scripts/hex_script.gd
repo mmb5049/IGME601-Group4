@@ -252,7 +252,8 @@ func create_highlight(
 func highlight_dash_path(
 	start_cell: Vector2i,
 	direction: Vector2i,
-	destination_cell: Variant = null
+	destination_cell: Variant = null,
+	max_distance: int = -1
 ) -> Array[Vector2i]:
 
 	clear_highlights()
@@ -262,12 +263,17 @@ func highlight_dash_path(
 
 	while valid_cells.has(current):
 
+		# Stop when the Ability's range is reached
+		if max_distance != -1 and path.size() >= max_distance:
+			break
+
+		# Stop if another object is blocking the dash
 		if is_occupied(current):
 			break
 
 		path.append(current)
 
-		# Only stop early if an actual destination was provided
+		# Stop at selected destination
 		if destination_cell != null and current == destination_cell:
 			break
 
@@ -282,11 +288,15 @@ func highlight_dash_path(
 
 	# Yellow destination
 	if destination_cell != null and destination_cell in path:
+
 		if highlighted_cells.has(destination_cell):
 			highlighted_cells[destination_cell].queue_free()
 			highlighted_cells.erase(destination_cell)
 
-		create_highlight(destination_cell, dash_destination_material)
+		create_highlight(
+			destination_cell,
+			dash_destination_material
+		)
 
 	return path
 	
