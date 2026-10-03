@@ -31,9 +31,10 @@ var current_mode := PlayerMode.NONE
 var dash_path: Array[Vector2i] = []
 
 func _ready():
-	global_position = hex_grid.to_global(
-		hex_grid.hex_to_world(current_cell)
-	)
+	var spawn_position := hex_grid.hex_to_world(current_cell)
+	spawn_position.y = hex_grid.cell_height / 2.0 + 0.5
+
+	global_position = hex_grid.to_global(spawn_position)
 
 	hex_grid.set_occupied(current_cell, true)
 
@@ -110,6 +111,8 @@ func move_to_target(delta):
 	var target_position := hex_grid.to_global(
 		hex_grid.hex_to_world(target_cell)
 	)
+	
+	target_position.y = hex_grid.cell_height / 2.0 + 0.5
 
 	current_speed = dash_speed if is_dashing else move_speed
 
@@ -117,6 +120,8 @@ func move_to_target(delta):
 		target_position,
 		current_speed * delta
 	)
+	
+	
 
 	if global_position.distance_to(target_position) < 0.01:
 
@@ -385,3 +390,4 @@ func use_status_ability(ability: Ability) -> void:
 
 func use_defense_ability(ability: Ability) -> void:
 	print("Defense ability placeholder: ", ability.ability_name)
+	
