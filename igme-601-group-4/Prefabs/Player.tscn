@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://dqd3f12ucks48"]
 
 [ext_resource type="Script" uid="uid://dmqigsmhmvkbh" path="res://Scripts/player_controller.gd" id="1_um8lo"]
+[ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="2_b43ah"]
+[ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="3_shmu5"]
+[ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="4_shmu5"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_0f3il"]
 
@@ -8,6 +11,7 @@
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=372403699]
 script = ExtResource("1_um8lo")
+abilities = Array[ExtResource("2_b43ah")]([ExtResource("3_shmu5"), ExtResource("4_shmu5")])
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1168173185]
 mesh = SubResource("CapsuleMesh_0f3il")

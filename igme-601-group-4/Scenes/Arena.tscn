@@ -10,8 +10,10 @@ transform = Transform3D(1, 0, 0, 0, 0.75544393, 0.6552133, 0, -0.6552133, 0.7554
 
 [node name="HexGrid" type="Node3D" parent="." unique_id=616854683]
 script = ExtResource("1_2gd4f")
+cell_height = 0.5
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=995228414]
 transform = Transform3D(1, 0, 0, 0, 0.8074054, 0.58999705, 0, -0.58999705, 0.8074054, 0, 10.825689, 13.270031)
 
 [node name="CharacterBody3D" parent="." unique_id=372403699 instance=ExtResource("2_0g2wx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.675303, 0)

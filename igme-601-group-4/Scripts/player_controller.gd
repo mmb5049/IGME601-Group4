@@ -17,6 +17,9 @@ var target_cell: Vector2i
 var is_moving := false
 var is_dashing := false
 
+@export_category("Abilities")
+@export var abilities: Array[Ability] = []
+var active_ability: Ability = null
 
 enum PlayerMode {
 	NONE,
@@ -28,32 +31,38 @@ var current_mode := PlayerMode.NONE
 var dash_path: Array[Vector2i] = []
 
 func _ready():
-	global_position = hex_grid.to_global(
-		hex_grid.hex_to_world(current_cell)
-	)
+	var spawn_position := hex_grid.hex_to_world(current_cell)
+	spawn_position.y = hex_grid.cell_height / 2.0 + 0.5
+
+	global_position = hex_grid.to_global(spawn_position)
 
 	hex_grid.set_occupied(current_cell, true)
 
 func _physics_process(delta):
-	if current_mode == PlayerMode.DASH and not is_moving:
-		update_dash_preview()
-		
+	if not is_moving:
+
+		if current_mode == PlayerMode.MOVE:
+			update_move_preview()
+
+		elif current_mode == PlayerMode.DASH:
+			update_dash_preview()
+
 	if is_moving or is_dashing:
 		move_to_target(delta)
 
 
 
 func _unhandled_input(event):
-
+# All the key press below is for testing purposes
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
 
 			if event.keycode == KEY_M:
-				enter_move_mode()
+				use_ability(get_ability("Move"))
 				return
 
 			if event.keycode == KEY_D:
-				enter_dash_mode()
+				use_ability(get_ability("Dash"))
 				return
 
 	if event is InputEventMouseButton:
@@ -74,6 +83,65 @@ func _unhandled_input(event):
 			handle_dash_click()
 
 
+
+# ======Ability Template====== 
+func get_ability(ability_name: String) -> Ability:
+	for ability in abilities:
+		if ability.ability_name == ability_name:
+			return ability
+
+	return null
+	
+func use_ability(ability: Ability) -> void:
+	if ability == null:
+		return
+
+	if is_moving:
+		return
+
+	print("Using ability: ", ability.ability_name)
+
+	match ability.type:
+		Ability.AbilityType.MOVEMENT:
+			use_movement_ability(ability)
+
+		Ability.AbilityType.ATTACK:
+			use_attack_ability(ability)
+
+		Ability.AbilityType.TRAP:
+			use_trap_ability(ability)
+
+		Ability.AbilityType.STATUS:
+			use_status_ability(ability)
+
+		Ability.AbilityType.DEFENSE:
+			use_defense_ability(ability)	
+			
+
+func use_movement_ability(ability: Ability) -> void:
+	print("Movement ability placeholder: ", ability.ability_name)
+	if ability.ability_name == "Dash":
+		enter_dash_mode(ability)
+	elif ability.ability_name == "Move":
+		enter_move_mode(ability)
+	
+func use_attack_ability(ability: Ability) -> void:
+	print("Attack ability placeholder: ", ability.ability_name)
+
+func use_trap_ability(ability: Ability) -> void:
+	print("Trap ability placeholder: ", ability.ability_name)
+
+func use_status_ability(ability: Ability) -> void:
+	print("Status ability placeholder: ", ability.ability_name)
+
+func use_defense_ability(ability: Ability) -> void:
+	print("Defense ability placeholder: ", ability.ability_name)
+	
+	
+	
+
+
+# Helper methods and actual mechanics implementation
 func get_clicked_hex(mouse_position: Vector2):
 	# Create a ray from the camera through the mouse position
 	var ray_origin := camera.project_ray_origin(mouse_position)
@@ -100,12 +168,14 @@ func get_clicked_hex(mouse_position: Vector2):
 	return hex_grid.world_to_hex(local_position)
 
 
-
+# ======Overall Movement======
 func move_to_target(delta):
 
 	var target_position := hex_grid.to_global(
 		hex_grid.hex_to_world(target_cell)
 	)
+	
+	target_position.y = hex_grid.cell_height / 2.0 + 0.5
 
 	current_speed = dash_speed if is_dashing else move_speed
 
@@ -113,6 +183,8 @@ func move_to_target(delta):
 		target_position,
 		current_speed * delta
 	)
+	
+	
 
 	if global_position.distance_to(target_position) < 0.01:
 
@@ -136,26 +208,19 @@ func move_to_target(delta):
 			current_mode = PlayerMode.NONE
 			hex_grid.clear_highlights()
 
-func enter_move_mode():
+# ======Move Mechanic====== 
+
+func enter_move_mode(ability: Ability):
 
 	if is_moving:
 		return
 
 	current_mode = PlayerMode.MOVE
-
-	dash_path.clear()
-
-	hex_grid.highlight_movable_cells(current_cell)
+	active_ability = ability
 	
-func enter_dash_mode():
-	if is_moving:
-		return
-
-	current_mode = PlayerMode.DASH
-
 	dash_path.clear()
 
-	update_dash_preview()
+	update_move_preview()
 	
 func handle_move_click(mouse_position: Vector2):
 
@@ -201,7 +266,19 @@ func handle_move_click(mouse_position: Vector2):
 
 	hex_grid.set_occupied(current_cell, false)
 	hex_grid.set_occupied(target_cell, true)
-	
+
+# ======Dash Mechanic====== 
+func enter_dash_mode(ability: Ability):
+	if is_moving:
+		return
+
+	active_ability = ability
+	current_mode = PlayerMode.DASH
+
+	dash_path.clear()
+
+	update_dash_preview()
+
 func get_dash_direction(mouse_position: Vector2) -> Vector2i:
 
 	var clicked_cell: Variant = get_clicked_hex(mouse_position)
@@ -268,11 +345,11 @@ func handle_dash_click():
 	target_cell = path.pop_front()
 
 	is_dashing = true
-	is_moving = true
 
 	hex_grid.set_occupied(current_cell, false)
 	hex_grid.set_occupied(target_cell, true)
-	
+
+# ======Hex Preview====== 
 func update_dash_preview():
 
 	if current_mode != PlayerMode.DASH:
@@ -295,7 +372,9 @@ func update_dash_preview():
 	# First find the full possible dash path
 	var full_path := hex_grid.highlight_dash_path(
 		current_cell,
-		direction
+		direction,
+		null,
+		active_ability.range
 	)
 
 	if full_path.is_empty():
@@ -320,7 +399,25 @@ func update_dash_preview():
 		direction,
 		mouse_cell
 	)
+	
+	
+func update_move_preview():
 
+	if current_mode != PlayerMode.MOVE:
+		return
+
+	var mouse_cell: Variant = get_clicked_hex(
+		get_viewport().get_mouse_position()
+	)
+
+	hex_grid.highlight_movable_cells(current_cell)
+
+	if mouse_cell == null:
+		return
+
+	if mouse_cell in hex_grid.get_neighbors(current_cell):
+		hex_grid.highlight_hover(mouse_cell)
+		
+		
 func is_valid_cell(coord: Vector2i) -> bool:
 	return hex_grid.valid_cells.has(coord)
-	
