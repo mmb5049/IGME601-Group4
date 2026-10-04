@@ -12,7 +12,7 @@ var cell_meshes: Dictionary = {}
 var highlighted_cells: Dictionary = {}
 var highlight_material := ShaderMaterial.new()
 var dash_path_material := ShaderMaterial.new()
-var dash_destination_material := ShaderMaterial.new()
+var hover_material := ShaderMaterial.new()
 
 
 const DIRECTIONS = [
@@ -61,7 +61,7 @@ void fragment() {
 		edge_distance = min(edge_distance, 0.8660254 - dot(p, normals[i]));
 	}
 
-	// Top face only, detected by normal (independent of cell_height)
+	// Top face only, detected by normal
 	float top_mask = step(0.9, local_normal.y);
 
 	float edge_mask = 1.0 - smoothstep(0.0, edge_thickness, edge_distance);
@@ -111,8 +111,8 @@ func _ready():
 	var destination_shader := Shader.new()
 	destination_shader.code = HEX_GLOW_SHADER
 
-	dash_destination_material.shader = destination_shader
-	dash_destination_material.set_shader_parameter(
+	hover_material.shader = destination_shader
+	hover_material.set_shader_parameter(
 		"glow_color",
 		Color(1.0, 0.1, 0.1)
 	)
@@ -357,11 +357,11 @@ func highlight_dash_path(
 	for cell in path:
 		create_highlight(cell, dash_path_material)
 
-	# Yellow destination
+	# Red destination
 	if destination_cell != null and destination_cell in path:
 		create_highlight(
 			destination_cell,
-			dash_destination_material
+			hover_material
 		)
 
 	return path
@@ -373,3 +373,7 @@ func clear_highlights():
 			cell_meshes[coord].material_override = null
 
 	highlighted_cells.clear()
+
+func highlight_hover(cell: Vector2i):
+	if valid_cells.has(cell) and not is_occupied(cell):
+		create_highlight(cell, hover_material)
