@@ -1,6 +1,6 @@
 extends Node3D
 class_name HexGrid
-
+#Test
 @export var grid_radius: int = 4
 @export var hex_size: float = 1.0
 @export var cell_height: float 
