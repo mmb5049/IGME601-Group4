@@ -24,7 +24,8 @@ var active_ability: Ability = null
 enum PlayerMode {
 	NONE,
 	MOVE,
-	DASH
+	DASH,
+	ATTACK
 }
 var current_mode := PlayerMode.NONE
 
@@ -46,6 +47,9 @@ func _physics_process(delta):
 
 		elif current_mode == PlayerMode.DASH:
 			update_dash_preview()
+			
+		elif current_mode == PlayerMode.ATTACK:
+			update_attack_preview()
 
 	if is_moving or is_dashing:
 		move_to_target(delta)
@@ -65,6 +69,10 @@ func _unhandled_input(event):
 				use_ability(get_ability("Dash"))
 				return
 
+			if event.keycode == KEY_S:
+				use_ability(get_ability("Slash"))
+				return
+
 	if event is InputEventMouseButton:
 
 		if event.button_index != MOUSE_BUTTON_LEFT:
@@ -81,6 +89,9 @@ func _unhandled_input(event):
 
 		elif current_mode == PlayerMode.DASH:
 			handle_dash_click()
+			
+		elif current_mode == PlayerMode.ATTACK:
+			handle_attack_click(event.position)
 
 
 
@@ -127,6 +138,11 @@ func use_movement_ability(ability: Ability) -> void:
 	
 func use_attack_ability(ability: Ability) -> void:
 	print("Attack ability placeholder: ", ability.ability_name)
+	if ability.ability_name == "Slash":
+		ability.range
+		active_ability = ability
+		current_mode = PlayerMode.ATTACK
+		update_attack_preview()
 
 func use_trap_ability(ability: Ability) -> void:
 	print("Trap ability placeholder: ", ability.ability_name)
@@ -349,6 +365,27 @@ func handle_dash_click():
 	hex_grid.set_occupied(current_cell, false)
 	hex_grid.set_occupied(target_cell, true)
 
+func handle_attack_click(mouse_position: Vector2):
+	var clicked_cell: Variant = get_clicked_hex(mouse_position)
+
+	if clicked_cell == null:
+		return
+
+	var next_cell: Vector2i = clicked_cell
+
+	# Only allow adjacent cells
+	if next_cell not in hex_grid.get_neighbors(current_cell):
+		return
+
+	# Must be valid
+	if not is_valid_cell(next_cell):
+		return
+
+	# Attack Cell
+	## TODO Add attack function
+	
+	hex_grid.clear_highlights()
+
 # ======Hex Preview====== 
 func update_dash_preview():
 
@@ -417,7 +454,23 @@ func update_move_preview():
 
 	if mouse_cell in hex_grid.get_neighbors(current_cell):
 		hex_grid.highlight_hover(mouse_cell)
-		
-		
+
+func update_attack_preview():
+
+	if current_mode != PlayerMode.ATTACK:
+		return
+
+	var mouse_cell: Variant = get_clicked_hex(
+		get_viewport().get_mouse_position()
+	)
+
+	hex_grid.highlight_movable_cells(current_cell)
+
+	if mouse_cell == null:
+		return
+
+	if mouse_cell in hex_grid.get_neighbors(current_cell):
+		hex_grid.highlight_hover(mouse_cell)
+
 func is_valid_cell(coord: Vector2i) -> bool:
 	return hex_grid.valid_cells.has(coord)

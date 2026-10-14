@@ -1,9 +1,15 @@
 [gd_scene format=3 uid="uid://b0576k1jo61m6"]
 
 [ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_script.gd" id="1_2gd4f"]
+[ext_resource type="Script" uid="uid://dl8o2e2kjwvf0" path="res://Scenes/arena_manager.gd" id="1_jhdhk"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Prefabs/Player.tscn" id="2_0g2wx"]
+[ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="3_dpcf1"]
+[ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="4_jhdhk"]
+[ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="5_bugre"]
+[ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="6_2tw1v"]
 
 [node name="Arena" type="Node3D" unique_id=353953738]
+script = ExtResource("1_jhdhk")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=918599208]
 transform = Transform3D(1, 0, 0, 0, 0.75544393, 0.6552133, 0, -0.6552133, 0.75544393, 0, 14.887062, 11.897637)
@@ -17,3 +23,6 @@ transform = Transform3D(1, 0, 0, 0, 0.8074054, 0.58999705, 0, -0.58999705, 0.807
 
 [node name="CharacterBody3D" parent="." unique_id=372403699 instance=ExtResource("2_0g2wx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.675303, 0)
+abilities = Array[ExtResource("3_dpcf1")]([ExtResource("4_jhdhk"), ExtResource("5_bugre"), ExtResource("6_2tw1v")])
+
+[node name="Enemies" type="Node3D" parent="." unique_id=1626127726]
