@@ -20,16 +20,16 @@ func die():
 
 func set_grid_pos(new_hex:Vector2i) -> bool:
 	# check if hex is valid
-	if  HexScript.is_valid_cell(new_hex) and HexScript.is_occupied(new_hex):
+	if  HexGrid.is_valid_cell(new_hex) and HexGrid.is_occupied(new_hex):
 		print("Hex Occupied")
 		return false
 	
 	# clear old hex
 	if current_cell:
-		HexScript.set_occupied(current_cell, false)
+		HexGrid.set_occupied(current_cell, false)
 	
 	# occupy new hex
 	current_cell = new_hex
-	HexScript.set_occupied(current_cell, self)
-	position = HexScript.hex_to_world(current_cell) + Vector3(0,1,0)
+	HexGrid.set_occupied(current_cell, self)
+	position = HexGrid.hex_to_world(current_cell) + Vector3(0,1,0)
 	return true

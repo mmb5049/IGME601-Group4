@@ -10,8 +10,9 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0f3il"]
 
-[node name="Player" type="CharacterBody3D" unique_id=372403699]
+[node name="Player" type="CharacterBody3D" unique_id=372403699 node_paths=PackedStringArray("movement")]
 script = ExtResource("1_v6d5b")
+movement = NodePath("Movement")
 abilities = Array[ExtResource("2_v6d5b")]([ExtResource("3_55lj8"), ExtResource("4_qhb0e")])
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1168173185]
@@ -23,7 +24,3 @@ shape = SubResource("CapsuleShape3D_0f3il")
 [node name="Movement" type="Node" parent="." unique_id=1414287046 node_paths=PackedStringArray("character")]
 script = ExtResource("5_55lj8")
 character = NodePath("..")
-
-[node name="Movement" type="Node" parent="Movement" unique_id=1737023877 node_paths=PackedStringArray("character")]
-script = ExtResource("5_55lj8")
-character = NodePath("../..")

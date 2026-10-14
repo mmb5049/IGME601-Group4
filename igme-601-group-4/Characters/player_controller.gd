@@ -1,24 +1,12 @@
 extends CharacterBody3D
 class_name PlayerController
 
-var move_speed: float = 10.0
-var dash_speed: float = 25.0
-var current_speed: float
-
-@onready var camera: Camera3D = get_viewport().get_camera_3d()
-
-var current_cell: Vector2i = Vector2i.ZERO
-
-var path: Array[Vector2i] = []
-
-var target_cell: Vector2i
-
-var is_moving := false
-var is_dashing := false
+@onready var camera:Camera3D = get_viewport().get_camera_3d()
+@export var movement:CharacterMovement
 
 @export_category("Abilities")
 @export var abilities: Array[Ability] = []
-var active_ability: Ability = null
+var selected_ability:Ability = null
 
 enum PlayerMode {
 	NONE,
@@ -26,46 +14,56 @@ enum PlayerMode {
 	ACTING
 }
 var current_mode := PlayerMode.NONE
-var selected_ability:Ability = null
 
-var dash_path: Array[Vector2i] = []
+var cursor_position:Vector2i
 
 func _ready():
-	var spawn_position := HexGrid.hex_to_world(current_cell)
-	spawn_position.y = HexGrid.instance.cell_height / 2.0 + 1
+	var spawn_position := HexGrid.hex_to_world(movement.current_cell)
+	spawn_position.y = HexGrid.hex_height / 2.0 + 1
 
-	global_position = HexGrid.instance.to_global(spawn_position)
+	global_position = HexGrid.to_global(spawn_position)
 
-	HexGrid.instance.set_occupied(current_cell, true)
-func _process(delta):
-	pass
+	HexGrid.set_occupied(movement.current_cell, true)
+
+func _process(_delta):
+	match current_mode:
+		PlayerMode.NONE:
+			
+			pass
+		PlayerMode.TARGETING:
+			
+			pass
+		PlayerMode.ACTING:
+			## Carry out during Action Phase, after queue is made
+			pass
+
 func _unhandled_input(event):
 # All the key press below is for testing purposes
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
-
-			if event.keycode == KEY_M:
-				add_ability(get_ability("Move"))
-				return
-
-			if event.keycode == KEY_D:
-				add_ability(get_ability("Dash"))
-				return
-
-			if event.keycode == KEY_S:
-				add_ability(get_ability("Slash"))
-				return
-
-	if event is InputEventMouseButton:
-
-		if event.button_index != MOUSE_BUTTON_LEFT:
-			return
-
-		if not event.pressed:
-			return
-
-		if is_moving:
-			return
+			if current_mode == PlayerMode.NONE:
+				match event.keycode:
+					KEY_M: 
+						add_ability(get_ability("Move"))
+					KEY_D:
+						add_ability(get_ability("Dash"))
+					KEY_S:
+						add_ability(get_ability("Slash"))
+				preview_target(selected_ability,cursor_position)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if current_mode == PlayerMode.TARGETING:
+			current_mode = PlayerMode.NONE
+			HexGrid.clear_highlights()
+			var target_data = get_target(selected_ability,cursor_position)
+			
+			## For now, just execute the ability with the information aleady gathered
+			execute_ability(selected_ability,target_data)
+		else:
+			print("Occupied: " + str(HexGrid.occupied_cells))
+	elif event is InputEventMouseMotion:
+		cursor_position = event.position
+		if current_mode == PlayerMode.TARGETING:
+			preview_target(selected_ability,cursor_position)
 
 # ======Ability Template====== 
 func get_ability(ability_name: String) -> Ability:
@@ -74,19 +72,17 @@ func get_ability(ability_name: String) -> Ability:
 			return ability
 	return null
 
-func add_ability(ability: Ability) -> void:
+# Adds ability to the queue. Some abilities require input before being added.
+func add_ability(ability:Ability) -> void:
 	if ability == null:
 		return
-
-	## Remove after queue is functioning
-	if is_moving:
-		return
-
+	
 	print("Using ability: ", ability.ability_name)
-
+	
 	match ability.targeting_type:
 		Global.TargetingType.NONE:
 			# Add ability to queue
+			## Need to add ability to queue immediately (as of right now, there are no abilities with NONE)
 			pass
 		Global.TargetingType.DIRECTION:
 			# Get direction
@@ -100,39 +96,41 @@ func add_ability(ability: Ability) -> void:
 			# Get tile location
 			current_mode = PlayerMode.TARGETING
 			selected_ability = ability
-	#match ability.type:
-		#Ability.AbilityType.MOVEMENT:
-			#use_movement_ability(ability)
-		#Ability.AbilityType.ATTACK:
-			#use_attack_ability(ability)
-		#Ability.AbilityType.TRAP:
-			#use_trap_ability(ability)
-		#Ability.AbilityType.STATUS:
-			#use_status_ability(ability)
-		#Ability.AbilityType.DEFENSE:
-			#use_defense_ability(ability)	
 
 # Updates the grid display
 func preview_target(ability:Ability, mouse_position:Vector2):
-	HexGrid.instance.clear_highlights()
+	HexGrid.clear_highlights()
 	var target_data = get_target(ability,mouse_position)
+	var highlightMat:ShaderMaterial
+	
+	# Select material
+	match ability.type:
+		Global.AbilityType.MOVEMENT:
+			highlightMat = HexGrid.material_move
+		Global.AbilityType.ATTACK:
+			highlightMat = HexGrid.material_attack
+	
+	# Highlight cells
 	match ability.targeting_type:
 		Global.TargetingType.NONE:
 			pass
 		Global.TargetingType.DIRECTION:
-			var direction = target_data;
-			
-			if direction == Vector2i.ZERO:
+			if !target_data or target_data == Vector2i.ZERO:
 				return
-			
-			HexGrid.instance.highlight_line(HexGrid.instance.material_blue,current_cell,direction,ability.range)
+			# Display all directions as one color, then the target as another
+			for direction:Vector2i in HexGrid.DIRECTIONS:
+				HexGrid.highlight_line(highlightMat,movement.current_cell,direction,ability.range)
+			HexGrid.highlight_line(HexGrid.material_select,movement.current_cell,target_data,ability.range)
 		Global.TargetingType.SHAPE:
 			pass
 		Global.TargetingType.SINGLE_TILE:
+			var cells:Array[Vector2i]
+			for i in range(ability.range):
+				cells.append_array(HexGrid.get_ring(movement.current_cell,i+1))
+			if cells:
+				HexGrid.highlight_cells(highlightMat,cells)
 			if(target_data):
-				HexGrid.instance.create_highlight(HexGrid.instance.material_blue,target_data)
-			pass
-	pass
+				HexGrid.create_highlight(HexGrid.material_select,target_data)
 
 # Returns appropriate target data based on target type
 	# DIRECTION: returns a Vector2i for direction
@@ -142,14 +140,14 @@ func get_target(ability:Ability, mouse_position:Vector2):
 	var clicked_cell = get_clicked_hex(mouse_position)
 	
 	# Validate cell
-	if clicked_cell == null or not HexScript.is_valid_cell(clicked_cell):
+	if clicked_cell == null or not HexGrid.is_valid_cell(clicked_cell):
 		return
 	
 	match ability.targeting_type:
 		Global.TargetingType.NONE:
 			pass
 		Global.TargetingType.DIRECTION:
-			var difference: Vector2i = clicked_cell - current_cell
+			var difference: Vector2i = clicked_cell - movement.current_cell
 			if difference == Vector2i.ZERO:
 				return false
 			
@@ -167,10 +165,20 @@ func get_target(ability:Ability, mouse_position:Vector2):
 			pass
 		Global.TargetingType.SINGLE_TILE:
 			# Limit to range
-			if HexScript.hex_distance(clicked_cell,current_cell) > ability.range:
+			if HexGrid.hex_distance(clicked_cell,movement.current_cell) > ability.range:
 				return false
 			return clicked_cell
-	pass
+
+func execute_ability(ability:Ability, target_data):
+	print("Executing: " + str(ability.ability_name))
+	match ability.type:
+		Global.AbilityType.MOVEMENT:
+			if(ability.targeting_type == Global.TargetingType.DIRECTION):
+				target_data = HexGrid.raycast(movement.current_cell,target_data,ability.range)
+			print("Moving to: " + str(target_data))
+			movement.pathfind(target_data)
+		Global.AbilityType.ATTACK:
+			pass
 
 func get_clicked_hex(mouse_position: Vector2):
 	# Create a ray from the camera through the mouse position
@@ -182,14 +190,14 @@ func get_clicked_hex(mouse_position: Vector2):
 		return null
 		
 	# Find where the ray intersects the hex grid plane
-	var grid_y := HexGrid.instance.global_position.y
-	var distance := (grid_y - ray_origin.y) / ray_direction.y
+	var grid_y = HexGrid.global_position.y
+	var distance = (grid_y - ray_origin.y) / ray_direction.y
 	if distance < 0:
 		return null
-	var hit_position := ray_origin + ray_direction * distance
+	var hit_position = ray_origin + ray_direction * distance
 	
 	# Convert global position to HexGrid local space
-	var local_position := HexGrid.instance.to_local(hit_position)
+	var local_position = HexGrid.to_local(hit_position)
 	
 	# Convert world position to hex coordinate
-	return HexGrid.instance.world_to_hex(local_position)
+	return HexGrid.world_to_hex(local_position)

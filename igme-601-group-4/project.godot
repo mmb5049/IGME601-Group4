@@ -17,8 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-HexScript="*uid://bb0hd8ec4i4l0"
 Global="*uid://blo2hic5veb6m"
+HexGrid="*uid://bb0hd8ec4i4l0"
 
 [display]
 

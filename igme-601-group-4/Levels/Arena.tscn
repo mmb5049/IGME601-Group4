@@ -1,11 +1,18 @@
 [gd_scene format=3 uid="uid://b0576k1jo61m6"]
 
 [ext_resource type="Script" uid="uid://dl8o2e2kjwvf0" path="res://Levels/arena_manager.gd" id="1_5o1c7"]
-[ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_script.gd" id="2_f8rhi"]
+[ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_grid.gd" id="2_f8rhi"]
+[ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="4_kn3ki"]
+[ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="5_8ml7l"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="5_dsr05"]
+[ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="6_k3an4"]
+[ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="7_ifjt6"]
 
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
+
+[node name="HexGrid" type="Node3D" parent="." unique_id=391055418]
+script = ExtResource("2_f8rhi")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
 transform = Transform3D(1, 0, 0, 0, 0.6432073, 0.7656921, 0, -0.7656921, 0.6432073, 0, 7.695714, 7.499794)
@@ -15,8 +22,6 @@ size = 6.607
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
 
 [node name="Player" parent="." unique_id=372403699 instance=ExtResource("5_dsr05")]
-
-[node name="HexGrid" type="Node3D" parent="." unique_id=391055418]
-script = ExtResource("2_f8rhi")
+abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6")])
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]

@@ -1,30 +1,34 @@
-extends Node3D
-class_name HexGrid
-static var instance:HexGrid 
+extends Node3D 
 
 @export var grid_radius: int = 4
-static var hex_size: float = 1.0
-@export var cell_height: float 
+var hex_size: float = 1.0
+var hex_height: float 
 
 var occupied_cells: Dictionary = {}
 var valid_cells: Dictionary = {}
 
 var cell_meshes: Dictionary[Vector2i,MeshInstance3D] = {}
 var highlighted_cells: Dictionary = {}
-var material_red := preload("res://Materials/hex_glow_red.tres")
-var material_blue := preload("res://Materials/hex_glow_blue.tres")
+
+var hex_mesh := preload("res://Meshes/cell.tres")
+
+# Materials
+var material_base := preload("res://Materials/hex_base.tres")
+var material_attack := preload("res://Materials/hex_glow_attack.tres")
+var material_move := preload("res://Materials/hex_glow_move.tres")
+var material_select := preload("res://Materials/hex_glow_select.tres")
 
 const DIRECTIONS = [
 	Vector2i(1, 0),
-	Vector2i(-1, 0),
 	Vector2i(0, 1),
+	Vector2i(-1, 1),
+	Vector2i(-1, 0),
 	Vector2i(0, -1),
-	Vector2i(1, -1),
-	Vector2i(-1, 1)
+	Vector2i(1, -1)
+	
 ]
 
 func _ready():
-	instance = self
 	generate_grid()
 
 func generate_grid():
@@ -38,7 +42,7 @@ func generate_grid():
 			valid_cells[coord] = true
 			create_hex_cell(coord)
 
-static func hex_to_world(coord: Vector2i) -> Vector3:
+func hex_to_world(coord: Vector2i) -> Vector3:
 	var q = coord.x
 	var r = coord.y
 	
@@ -77,14 +81,8 @@ func axial_round(q: float, r: float) -> Vector2i:
 
 func create_hex_cell(coord: Vector2i):
 	var mesh_instance := MeshInstance3D.new()
-	var mesh := CylinderMesh.new()
 	
-	mesh.top_radius = hex_size * 0.95
-	mesh.bottom_radius = hex_size * 0.95
-	mesh.height = cell_height
-	mesh.radial_segments = 6
-	
-	mesh_instance.mesh = mesh
+	mesh_instance.mesh = hex_mesh
 	mesh_instance.position = hex_to_world(coord)
 	
 	add_child(mesh_instance)
@@ -98,6 +96,26 @@ func get_neighbors(coord: Vector2i) -> Array[Vector2i]:
 		neighbors.append(coord + direction)
 	
 	return neighbors
+func get_ring(center:Vector2i, radius:int) -> Array[Vector2i]:
+	var results:Array[Vector2i]
+	# 4 works since the ring starts by moving right
+	var hex := center + DIRECTIONS[4] * radius
+	for i in range(6):
+		for j in range(radius):
+			results.append(hex)
+			hex = hex + DIRECTIONS[i]
+	return results
+
+func hex_distance(a: Vector2i, b: Vector2i) -> int:
+	var dq = a.x - b.x
+	var dr = a.y - b.y
+	
+	return (
+		abs(dq)
+		+ abs(dr)
+		+ abs(dq + dr)
+	) / 2
+
 
 func is_occupied(coord: Vector2i) -> bool:
 	return occupied_cells.has(coord)
@@ -111,6 +129,15 @@ func set_occupied(coord: Vector2i, value):
 
 func is_valid_cell(coord: Vector2i) -> bool:
 	return valid_cells.has(coord)
+
+func raycast(start:Vector2i,direction:Vector2i,length:int) -> Vector2i:
+	var cell
+	for i in range(1,length+1):
+		cell = start + direction*i
+		if not is_valid_cell(cell) or is_occupied(cell):
+			cell = start + direction*(i-1)
+			break
+	return cell
 
 func find_path(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 	var open_set: Array[Vector2i] = [start]
@@ -138,7 +165,7 @@ func find_path(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 		for neighbor in get_neighbors(current):
 			
 			# Must be a valid cell
-			if not valid_cells.has(neighbor):
+			if not is_valid_cell(neighbor):
 				continue
 			
 			# Avoid occupied cells, except the starting cell
@@ -161,16 +188,6 @@ func find_path(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 	
 	# No path found
 	return []
-
-static func hex_distance(a: Vector2i, b: Vector2i) -> int:
-	var dq = a.x - b.x
-	var dr = a.y - b.y
-	
-	return (
-		abs(dq)
-		+ abs(dr)
-		+ abs(dq + dr)
-	) / 2
 
 func reconstruct_path(
 	came_from: Dictionary,
