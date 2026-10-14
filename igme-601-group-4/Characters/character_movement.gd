@@ -9,6 +9,7 @@ var current_cell:Vector2i = Vector2i.ZERO
 var target_cell:Vector2i
 var path:Array[Vector2i]
 
+signal done_moving(sender:Signal)
 var is_moving:bool
 
 func _ready():
@@ -25,6 +26,7 @@ func _physics_process(delta):
 				is_moving = true
 			else:
 				is_moving = false
+				done_moving.emit(done_moving)
 		else:
 			is_moving = true
 
@@ -34,9 +36,11 @@ func pathfind(end_cell:Vector2i):
 	path = HexGrid.find_path(current_cell, end_cell)
 	## Old code... Checks if path has enough tiles to move
 	if path.is_empty():
+		done_moving.emit(done_moving)
 		return
 	path.pop_front()
 	if path.is_empty():
+		done_moving.emit(done_moving)
 		return
 	
 	HexGrid.set_occupied(current_cell, false)

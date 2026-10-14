@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_8nbmr")
 ability_name = "Slash"
-range = 2
+range = 1
+damage = 5
 targeting_type = 3
 metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"

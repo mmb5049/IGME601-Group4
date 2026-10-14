@@ -41,7 +41,7 @@ func _unhandled_input(event):
 # All the key press below is for testing purposes
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
-			if current_mode == PlayerMode.NONE:
+			if current_mode != PlayerMode.ACTING:
 				match event.keycode:
 					KEY_M: 
 						add_ability(get_ability("Move"))
@@ -49,17 +49,17 @@ func _unhandled_input(event):
 						add_ability(get_ability("Dash"))
 					KEY_S:
 						add_ability(get_ability("Slash"))
+					_:
+						return
 				preview_target(selected_ability,cursor_position)
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		print("State: " + str(current_mode))
 		if current_mode == PlayerMode.TARGETING:
-			current_mode = PlayerMode.NONE
 			HexGrid.clear_highlights()
 			var target_data = get_target(selected_ability,cursor_position)
 			
 			## For now, just execute the ability with the information aleady gathered
 			execute_ability(selected_ability,target_data)
-		else:
-			print("Occupied: " + str(HexGrid.occupied_cells))
 	elif event is InputEventMouseMotion:
 		cursor_position = event.position
 		if current_mode == PlayerMode.TARGETING:
@@ -74,7 +74,7 @@ func get_ability(ability_name: String) -> Ability:
 
 # Adds ability to the queue. Some abilities require input before being added.
 func add_ability(ability:Ability) -> void:
-	if ability == null:
+	if not ability:
 		return
 	
 	print("Using ability: ", ability.ability_name)
@@ -147,16 +147,19 @@ func get_target(ability:Ability, mouse_position:Vector2):
 		Global.TargetingType.NONE:
 			pass
 		Global.TargetingType.DIRECTION:
-			var difference: Vector2i = clicked_cell - movement.current_cell
-			if difference == Vector2i.ZERO:
+			var difference = (get_clicked_pos(mouse_position) - HexGrid.hex_to_world(movement.current_cell))
+			difference = Vector2(difference.x,difference.z).normalized()
+			if difference == Vector2.ZERO:
 				return false
 			
 			# Test each direction to find the best
 			var best_direction := Vector2i.ZERO
 			var best_score := -INF
-			for direction:Vector2i in HexGrid.DIRECTIONS:
+			for direction in HexGrid.DIRECTIONS:
 				# Normalize both vectors conceptually using dot product
-				var score = direction.x * difference.x + direction.y * difference.y
+				var dir_normal = HexGrid.hex_to_world(direction).normalized()
+				# Yes, the .z is correct!
+				var score = difference.x * dir_normal.x + difference.y * dir_normal.z
 				if score > best_score:
 					best_score = score
 					best_direction = direction
@@ -169,18 +172,31 @@ func get_target(ability:Ability, mouse_position:Vector2):
 				return false
 			return clicked_cell
 
+# call this to carry out the action of an ability
 func execute_ability(ability:Ability, target_data):
 	print("Executing: " + str(ability.ability_name))
+	if(not target_data and ability.targeting_type != Global.TargetingType.NONE):
+		return false
+	current_mode = PlayerMode.ACTING
 	match ability.type:
 		Global.AbilityType.MOVEMENT:
 			if(ability.targeting_type == Global.TargetingType.DIRECTION):
 				target_data = HexGrid.raycast(movement.current_cell,target_data,ability.range)
-			print("Moving to: " + str(target_data))
+			movement.done_moving.connect(finished_ability)
 			movement.pathfind(target_data)
 		Global.AbilityType.ATTACK:
+			## Just realized data is still absolute instead of relative to the player!!!
+			if(HexGrid.is_occupied(target_data) and HexGrid.occupied_cells[target_data] is Enemy):
+				(HexGrid.occupied_cells[target_data] as Enemy).damage(ability.damage)
+			current_mode = PlayerMode.NONE
 			pass
 
-func get_clicked_hex(mouse_position: Vector2):
+# triggered when the current ability has finished being carried out
+func finished_ability(sender:Signal):
+	current_mode = PlayerMode.NONE
+	sender.disconnect(finished_ability)
+
+func get_clicked_pos(mouse_position: Vector2):
 	# Create a ray from the camera through the mouse position
 	var ray_origin := camera.project_ray_origin(mouse_position)
 	var ray_direction := camera.project_ray_normal(mouse_position)
@@ -194,7 +210,12 @@ func get_clicked_hex(mouse_position: Vector2):
 	var distance = (grid_y - ray_origin.y) / ray_direction.y
 	if distance < 0:
 		return null
-	var hit_position = ray_origin + ray_direction * distance
+	return ray_origin + ray_direction * distance
+
+func get_clicked_hex(mouse_position: Vector2):
+	var hit_position = get_clicked_pos(mouse_position)
+	if(not hit_position):
+		return null
 	
 	# Convert global position to HexGrid local space
 	var local_position = HexGrid.to_local(hit_position)

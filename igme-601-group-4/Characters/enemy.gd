@@ -2,8 +2,8 @@ extends Node3D
 
 class_name Enemy
 
+@export var movement:CharacterMovement
 var health:int = 10
-var current_cell: Vector2i
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -16,6 +16,7 @@ func damage(amount:int):
 		die()
 
 func die():
+	HexGrid.set_occupied(movement.current_cell, false)
 	queue_free()
 
 func set_grid_pos(new_hex:Vector2i) -> bool:
@@ -25,11 +26,12 @@ func set_grid_pos(new_hex:Vector2i) -> bool:
 		return false
 	
 	# clear old hex
-	if current_cell:
-		HexGrid.set_occupied(current_cell, false)
+	if movement.current_cell:
+		HexGrid.set_occupied(movement.current_cell, false)
 	
 	# occupy new hex
-	current_cell = new_hex
-	HexGrid.set_occupied(current_cell, self)
-	position = HexGrid.hex_to_world(current_cell) + Vector3(0,1,0)
+	movement.current_cell = new_hex
+	movement.target_cell = new_hex
+	HexGrid.set_occupied(movement.current_cell, self)
+	position = HexGrid.hex_to_world(movement.current_cell) + Vector3(0,1,0)
 	return true
