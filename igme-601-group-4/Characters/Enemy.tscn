@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b5ass4ilswttc"]
 
-[ext_resource type="Script" uid="uid://cdjmvn74m4865" path="res://Scenes/enemy.gd" id="1_m1htj"]
+[ext_resource type="Script" uid="uid://cdjmvn74m4865" path="res://Characters/enemy.gd" id="1_1oqew"]
+[ext_resource type="Script" uid="uid://c1a8bcrjruokn" path="res://Characters/character_movement.gd" id="2_mig5a"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_pdfgs"]
 
@@ -8,8 +9,11 @@
 albedo_color = Color(0.73675454, 0.0049815155, 0.05000236, 1)
 
 [node name="Enemy" type="Node3D" unique_id=1359998768]
-script = ExtResource("1_m1htj")
+script = ExtResource("1_1oqew")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1287119294]
 mesh = SubResource("CapsuleMesh_pdfgs")
 surface_material_override/0 = SubResource("StandardMaterial3D_jhdhk")
+
+[node name="Node" type="Node" parent="." unique_id=977198110]
+script = ExtResource("2_mig5a")
