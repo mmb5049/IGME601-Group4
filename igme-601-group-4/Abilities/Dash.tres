@@ -1,10 +1,12 @@
 [gd_resource type="Resource" script_class="Ability" format=3 uid="uid://but2yi6prxp3a"]
 
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="1_5dgc1"]
+[ext_resource type="Texture2D" uid="uid://bce2lv65jo68b" path="res://Arts/Textures/Dash.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_5dgc1")
 ability_name = "Dash"
+icon = ExtResource("2_icon")
 type = 0
 range = 5
 targeting_type = 1

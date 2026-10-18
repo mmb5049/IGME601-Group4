@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://UI/ability_sequence_item_ui.gd" id="1_item_script"]
+[ext_resource type="PackedScene" path="res://UI/AbilityHexDisplayUI.tscn" id="2_hex_display"]
+[ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="3_slash"]
+[ext_resource type="PackedScene" path="res://UI/AbilityDirectionEdgesUI.tscn" id="4_direction_edges"]
+
+[node name="AbilitySequenceItemUI" type="Control"]
+custom_minimum_size = Vector2(144, 92)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 144.0
+offset_bottom = 92.0
+mouse_default_cursor_shape = 6
+script = ExtResource("1_item_script")
+
+[node name="AbilityHexDisplayUI" parent="." instance=ExtResource("2_hex_display")]
+position = Vector2(52, 46)
+scale = Vector2(0.72, 0.72)
+ability = ExtResource("3_slash")
+
+[node name="DirectionEdges" parent="AbilityHexDisplayUI" instance=ExtResource("4_direction_edges")]
+unique_name_in_owner = true
+use_inner_green = true

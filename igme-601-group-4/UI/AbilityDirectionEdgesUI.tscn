@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://UI/ability_direction_edges_ui.gd" id="1_edges_script"]
+[ext_resource type="PackedScene" path="res://UI/DirectionSignUI.tscn" id="2_direction_sign"]
+
+[node name="AbilityDirectionEdgesUI" type="Node2D"]
+script = ExtResource("1_edges_script")
+
+[node name="Direction0" parent="." instance=ExtResource("2_direction_sign")]
+unique_name_in_owner = true
+position = Vector2(55.1724, 0)
+rotation = 1.0472
+scale = Vector2(0.358621, 0.358621)
+
+[node name="Direction1" parent="." instance=ExtResource("2_direction_sign")]
+unique_name_in_owner = true
+position = Vector2(27.5862, 47.5862)
+rotation = 2.0944
+scale = Vector2(0.358621, 0.358621)
+
+[node name="Direction2" parent="." instance=ExtResource("2_direction_sign")]
+unique_name_in_owner = true
+position = Vector2(-27.5862, 47.5862)
+rotation = 3.14159
+scale = Vector2(0.358621, 0.358621)
+
+[node name="Direction3" parent="." instance=ExtResource("2_direction_sign")]
+unique_name_in_owner = true
+position = Vector2(-55.1724, 0)
+rotation = -2.0944
+scale = Vector2(0.358621, 0.358621)
+
+[node name="Direction4" parent="." instance=ExtResource("2_direction_sign")]
+unique_name_in_owner = true
+position = Vector2(-27.5862, -47.5862)
+rotation = -1.0472
+scale = Vector2(0.358621, 0.358621)
+
+[node name="Direction5" parent="." instance=ExtResource("2_direction_sign")]
+unique_name_in_owner = true
+position = Vector2(27.5862, -47.5862)
+scale = Vector2(0.358621, 0.358621)

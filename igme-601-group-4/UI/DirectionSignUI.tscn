@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://UI/direction_sign_ui.gd" id="1_sign_script"]
+[ext_resource type="Texture2D" uid="uid://bwp4vqdo3vv8i" path="res://Arts/Textures/AbilityIndicator_GreenSign.png" id="2_green"]
+[ext_resource type="Texture2D" uid="uid://dmscb2bod2byc" path="res://Arts/Textures/AbilityIndicator_RedSign.png" id="3_red"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_green"]
+atlas = ExtResource("2_green")
+region = Rect2(231, 29, 220, 165)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_red"]
+atlas = ExtResource("3_red")
+region = Rect2(231, 29, 220, 165)
+
+[node name="DirectionSignUI" type="Node2D"]
+script = ExtResource("1_sign_script")
+
+[node name="GreenSign" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0)
+position = Vector2(-3.27, 6.3)
+texture = SubResource("AtlasTexture_green")
+
+[node name="RedSign" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0)
+position = Vector2(-3.27, 6.3)
+texture = SubResource("AtlasTexture_red")

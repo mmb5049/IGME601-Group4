@@ -1,0 +1,13 @@
+---
+description: Collaboration and implementation standards for the Godot project
+alwaysApply: true
+---
+
+# Project Collaboration Standards
+
+- Do not create explanatory, diagnostic, tutorial, or placeholder UI when implementing a feature unless the user explicitly requests that UI.
+- Keep code approachable for teammates who write and maintain it manually.
+- Add concise comments around non-obvious algorithms, state transitions, engine behavior, coordinate conversions, and other logic that may be difficult to understand.
+- Prefer comments that explain intent and reasoning. Do not narrate self-explanatory statements or overwhelm simple code with comments.
+- Use English for all repository content, including code, identifiers, comments, UI text, documentation, resource names, commit-related text, and generated assets.
+- Do not add Chinese text to project files.

@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://bsr4glpyi0627"]
+
+[ext_resource type="Script" uid="uid://suaak8c2ruat" path="res://UI/ability_slot_ui.gd" id="1_slot_script"]
+[ext_resource type="PackedScene" path="res://UI/AbilityHexDisplayUI.tscn" id="2_hex_display"]
+[ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="3_slash"]
+
+[node name="AbilitySlotUI" type="Control" unique_id=217648308]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 128.0
+offset_bottom = 128.0
+mouse_default_cursor_shape = 2
+script = ExtResource("1_slot_script")
+ability = ExtResource("3_slash")
+
+[node name="AbilityHexDisplayUI" parent="." unique_id=116455222 instance=ExtResource("2_hex_display")]
+position = Vector2(64, 64)

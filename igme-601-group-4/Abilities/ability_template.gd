@@ -3,6 +3,8 @@ class_name Ability
 
 @export_category("Basic Information")
 @export var ability_name: String = ""
+## Icon displayed by Ability UI components.
+@export var icon: Texture2D
 
 @export_category("Ability Properties")
 @export var type: Global.AbilityType = Global.AbilityType.ATTACK

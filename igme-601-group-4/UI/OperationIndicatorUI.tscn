@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://de63b0j3p4me7"]
+
+[ext_resource type="Script" uid="uid://c0q8ev26xekh7" path="res://UI/operation_indicator_ui.gd" id="1_indicator_script"]
+[ext_resource type="PackedScene" path="res://UI/AbilityHexDisplayUI.tscn" id="2_hex_display"]
+[ext_resource type="PackedScene" path="res://UI/AbilityDirectionEdgesUI.tscn" id="3_direction_edges"]
+
+[node name="OperationIndicatorUI" type="Control" unique_id=307373247]
+z_index = 20
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -264.0
+offset_right = 264.0
+offset_bottom = -24.0
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("1_indicator_script")
+
+[node name="IndicatorRoot" type="Control" parent="." unique_id=1620733984]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AbilityDisplay" parent="IndicatorRoot" unique_id=655522084 instance=ExtResource("2_hex_display")]
+unique_name_in_owner = true
+position = Vector2(120, 120)
+scale = Vector2(1.45, 1.45)
+
+[node name="DirectionEdges" parent="IndicatorRoot/AbilityDisplay" instance=ExtResource("3_direction_edges")]
+unique_name_in_owner = true
