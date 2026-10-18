@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://4umsbgvqtyhm"]
+
+[ext_resource type="Script" uid="uid://cinfm1iumn1vu" path="res://UI/action_dock_ui.gd" id="1_dock_script"]
+[ext_resource type="PackedScene" uid="uid://drtk1xni6vwqd" path="res://UI/ExecuteButtonUI.tscn" id="2_execute_button"]
+[ext_resource type="PackedScene" path="res://UI/OperationIndicatorUI.tscn" id="3_indicator"]
+
+[node name="ActionDockUI" type="Control" unique_id=817294627]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_dock_script")
+
+[node name="ExecuteButtonUI" parent="." unique_id=573216314 instance=ExtResource("2_execute_button")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="OperationIndicatorUI" parent="." unique_id=175658152 instance=ExtResource("3_indicator")]
+unique_name_in_owner = true
+visible = true
+layout_mode = 1
+
+[node name="TransitionLayer" type="Node2D" parent="." unique_id=1277719955]
+unique_name_in_owner = true
+z_index = 100

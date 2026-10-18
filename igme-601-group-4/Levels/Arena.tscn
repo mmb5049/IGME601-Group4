@@ -7,6 +7,12 @@
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="5_dsr05"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="6_k3an4"]
 [ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="7_ifjt6"]
+[ext_resource type="PackedScene" path="res://UI/AbilityBarUI.tscn" id="8_ability_bar"]
+[ext_resource type="Resource" uid="uid://bd8u5js5idheq" path="res://Abilities/Wait.tres" id="9_4yh7d"]
+[ext_resource type="PackedScene" path="res://UI/AbilitySequenceUI.tscn" id="10_ability_sequence"]
+[ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="11_action_dock"]
+[ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="12_ui_sway"]
+[ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="13_action_executor"]
 
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
@@ -25,3 +31,52 @@ transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41
 abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6")])
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
+
+[node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("12_ui_sway")
+maximum_sway_pixels = Vector2(12, 8)
+
+[node name="SwayLayer" type="Control" parent="GlobalUIRoot" unique_id=368694180]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("8_ability_bar")]
+layout_mode = 1
+abilities = Array[ExtResource("4_kn3ki")]([ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("9_4yh7d"), ExtResource("5_8ml7l"), null, null, null, null, null])
+rotation_step_degrees = 3.0
+breathing_amplitude_pixels = 2.0
+breathing_speed_hz = 0.25
+hover_lift_pixels = 26.0
+
+[node name="AbilitySequenceUI" parent="GlobalUIRoot/SwayLayer" unique_id=1775434780 instance=ExtResource("10_ability_sequence")]
+layout_mode = 1
+
+[node name="ActionDockUI" parent="GlobalUIRoot/SwayLayer" unique_id=1286708918 instance=ExtResource("11_action_dock")]
+layout_mode = 1
+
+[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue", "player_ability_bar", "execute_button")]
+script = ExtResource("13_action_executor")
+player_actor = NodePath("../Player")
+player_queue = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
+between_actions_delay = 0.45
+
+[connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
+[connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
+[connection signal="targeting_ended" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="end_targeting"]
+[connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
+[connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]

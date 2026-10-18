@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="Ability" format=3 uid="uid://cqkngmj77qk5w"]
 
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="1_a6bg3"]
+[ext_resource type="Texture2D" uid="uid://dad2hal1ub8ml" path="res://Arts/Textures/Move.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_a6bg3")
 ability_name = "Move"
+icon = ExtResource("2_icon")
 type = 0
-range = 3
-targeting_type = 3
+range = 1
+targeting_type = 1
 metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"

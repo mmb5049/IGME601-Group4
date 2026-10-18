@@ -1,0 +1,54 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Shader" uid="uid://s8vnyjhd8qdn" path="res://Materials/Shaders/hex_ui_mask.gdshader" id="1_mask_shader"]
+[ext_resource type="Texture2D" uid="uid://5j07m71nm74a" path="res://Arts/Textures/HexShaderTexture.png" id="2_hex_mask"]
+[ext_resource type="Texture2D" uid="uid://dl63bux8kddhv" path="res://Arts/Textures/Slash.png" id="3_preview_icon"]
+[ext_resource type="Script" path="res://UI/ability_hex_display_ui.gd" id="4_display_script"]
+[ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="5_slash"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hex_mask"]
+resource_local_to_scene = true
+shader = ExtResource("1_mask_shader")
+
+[node name="AbilityHexDisplayUI" type="Node2D"]
+script = ExtResource("4_display_script")
+ability = ExtResource("5_slash")
+
+[node name="VisualContent" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 2
+
+[node name="HexFrame" type="TextureRect" parent="VisualContent"]
+self_modulate = Color(0.2346074, 0.5845947, 1, 0.6784314)
+material = SubResource("ShaderMaterial_hex_mask")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_hex_mask")
+expand_mode = 1
+
+[node name="AbilityIcon" type="TextureRect" parent="VisualContent"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_hex_mask")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = -7.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_preview_icon")
+expand_mode = 1
