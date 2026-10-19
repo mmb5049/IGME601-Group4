@@ -5,6 +5,8 @@ class_name Enemy
 @export var movement:CharacterMovement
 var health:int = 10
 
+signal died()
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
@@ -17,4 +19,5 @@ func damage(amount:int):
 
 func die():
 	HexGrid.set_occupied(movement.current_cell, false)
+	died.emit()
 	queue_free()
