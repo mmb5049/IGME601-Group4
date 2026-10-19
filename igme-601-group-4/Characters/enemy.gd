@@ -3,6 +3,9 @@ extends Node3D
 class_name Enemy
 
 @export var movement:CharacterMovement
+@onready var mesh:MeshInstance3D = $MeshInstance3D
+var number_display = preload("res://Misc/number_display.tscn")
+
 var health:int = 10
 
 signal died()
@@ -14,6 +17,15 @@ func _ready() -> void:
 func damage(amount:int):
 	health -= amount
 	print("Enemy health is now: " + str(health))
+	
+	var new_display:Node3D = number_display.instantiate()
+	get_parent().add_child(new_display)
+	
+	new_display.global_position = global_position + Vector3(0, 1.1, 0)
+	new_display.set_number(-amount)
+
+	mesh.flash()
+	
 	if health <= 0:
 		die()
 

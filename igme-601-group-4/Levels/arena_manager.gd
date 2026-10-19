@@ -8,7 +8,7 @@ var total_enemies:int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	spawn_enemy(Vector2i(2,1))
+	spawn_enemy(Vector2i(1,1))
 	spawn_enemy(Vector2i(3,-1))
 	spawn_enemy(Vector2i(-2,-2))
 	spawn_enemy(Vector2i(-4,3))
