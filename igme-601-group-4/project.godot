@@ -10,10 +10,11 @@ config_version=5
 
 [application]
 
-config/name="IGME601-Group4"
+config/name="Combo Core"
+config/version="0.1"
 run/main_scene="uid://b0576k1jo61m6"
 config/features=PackedStringArray("4.7", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="uid://c48om3bkqudc4"
 
 [autoload]
 
