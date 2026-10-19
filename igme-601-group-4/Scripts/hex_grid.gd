@@ -29,6 +29,7 @@ const DIRECTIONS = [
 ]
 
 func _ready():
+	hex_height = hex_mesh.height
 	generate_grid()
 
 func generate_grid():

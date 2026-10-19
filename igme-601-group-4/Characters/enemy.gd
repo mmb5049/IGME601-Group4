@@ -18,20 +18,3 @@ func damage(amount:int):
 func die():
 	HexGrid.set_occupied(movement.current_cell, false)
 	queue_free()
-
-func set_grid_pos(new_hex:Vector2i) -> bool:
-	# check if hex is valid
-	if  HexGrid.is_valid_cell(new_hex) and HexGrid.is_occupied(new_hex):
-		print("Hex Occupied")
-		return false
-	
-	# clear old hex
-	if movement.current_cell:
-		HexGrid.set_occupied(movement.current_cell, false)
-	
-	# occupy new hex
-	movement.current_cell = new_hex
-	movement.target_cell = new_hex
-	HexGrid.set_occupied(movement.current_cell, self)
-	position = HexGrid.hex_to_world(movement.current_cell) + Vector3(0,1,0)
-	return true

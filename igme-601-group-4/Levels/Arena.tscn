@@ -21,7 +21,7 @@ script = ExtResource("1_5o1c7")
 script = ExtResource("2_f8rhi")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
-transform = Transform3D(1, 0, 0, 0, 0.6432073, 0.7656921, 0, -0.7656921, 0.6432073, 0, 7.695714, 7.499794)
+transform = Transform3D(1, 0, 0, 0, 0.6967433, 0.7173206, 0, -0.7173206, 0.6967433, 0, 6.956389, 9.274121)
 size = 6.607
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]

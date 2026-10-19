@@ -14,5 +14,5 @@ func _ready() -> void:
 func spawn_enemy(pos:Vector2i):
 	var new_enemy:Enemy = enemyScene.instantiate()
 	enemyParent.add_child(new_enemy)
-	new_enemy.set_grid_pos(pos)
+	new_enemy.movement.set_pos(pos)
 	enemies.push_back(new_enemy)

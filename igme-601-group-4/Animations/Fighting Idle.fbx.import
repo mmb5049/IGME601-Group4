@@ -45,7 +45,7 @@ _subresources={
 "save_to_file/enabled": true,
 "save_to_file/fallback_path": "res://Animations/Player/FightingIdle.res",
 "save_to_file/keep_custom_tracks": "",
-"save_to_file/path": "uid://6gi2dbxqcr28",
+"save_to_file/path": "uid://lw8jf78su53e",
 "settings/loop_mode": 0,
 "slice_1/end_frame": 0,
 "slice_1/loop_mode": 0,

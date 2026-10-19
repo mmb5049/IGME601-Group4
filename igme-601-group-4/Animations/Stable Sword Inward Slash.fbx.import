@@ -43,7 +43,7 @@ _subresources={
 "animations": {
 "mixamo_com": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://Animations/Player/FightingIdle.res",
+"save_to_file/fallback_path": "res://Animations/Player/Slash.res",
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "uid://6gi2dbxqcr28",
 "settings/loop_mode": 0,

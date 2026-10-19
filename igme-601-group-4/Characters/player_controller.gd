@@ -13,6 +13,7 @@ const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 
 @onready var camera: Camera3D = get_viewport().get_camera_3d()
 @export var movement: CharacterMovement
+@export var animationManager:AnimationManager
 
 @export_category("Abilities")
 @export var abilities: Array[Ability] = []
@@ -33,11 +34,9 @@ var current_mode: PlayerMode = PlayerMode.NONE
 
 
 func _ready() -> void:
-	var spawn_position: Vector3 = HexGrid.hex_to_world(movement.current_cell)
-	spawn_position.y = HexGrid.hex_height / 2.0 + 1.0
-	global_position = HexGrid.to_global(spawn_position)
-	HexGrid.set_occupied(movement.current_cell, true)
 	cursor_position = get_viewport().get_mouse_position()
+	if animationManager:
+		animationManager.play_animation(animationManager.idle_animation)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -81,13 +80,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		if current_mode == PlayerMode.TARGETING:
 			_update_targeting_preview()
 
-
 func get_ability(ability_name: String) -> Ability:
 	for ability in abilities:
 		if ability.ability_name == ability_name:
 			return ability
 	return null
-
 
 ## Entry point for AbilityBar selections. Targeted abilities enter TARGETING;
 ## NONE abilities can be confirmed and queued immediately.
@@ -112,7 +109,6 @@ func request_ability(ability: Ability) -> void:
 	targeting_started.emit(ability)
 	_update_targeting_preview()
 
-
 func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
 		return
@@ -121,7 +117,6 @@ func cancel_targeting() -> void:
 	selected_ability = null
 	current_mode = PlayerMode.NONE
 	targeting_ended.emit()
-
 
 func _confirm_current_target() -> void:
 	if selected_ability == null:
@@ -137,7 +132,6 @@ func _confirm_current_target() -> void:
 	current_mode = PlayerMode.NONE
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
-
 
 ## Reuses one evaluation result for grid highlighting, indicator feedback, and
 ## final confirmation so all three always agree about target legality.
@@ -182,12 +176,10 @@ func _update_targeting_preview() -> void:
 
 	target_preview_changed.emit(target)
 
-
 func _get_highlight_material(ability: Ability) -> ShaderMaterial:
 	if ability.type == Global.AbilityType.MOVEMENT:
 		return HexGrid.material_move
 	return HexGrid.material_attack
-
 
 ## Produces a typed target without changing UI or grid state.
 func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget:
@@ -253,7 +245,6 @@ func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget
 
 	return result
 
-
 ## Called by the action-phase queue executor. Movement branches suspend until
 ## CharacterMovement reports completion, giving the controller one consistent
 ## awaitable API for both asynchronous movement and immediate attacks.
@@ -263,6 +254,14 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 	current_mode = PlayerMode.ACTING
 	var succeeded: bool = true
+	
+	# play animation
+	var has_animation:bool = false
+	if animationManager:
+		has_animation = animationManager.has_animation(ability.animation)
+		if has_animation:
+			animationManager.play_animation(ability.animation)
+	
 	match ability.type:
 		Global.AbilityType.MOVEMENT:
 			var destination: Vector2i = target.target_cell
@@ -285,10 +284,19 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 					await movement.done_moving
 
 		Global.AbilityType.ATTACK:
-			var target_cell: Vector2i = target.target_cell
-			if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
-				(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
-
+			# Lambda function that damages the enemy
+			var attack = func(_action_num):
+				var target_cell: Vector2i = target.target_cell
+				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
+					(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
+			# if there is an animation, wait for it to finish and only call attack
+			# when it lines up with the animation
+			if has_animation:
+				animationManager.take_action.connect(attack)
+				await animationManager.animationPlayer.animation_finished
+				animationManager.take_action.disconnect(attack)
+			else:
+				attack.call(0)
 		_:
 			# Wait and not-yet-specialized Ability types still consume one
 			# queue step. Their gameplay effects can be added here later.
@@ -297,7 +305,6 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 	_finish_queued_ability()
 	return succeeded
 
-
 func execute_queued_ability(entry: QueuedAbility) -> bool:
 	if entry == null or entry.ability == null or entry.target == null:
 		return false
@@ -305,12 +312,10 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 	# until execute_ability() has received CharacterMovement.done_moving.
 	return await execute_ability(entry.ability, entry.target)
 
-
 ## The sequence-level lock prevents planning input between two abilities. The
 ## current mode therefore remains ACTING until the controller ends the plan.
 func _finish_queued_ability() -> void:
 	current_mode = PlayerMode.ACTING if _action_sequence_active else PlayerMode.NONE
-
 
 func begin_action_sequence() -> void:
 	_action_sequence_active = true
@@ -318,11 +323,11 @@ func begin_action_sequence() -> void:
 	HexGrid.clear_highlights()
 	selected_ability = null
 
-
 func end_action_sequence() -> void:
 	_action_sequence_active = false
 	current_mode = PlayerMode.NONE
-
+	if animationManager:
+		animationManager.play_animation(animationManager.idle_animation)
 
 func get_clicked_pos(mouse_position: Vector2) -> Vector3:
 	var ray_origin: Vector3 = camera.project_ray_origin(mouse_position)
@@ -335,7 +340,6 @@ func get_clicked_pos(mouse_position: Vector2) -> Vector3:
 	if distance < 0.0:
 		return INVALID_WORLD_POSITION
 	return ray_origin + ray_direction * distance
-
 
 func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 	var hit_position: Vector3 = get_clicked_pos(mouse_position)

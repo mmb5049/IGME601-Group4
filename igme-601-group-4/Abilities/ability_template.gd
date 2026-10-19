@@ -13,6 +13,9 @@ class_name Ability
 @export var range: int = 0
 @export var damage: int = 0
 
+@export_category("Animation")
+@export var animation:Animation
+
 @export_category("Targeting")
 @export var targeting_type: Global.TargetingType = Global.TargetingType.NONE
 
