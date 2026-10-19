@@ -166,7 +166,8 @@ func _update_targeting_preview() -> void:
 				cells.append_array(HexGrid.get_ring(movement.current_cell, radius))
 			HexGrid.highlight_cells(highlight_material, cells)
 			if target.is_valid:
-				HexGrid.create_highlight(HexGrid.material_select, target.target_cell)
+				HexGrid.create_highlight(HexGrid.material_select,
+					target.target_cell + movement.current_cell)
 
 		Global.TargetingType.SHAPE:
 			pass
@@ -230,14 +231,17 @@ func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget
 
 		Global.TargetingType.SINGLE_TILE:
 			result.target_cell = clicked_cell
+			# checks if cell is in range of player
 			result.is_valid = (
 				HexGrid.hex_distance(clicked_cell, movement.current_cell) <= ability.range
 			)
+			# can't move onto current position
 			if result.is_valid and ability.type == Global.AbilityType.MOVEMENT:
 				result.is_valid = (
 					clicked_cell != movement.current_cell
-					and not HexGrid.is_occupied(clicked_cell)
 				)
+			# make target relative to player position
+			result.target_cell -= movement.current_cell
 
 		Global.TargetingType.SHAPE:
 			# Shape placement will use the same AbilityTarget object when implemented.
@@ -265,6 +269,8 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 	match ability.type:
 		Global.AbilityType.MOVEMENT:
 			var destination: Vector2i = target.target_cell
+			
+			# set target for direction types
 			if ability.targeting_type == Global.TargetingType.DIRECTION:
 				if target.direction == Vector2i.ZERO:
 					_finish_queued_ability()
@@ -272,8 +278,11 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 				destination = HexGrid.raycast(
 					movement.current_cell,
 					target.direction,
-					ability.range
+					ability.range,
+					true
 				)
+				
+			# make sure the cell is not the current one of off the grid
 			if destination == movement.current_cell or not HexGrid.is_valid_cell(destination):
 				succeeded = false
 			else:
@@ -286,7 +295,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 		Global.AbilityType.ATTACK:
 			# Lambda function that damages the enemy
 			var attack = func(_action_num):
-				var target_cell: Vector2i = target.target_cell
+				var target_cell: Vector2i = target.target_cell + movement.current_cell
 				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
 					(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
 			# if there is an animation, wait for it to finish and only call attack
