@@ -8,6 +8,8 @@ signal target_preview_changed(target: AbilityTarget)
 signal targeting_ended
 signal ability_confirmed(ability: Ability, target: AbilityTarget)
 
+var number_display = preload("res://Misc/number_display.tscn")
+
 const INVALID_CELL := Vector2i(2147483647, 2147483647)
 const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 
@@ -298,6 +300,12 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 				var target_cell: Vector2i = target.target_cell + movement.current_cell
 				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
 					(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
+				else:
+					var new_display:Node3D = number_display.instantiate()
+					get_parent().add_child(new_display)
+					
+					new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
+					new_display.set_number(0)
 			# if there is an animation, wait for it to finish and only call attack
 			# when it lines up with the animation
 			if has_animation:
