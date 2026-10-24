@@ -1,0 +1,123 @@
+[gd_scene format=3 uid="uid://bif4qnecxdnq5"]
+
+[ext_resource type="Script" uid="uid://du1lo0tn7ja7s" path="res://Misc/number_display.gd" id="1_xu5cc"]
+
+[sub_resource type="Animation" id="Animation_xu5cc"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Label3D:position:y")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Label3D:scale:x")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(2, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Label3D:scale:y")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(2, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Label3D:scale:z")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(2, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="Animation" id="Animation_cbsxk"]
+resource_name = "Rise"
+length = 1.2
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Label3D:position:y")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(2, 2),
+"points": PackedFloat32Array(0, 0, 0, 0.13333334, 1.0870234, 1.1628182, -0.26666665, -0.014036298, 0, 0),
+"times": PackedFloat32Array(0, 1.2)
+}
+tracks/1/type = "scale_3d"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Label3D")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = PackedFloat32Array()
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Label3D:scale:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(1, -0.25, 0, 0, 1.0470915, 2, -0.3, -0.028703332, 0, 0, 0.005, -0.03333342, 2.1664474, 0, 0),
+"times": PackedFloat32Array(0, 1, 1.2)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Label3D:scale:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(1, -0.25, 0, 0, 0.99656165, 2, -0.39999998, -0.016070843, 0, 0, 0.005, -0.03333342, 2.2089622, 0, 0),
+"times": PackedFloat32Array(0, 1, 1.2)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Label3D:scale:z")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(1, -0.25, 0, 0, 0.98392916, 2, -0.43333334, -0.016070843, 0, 0, 0.005, -0.03333342, 2.1877048, 0, 0),
+"times": PackedFloat32Array(0, 1, 1.2)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_f7rco"]
+_data = {
+&"RESET": SubResource("Animation_xu5cc"),
+&"Rise": SubResource("Animation_cbsxk")
+}
+
+[node name="NumberDisplay" type="Node3D" unique_id=1680829570]
+script = ExtResource("1_xu5cc")
+
+[node name="Label3D" type="Label3D" parent="." unique_id=2129484214]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+pixel_size = 0.01
+text = "-123"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=998804468]
+libraries/ = SubResource("AnimationLibrary_f7rco")
+autoplay = &"Rise"

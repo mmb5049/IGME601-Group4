@@ -29,6 +29,7 @@ const DIRECTIONS = [
 ]
 
 func _ready():
+	hex_height = hex_mesh.height
 	generate_grid()
 
 func generate_grid():
@@ -130,11 +131,11 @@ func set_occupied(coord: Vector2i, value):
 func is_valid_cell(coord: Vector2i) -> bool:
 	return valid_cells.has(coord)
 
-func raycast(start:Vector2i,direction:Vector2i,length:int) -> Vector2i:
+func raycast(start:Vector2i,direction:Vector2i,length:int, track_occupied:bool = false) -> Vector2i:
 	var cell
 	for i in range(1,length+1):
 		cell = start + direction*i
-		if not is_valid_cell(cell) or is_occupied(cell):
+		if not is_valid_cell(cell) or (track_occupied and is_occupied(cell)):
 			cell = start + direction*(i-1)
 			break
 	return cell

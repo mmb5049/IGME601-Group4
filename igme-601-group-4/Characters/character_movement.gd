@@ -5,15 +5,20 @@ class_name CharacterMovement
 @export var character:Node3D
 @export var move_speed:float = 20
 
-var current_cell:Vector2i = Vector2i.ZERO
+var spawn_position:Vector2i = Vector2i.ZERO
+var current_cell:Vector2i
 var target_cell:Vector2i
 var path:Array[Vector2i]
+
+var floorHeight:float 
 
 signal done_moving(sender:Signal)
 var is_moving:bool
 
 func _ready():
 	target_cell = current_cell
+	floorHeight = HexGrid.hex_height
+	set_pos(spawn_position)
 
 func _physics_process(delta):
 	if(target_cell != current_cell):
@@ -52,7 +57,7 @@ func move_to(cell:Vector2i, delta) -> bool:
 	var target_position = HexGrid.to_global(HexGrid.hex_to_world(cell))
 	
 	# Adjust target height
-	target_position.y = HexGrid.hex_height / 2.0 + 0.5
+	target_position.y = floorHeight
 	
 	# Set speed
 	var current_speed = move_speed
@@ -67,10 +72,26 @@ func move_to(cell:Vector2i, delta) -> bool:
 	if character.global_position.distance_to(target_position) < 0.01:
 		# Update occupancy
 		HexGrid.set_occupied(current_cell, false)
-		HexGrid.set_occupied(target_cell, true)
+		HexGrid.set_occupied(target_cell, character)
 		
 		# Snap position
 		character.global_position = target_position
 		current_cell = target_cell
 		return true
 	return false
+
+func set_pos(cell:Vector2i):
+	var target_position = HexGrid.to_global(HexGrid.hex_to_world(cell))
+	
+	# Adjust target height
+	target_position.y = floorHeight
+	
+	# Update occupancy
+	if current_cell:
+		HexGrid.set_occupied(current_cell, false)
+	HexGrid.set_occupied(cell, character)
+		
+	# Snap position
+	character.global_position = target_position
+	current_cell = cell
+	target_cell = current_cell

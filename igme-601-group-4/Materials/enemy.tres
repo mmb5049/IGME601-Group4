@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://b44yqc3msjja6"]
+
+[ext_resource type="Shader" uid="uid://we3ydrf2dway" path="res://Materials/Shaders/enemy.gdshader" id="1_wv013"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_wv013")
+shader_parameter/color = Vector3(0, 0, 0)

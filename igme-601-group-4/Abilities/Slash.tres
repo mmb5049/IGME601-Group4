@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="Ability" format=3 uid="uid://c67pwnn5oxebi"]
 
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="1_8nbmr"]
+[ext_resource type="Animation" uid="uid://6gi2dbxqcr28" path="res://Animations/Player/Slash.res" id="1_b255d"]
 [ext_resource type="Texture2D" uid="uid://dl63bux8kddhv" path="res://Arts/Textures/Slash.png" id="2_icon"]
 
 [resource]
@@ -9,5 +10,6 @@ ability_name = "Slash"
 icon = ExtResource("2_icon")
 range = 2
 damage = 5
+animation = ExtResource("1_b255d")
 targeting_type = 3
 metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"
