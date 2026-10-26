@@ -256,11 +256,12 @@ func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget
 ## awaitable API for both asynchronous movement and immediate attacks.
 func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 	if ability == null or target == null or not target.is_valid:
+		print("null")
 		return false
 
 	current_mode = PlayerMode.ACTING
 	var succeeded: bool = true
-	
+	print("start acting")
 	# play animation
 	var has_animation:bool = false
 	if animationManager:
@@ -270,6 +271,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 	
 	match ability.type:
 		Global.AbilityType.MOVEMENT:
+			print("in movement")
 			var destination: Vector2i = target.target_cell
 			
 			# set target for direction types
@@ -296,6 +298,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 		Global.AbilityType.ATTACK:
 			# Lambda function that damages the enemy
+			print("in attack")
 			var attack = func(_action_num):
 				var target_cell: Vector2i = target.target_cell + movement.current_cell
 				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
