@@ -12,6 +12,7 @@ var highlighted_cells: Dictionary = {}
 
 var hex_mesh := preload("res://Meshes/cell.tres")
 
+
 # Materials
 var material_base := preload("res://Materials/hex_base.tres")
 var material_attack := preload("res://Materials/hex_glow_attack.tres")
@@ -27,6 +28,13 @@ const DIRECTIONS = [
 	Vector2i(1, -1)
 	
 ]
+
+
+
+var traps: Dictionary = {}
+
+var trap_scene: PackedScene = preload("res://Abilities/Trap.tscn")
+
 
 func _ready():
 	hex_height = hex_mesh.height
@@ -237,3 +245,38 @@ func highlight_line(material:ShaderMaterial,start_cell:Vector2i, direction:Vecto
 	# Apply highlight to all cells in path
 	for cell in path:
 		create_highlight(material, cell)
+
+
+func place_trap(
+	coord: Vector2i,
+	trap_damage: int
+) -> bool:
+	if not is_valid_cell(coord):
+		return false
+
+	# Only one trap can occupy a tile.
+	if traps.has(coord):
+		return false
+
+	var new_trap: Trap = trap_scene.instantiate()
+	new_trap.setup(self, coord, trap_damage)
+
+	add_child(new_trap)
+	new_trap.global_position = to_global(hex_to_world(coord))
+
+	traps[coord] = new_trap
+	return true
+
+
+func trigger_trap(
+	coord: Vector2i,
+	target: Node
+) -> void:
+	if not traps.has(coord):
+		return
+
+	var trap: Trap = traps[coord]
+	if is_instance_valid(trap):
+		trap.trigger(target)
+	else:
+		traps.erase(coord)

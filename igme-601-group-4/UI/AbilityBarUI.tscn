@@ -1,13 +1,14 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://bkw5j0bx88rjt"]
 
-[ext_resource type="Script" path="res://UI/ability_bar_ui.gd" id="1_bar_script"]
+[ext_resource type="Script" uid="uid://cuabg5fkrmcv7" path="res://UI/ability_bar_ui.gd" id="1_bar_script"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="2_ability_type"]
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="3_dash"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="4_move"]
 [ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="5_slash"]
 [ext_resource type="Resource" uid="uid://bd8u5js5idheq" path="res://Abilities/Wait.tres" id="6_wait"]
+[ext_resource type="Resource" uid="uid://ws7vkafabric" path="res://Abilities/Trap.tres" id="7_i5ni0"]
 
-[node name="AbilityBarUI" type="Control"]
+[node name="AbilityBarUI" type="Control" unique_id=880316113]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -16,9 +17,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_bar_script")
-abilities = Array[ExtResource("2_ability_type")]([ExtResource("3_dash"), ExtResource("4_move"), ExtResource("5_slash"), ExtResource("6_wait"), null, null])
+abilities = Array[ExtResource("2_ability_type")]([ExtResource("3_dash"), ExtResource("4_move"), ExtResource("5_slash"), ExtResource("6_wait"), ExtResource("7_i5ni0"), null])
 
-[node name="BottomMargin" type="MarginContainer" parent="."]
+[node name="BottomMargin" type="MarginContainer" parent="." unique_id=1386646230]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,16 +29,16 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/margin_bottom = 24
 
-[node name="BottomAlign" type="VBoxContainer" parent="BottomMargin"]
+[node name="BottomAlign" type="VBoxContainer" parent="BottomMargin" unique_id=204819566]
 layout_mode = 2
 mouse_filter = 2
 alignment = 2
 
-[node name="CenterAlign" type="CenterContainer" parent="BottomMargin/BottomAlign"]
+[node name="CenterAlign" type="CenterContainer" parent="BottomMargin/BottomAlign" unique_id=1722244935]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="SlotContainer" type="HBoxContainer" parent="BottomMargin/BottomAlign/CenterAlign"]
+[node name="SlotContainer" type="HBoxContainer" parent="BottomMargin/BottomAlign/CenterAlign" unique_id=453583660]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = -8
