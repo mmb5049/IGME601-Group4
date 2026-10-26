@@ -2,10 +2,15 @@
 
 [ext_resource type="Script" uid="uid://ddjsa312q8ow1" path="res://Abilities/Trap.gd" id="1_glptj"]
 
-[sub_resource type="PrismMesh" id="PrismMesh_42q7o"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d75p2"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_famn7"]
 
 [node name="Node3D" type="Node3D" unique_id=1277944250]
 script = ExtResource("1_glptj")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=842572600]
-mesh = SubResource("PrismMesh_42q7o")
+transform = Transform3D(1, 0, 0, 0, 0.187, 0, 0, 0, 1, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_d75p2")
+mesh = SubResource("CylinderMesh_famn7")
