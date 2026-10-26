@@ -70,5 +70,3 @@ func get_display_global_position() -> Vector2:
 
 func get_display_global_scale() -> Vector2:
 	return _ability_display.global_scale
-
-
