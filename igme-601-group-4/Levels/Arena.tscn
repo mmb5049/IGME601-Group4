@@ -15,6 +15,7 @@
 [ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="12_ui_sway"]
 [ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="13_action_executor"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
+[ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HealthBar.tscn" id="16_famn7"]
 
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
@@ -29,8 +30,8 @@ size = 6.607
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
 
-[node name="Player" parent="." unique_id=372403699 instance=ExtResource("5_dsr05")]
-abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4")])
+[node name="Player" parent="." unique_id=372403699 groups=["player"] instance=ExtResource("5_dsr05")]
+abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d")])
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
@@ -80,8 +81,12 @@ player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
 execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
 between_actions_delay = 0.45
 
+[node name="HealthBar" parent="." unique_id=1543784001 instance=ExtResource("16_famn7")]
+
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
 [connection signal="targeting_ended" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="end_targeting"]
 [connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
+
+[editable path="Player"]
