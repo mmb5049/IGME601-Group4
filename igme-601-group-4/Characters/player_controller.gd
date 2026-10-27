@@ -63,6 +63,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				request_ability(get_ability("Dash"))
 			KEY_S:
 				request_ability(get_ability("Slash"))
+			KEY_T:
+				request_ability(get_ability("Trap"))
 
 	elif event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event as InputEventMouseButton
@@ -84,6 +86,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func get_ability(ability_name: String) -> Ability:
 	for ability in abilities:
+		print(ability.ability_name)
 		if ability.ability_name == ability_name:
 			return ability
 	return null
@@ -92,6 +95,9 @@ func get_ability(ability_name: String) -> Ability:
 ## NONE abilities can be confirmed and queued immediately.
 func request_ability(ability: Ability) -> void:
 	if ability == null or current_mode == PlayerMode.ACTING or _action_sequence_active:
+		print("ability: ", ability)
+		print("current mode: ", current_mode)
+		print("request fail")
 		return
 
 	HexGrid.clear_highlights()
@@ -317,11 +323,27 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 				animationManager.take_action.disconnect(attack)
 			else:
 				attack.call(0)
-		_:
+				
+		Global.AbilityType.TRAP:
+			var trap_cell: Vector2i = (
+				target.target_cell + movement.current_cell
+			)
+
+			if not HexGrid.is_valid_cell(trap_cell):
+				succeeded = false
+			elif HexGrid.traps.has(trap_cell):
+				# Do not overwrite an existing trap.
+				succeeded = false
+			else:
+				succeeded = HexGrid.place_trap(
+					trap_cell,
+					ability.damage
+				)
 			# Wait and not-yet-specialized Ability types still consume one
 			# queue step. Their gameplay effects can be added here later.
 			pass
-
+		
+		
 	_finish_queued_ability()
 	return succeeded
 

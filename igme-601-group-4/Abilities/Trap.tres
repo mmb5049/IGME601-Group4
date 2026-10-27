@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Ability" format=3 uid="uid://ws7vkafabric"]
+
+[ext_resource type="Texture2D" uid="uid://p0c5m4h4bhsn" path="res://Arts/Textures/Trap.png" id="1_0gavt"]
+[ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="1_d7r1p"]
+
+[resource]
+script = ExtResource("1_d7r1p")
+ability_name = "Trap"
+icon = ExtResource("1_0gavt")
+type = 2
+range = 4
+damage = 7
+targeting_type = 3
+metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"

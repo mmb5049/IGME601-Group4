@@ -73,10 +73,10 @@ func move_to(cell:Vector2i, delta) -> bool:
 		# Update occupancy
 		HexGrid.set_occupied(current_cell, false)
 		HexGrid.set_occupied(target_cell, character)
-		
 		# Snap position
 		character.global_position = target_position
 		current_cell = target_cell
+		HexGrid.trigger_trap(current_cell, get_parent())
 		return true
 	return false
 

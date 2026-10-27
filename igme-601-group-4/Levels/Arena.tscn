@@ -7,7 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="5_dsr05"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="6_k3an4"]
 [ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="7_ifjt6"]
-[ext_resource type="PackedScene" path="res://UI/AbilityBarUI.tscn" id="8_ability_bar"]
+[ext_resource type="PackedScene" uid="uid://bkw5j0bx88rjt" path="res://UI/AbilityBarUI.tscn" id="8_ability_bar"]
+[ext_resource type="Resource" uid="uid://ws7vkafabric" path="res://Abilities/Trap.tres" id="8_f1bm4"]
 [ext_resource type="Resource" uid="uid://bd8u5js5idheq" path="res://Abilities/Wait.tres" id="9_4yh7d"]
 [ext_resource type="PackedScene" path="res://UI/AbilitySequenceUI.tscn" id="10_ability_sequence"]
 [ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="11_action_dock"]
@@ -29,7 +30,7 @@ size = 6.607
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
 
 [node name="Player" parent="." unique_id=372403699 instance=ExtResource("5_dsr05")]
-abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6")])
+abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4")])
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
@@ -59,7 +60,7 @@ mouse_filter = 2
 
 [node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("8_ability_bar")]
 layout_mode = 1
-abilities = Array[ExtResource("4_kn3ki")]([ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("9_4yh7d"), ExtResource("5_8ml7l"), null, null, null, null, null])
+abilities = Array[ExtResource("4_kn3ki")]([ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("9_4yh7d"), ExtResource("5_8ml7l"), ExtResource("8_f1bm4"), null, null, null, null])
 rotation_step_degrees = 3.0
 breathing_amplitude_pixels = 2.0
 breathing_speed_hz = 0.25
