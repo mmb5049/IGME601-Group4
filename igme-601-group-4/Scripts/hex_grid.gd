@@ -247,14 +247,10 @@ func highlight_line(material:ShaderMaterial,start_cell:Vector2i, direction:Vecto
 		create_highlight(material, cell)
 
 
-func place_trap(
-	coord: Vector2i,
-	trap_damage: int
-) -> bool:
+func place_trap(coord: Vector2i, trap_damage: int) -> bool:
 	if not is_valid_cell(coord):
 		return false
 
-	# Only one trap can occupy a tile.
 	if traps.has(coord):
 		return false
 
@@ -263,15 +259,15 @@ func place_trap(
 
 	add_child(new_trap)
 	new_trap.global_position = to_global(hex_to_world(coord))
-
 	traps[coord] = new_trap
+
+	# Animate the trap before checking for damage.
+	new_trap.play_spawn_animation()
+
 	return true
 
 
-func trigger_trap(
-	coord: Vector2i,
-	target: Node
-) -> void:
+func trigger_trap(coord: Vector2i, target: Node) -> void:
 	if not traps.has(coord):
 		return
 
