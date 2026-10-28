@@ -28,10 +28,6 @@ window/size/viewport_height=1080
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
-[editor]
-
-export/convert_text_resources_to_binary=false
-
 [physics]
 
 3d/physics_engine="Jolt Physics"
