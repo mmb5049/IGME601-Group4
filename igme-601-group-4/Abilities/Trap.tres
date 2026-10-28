@@ -8,6 +8,7 @@ script = ExtResource("1_d7r1p")
 ability_name = "Trap"
 icon = ExtResource("1_0gavt")
 type = 2
+cost = 25
 range = 4
 damage = 7
 targeting_type = 3

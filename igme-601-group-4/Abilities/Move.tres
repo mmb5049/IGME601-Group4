@@ -8,6 +8,7 @@ script = ExtResource("1_a6bg3")
 ability_name = "Move"
 icon = ExtResource("2_icon")
 type = 0
+cooldown = 5.0
 range = 1
 targeting_type = 1
 metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"

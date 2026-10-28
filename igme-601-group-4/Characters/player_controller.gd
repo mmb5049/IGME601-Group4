@@ -10,6 +10,12 @@ signal targeting_started(ability: Ability)
 signal target_preview_changed(target: AbilityTarget)
 signal targeting_ended
 signal ability_confirmed(ability: Ability, target: AbilityTarget)
+signal mana_changed(current_mana: int, max_mana: int)
+signal notification_requested(message: String)
+
+
+
+
 
 var number_display = preload("res://Misc/number_display.tscn")
 @export var mesh:MeshInstance3D
@@ -26,6 +32,12 @@ const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 @export var max_health: int = 100
 var current_health: int = 100
 var is_dead: bool = false
+
+@export_category("Mana")
+@export var max_mana: int = 100
+@export var mana_per_turn: int = 100
+@export var current_mana: int = 100
+
 
 @export_category("Abilities")
 @export var abilities: Array[Ability] = []
@@ -47,7 +59,11 @@ var current_mode: PlayerMode = PlayerMode.NONE
 
 func _ready() -> void:
 	cursor_position = get_viewport().get_mouse_position()
+	
 	current_health = max_health
+	current_mana = max_mana
+	mana_changed.emit(current_mana, max_mana)
+
 	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
@@ -115,7 +131,11 @@ func request_ability(ability: Ability) -> void:
 		print("current mode: ", current_mode)
 		print("request fail")
 		return
-
+		
+	if not can_afford_ability(ability):
+		#show_mana_message("Not enough mana!")
+		return
+		
 	HexGrid.clear_highlights()
 	selected_ability = ability
 	cursor_position = get_viewport().get_mouse_position()
@@ -123,6 +143,14 @@ func request_ability(ability: Ability) -> void:
 	if ability.targeting_type == Global.TargetingType.NONE:
 		var immediate_target := AbilityTarget.new(Global.TargetingType.NONE)
 		immediate_target.is_valid = true
+		
+		# Don't confirm ability if not enough mana
+		if not spend_mana(ability.cost):
+			#show_mana_message("Not enough mana!")
+			selected_ability = null
+			current_mode = PlayerMode.NONE
+			return
+			
 		ability_confirmed.emit(ability, immediate_target)
 		selected_ability = null
 		current_mode = PlayerMode.NONE
@@ -154,6 +182,18 @@ func _confirm_current_target() -> void:
 	HexGrid.clear_highlights()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
+	
+	
+	if not can_afford_ability(selected_ability):
+		#show_mana_message("Not enough mana!")
+		cancel_targeting()
+		return
+
+	if not spend_mana(selected_ability.cost):
+		#show_mana_message("Not enough mana!")
+		cancel_targeting()
+		return
+		
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
 
@@ -384,6 +424,10 @@ func begin_action_sequence() -> void:
 func end_action_sequence() -> void:
 	_action_sequence_active = false
 	current_mode = PlayerMode.NONE
+	
+	# Restore mana for the next turn.
+	refill_mana()
+	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
 
@@ -437,3 +481,29 @@ func heal(amount: int) -> void:
 
 	current_health = mini(current_health + amount, max_health)
 	health_changed.emit(current_health, max_health)
+
+
+func spend_mana(amount: int) -> bool:
+	if amount < 0 or current_mana < amount:
+		return false
+
+	current_mana -= amount
+	mana_changed.emit(current_mana, max_mana)
+	print("Mana", current_mana)
+	return true
+
+
+func refill_mana() -> void:
+	current_mana = mini(
+		current_mana + mana_per_turn,
+		max_mana
+	)
+	mana_changed.emit(current_mana, max_mana)
+	print("Mana", current_mana)
+
+
+func show_mana_message(message: String) -> void:
+	notification_requested.emit(message)
+	
+func can_afford_ability(ability: Ability) -> bool:
+	return ability != null and current_mana >= ability.cost
