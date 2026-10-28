@@ -8,6 +8,7 @@ script = ExtResource("1_5dgc1")
 ability_name = "Dash"
 icon = ExtResource("2_icon")
 type = 0
+cost = 20
 range = 5
 targeting_type = 1
 metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"

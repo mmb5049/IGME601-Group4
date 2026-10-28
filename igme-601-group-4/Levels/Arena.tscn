@@ -15,7 +15,9 @@
 [ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="12_ui_sway"]
 [ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="13_action_executor"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
-[ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HealthBar.tscn" id="16_famn7"]
+[ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="16_famn7"]
+
+[sub_resource type="Theme" id="Theme_tmhow"]
 
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
@@ -81,7 +83,20 @@ player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
 execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
 between_actions_delay = 0.45
 
-[node name="HealthBar" parent="." unique_id=1543784001 instance=ExtResource("16_famn7")]
+[node name="HUD" parent="." unique_id=1543784001 instance=ExtResource("16_famn7")]
+
+[node name="HealthBar" parent="HUD" index="0" unique_id=51208162]
+offset_left = 240.0
+offset_right = 763.0
+
+[node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
+offset_right = 763.0
+offset_bottom = 138.0
+
+[node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
+theme = SubResource("Theme_tmhow")
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
@@ -90,3 +105,4 @@ between_actions_delay = 0.45
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
 
 [editable path="Player"]
+[editable path="HUD"]
