@@ -133,7 +133,7 @@ func request_ability(ability: Ability) -> void:
 		return
 		
 	if not can_afford_ability(ability):
-		#show_mana_message("Not enough mana!")
+		show_mana_message("Not enough mana!")
 		return
 		
 	HexGrid.clear_highlights()
@@ -146,7 +146,7 @@ func request_ability(ability: Ability) -> void:
 		
 		# Don't confirm ability if not enough mana
 		if not spend_mana(ability.cost):
-			#show_mana_message("Not enough mana!")
+			show_mana_message("Not enough mana!")
 			selected_ability = null
 			current_mode = PlayerMode.NONE
 			return
@@ -182,17 +182,17 @@ func _confirm_current_target() -> void:
 	HexGrid.clear_highlights()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
-	
-	
-	if not can_afford_ability(selected_ability):
-		#show_mana_message("Not enough mana!")
+	if not can_afford_ability(confirmed_ability):
+		show_mana_message("Not enough mana!")
 		cancel_targeting()
 		return
 
-	if not spend_mana(selected_ability.cost):
-		#show_mana_message("Not enough mana!")
+	if not spend_mana(confirmed_ability.cost):
+		show_mana_message("Not enough mana!")
 		cancel_targeting()
 		return
+	
+	
 		
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
