@@ -25,7 +25,7 @@ jobs:
           include-templates: true
 
       - name: Import assets
-          run: godot --headless --import
+        run: godot --headless --import --quit 
 
       - name: Build Windows
         run: |
