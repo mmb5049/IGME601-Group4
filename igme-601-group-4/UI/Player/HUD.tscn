@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://cr5jts6r1074n"]
+
+[ext_resource type="Script" uid="uid://d1cx8ym81vhet" path="res://UI/Player/HUD.gd" id="1_vwvg8"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_i3jvf"]
+blend_mode = 1
+
+[node name="HUD" type="CanvasLayer" unique_id=1543784001]
+script = ExtResource("1_vwvg8")
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=51208162]
+modulate = Color(1, 0, 0, 1)
+offset_left = 237.0
+offset_top = 1.0
+offset_right = 760.0
+offset_bottom = 57.0
+value = 100.0
+show_percentage = false
+
+[node name="ManaBar" type="ProgressBar" parent="." unique_id=589409471]
+self_modulate = Color(0.7129441, 0.7188152, 1, 1)
+material = SubResource("CanvasItemMaterial_i3jvf")
+offset_left = 240.0
+offset_top = 82.0
+offset_right = 758.0
+offset_bottom = 135.0
+value = 100.0
+show_percentage = false
+
+[node name="NotificationLabel" type="Label" parent="." unique_id=2057399562]
+offset_left = 544.0
+offset_top = 806.0
+offset_right = 1437.0
+offset_bottom = 914.0
