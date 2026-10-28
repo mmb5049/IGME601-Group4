@@ -3,12 +3,17 @@ class_name PlayerController
 
 ## UI and gameplay systems observe these signals instead of duplicating target
 ## calculations. The Player remains the single authority for legal targets.
+
+signal health_changed(current_health: int, max_health: int)
+signal player_died
 signal targeting_started(ability: Ability)
 signal target_preview_changed(target: AbilityTarget)
 signal targeting_ended
 signal ability_confirmed(ability: Ability, target: AbilityTarget)
 
 var number_display = preload("res://Misc/number_display.tscn")
+@export var mesh:MeshInstance3D
+
 
 const INVALID_CELL := Vector2i(2147483647, 2147483647)
 const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
@@ -16,6 +21,11 @@ const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 @onready var camera: Camera3D = get_viewport().get_camera_3d()
 @export var movement: CharacterMovement
 @export var animationManager:AnimationManager
+
+@export_category("Health")
+@export var max_health: int = 100
+var current_health: int = 100
+var is_dead: bool = false
 
 @export_category("Abilities")
 @export var abilities: Array[Ability] = []
@@ -37,9 +47,13 @@ var current_mode: PlayerMode = PlayerMode.NONE
 
 func _ready() -> void:
 	cursor_position = get_viewport().get_mouse_position()
+	current_health = max_health
+	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
-
+		
+	health_changed.emit(current_health, max_health)
+	mesh = $Animation/Skeleton3D/Cube
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -65,6 +79,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				request_ability(get_ability("Slash"))
 			KEY_T:
 				request_ability(get_ability("Trap"))
+			KEY_H:
+				damage(20)
 
 	elif event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event as InputEventMouseButton
@@ -390,3 +406,34 @@ func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 
 	var local_position: Vector3 = HexGrid.to_local(hit_position)
 	return HexGrid.world_to_hex(local_position)
+	
+	
+func damage(amount: int) -> void:
+	if is_dead or amount <= 0:
+		return
+		
+	var new_display:Node3D = number_display.instantiate()
+	get_parent().add_child(new_display)
+	
+	new_display.global_position = global_position + Vector3(0, 1.1, 0)
+	new_display.set_number(-amount)
+
+	mesh.flash()
+
+	current_health = current_health - amount
+	health_changed.emit(current_health, max_health)
+
+	print("Player HP: ", current_health, "/", max_health)
+
+	if current_health <= 0:
+		is_dead = true
+		player_died.emit()
+		print("Player died!")
+
+#Nothing can heal the player as of yet but still a useful function to have
+func heal(amount: int) -> void:
+	if is_dead or amount <= 0:
+		return
+
+	current_health = mini(current_health + amount, max_health)
+	health_changed.emit(current_health, max_health)

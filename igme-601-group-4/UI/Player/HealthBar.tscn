@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://cr5jts6r1074n"]
+
+[ext_resource type="Script" uid="uid://d1cx8ym81vhet" path="res://UI/Player/HealthBar.gd" id="1_16r8k"]
+
+[node name="HealthBar" type="CanvasLayer" unique_id=1543784001]
+script = ExtResource("1_16r8k")
+
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=51208162]
+modulate = Color(1, 0, 0, 1)
+offset_left = 237.0
+offset_top = 1.0
+offset_right = 760.0
+offset_bottom = 57.0
+value = 100.0
+show_percentage = false
