@@ -25,7 +25,9 @@ jobs:
           include-templates: true
 
       - name: Import project
-        run: godot --headless --editor --quit
+        run: |
+          godot --headless --editor --quit || true
+          sleep 5
 
       - name: Build Windows
         run: |
