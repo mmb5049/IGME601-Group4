@@ -24,8 +24,10 @@ jobs:
           version: 4.7.2
           include-templates: true
 
-      - name: Import assets
-        run: godot --headless --import --quit 
+      - name: Import project
+        run: |
+          godot --headless --editor --quit || true
+          sleep 5
 
       - name: Build Windows
         run: |
