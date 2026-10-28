@@ -17,6 +17,8 @@
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="16_famn7"]
 
+[sub_resource type="Theme" id="Theme_tmhow"]
+
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
 
@@ -87,23 +89,14 @@ between_actions_delay = 0.45
 offset_left = 240.0
 offset_right = 763.0
 
-[node name="HealthLabel" type="Label" parent="HUD/HealthBar" index="0" unique_id=1907702168]
-layout_mode = 0
-offset_left = 217.0
-offset_top = 15.0
-offset_right = 335.0
-offset_bottom = 38.0
-
 [node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
 offset_right = 763.0
 offset_bottom = 138.0
 
-[node name="ManaLabel" type="Label" parent="HUD/ManaBar" index="0" unique_id=1853911437]
-layout_mode = 0
-offset_left = 217.0
-offset_top = 14.0
-offset_right = 335.0
-offset_bottom = 37.0
+[node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
+theme = SubResource("Theme_tmhow")
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]

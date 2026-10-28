@@ -1,9 +1,20 @@
 [gd_scene format=3 uid="uid://cr5jts6r1074n"]
 
 [ext_resource type="Script" uid="uid://d1cx8ym81vhet" path="res://UI/Player/HUD.gd" id="1_vwvg8"]
+[ext_resource type="FontFile" uid="uid://iva2kdc7h4yg" path="res://Font/Oxanium-VariableFont_wght.ttf" id="2_h6622"]
+[ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="2_minvw"]
+
+[sub_resource type="FontVariation" id="FontVariation_minvw"]
+base_font = ExtResource("2_minvw")
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_i3jvf"]
 blend_mode = 1
+
+[sub_resource type="FontVariation" id="FontVariation_ity2r"]
+base_font = ExtResource("2_minvw")
+
+[sub_resource type="FontVariation" id="FontVariation_cv32t"]
+base_font = ExtResource("2_h6622")
 
 [node name="HUD" type="CanvasLayer" unique_id=1543784001]
 script = ExtResource("1_vwvg8")
@@ -17,6 +28,14 @@ offset_bottom = 57.0
 value = 100.0
 show_percentage = false
 
+[node name="HealthLabel" type="Label" parent="HealthBar" unique_id=1729260440]
+layout_mode = 0
+offset_left = 217.0
+offset_top = 16.0
+offset_right = 335.0
+offset_bottom = 40.0
+theme_override_fonts/font = SubResource("FontVariation_minvw")
+
 [node name="ManaBar" type="ProgressBar" parent="." unique_id=589409471]
 self_modulate = Color(0.7129441, 0.7188152, 1, 1)
 material = SubResource("CanvasItemMaterial_i3jvf")
@@ -27,8 +46,25 @@ offset_bottom = 135.0
 value = 100.0
 show_percentage = false
 
-[node name="NotificationLabel" type="Label" parent="." unique_id=2057399562]
-offset_left = 544.0
-offset_top = 806.0
-offset_right = 1437.0
-offset_bottom = 914.0
+[node name="ManaLabel" type="Label" parent="ManaBar" unique_id=1477717854]
+layout_mode = 0
+offset_left = 217.0
+offset_top = 15.0
+offset_right = 335.0
+offset_bottom = 39.0
+theme_override_fonts/font = SubResource("FontVariation_ity2r")
+
+[node name="NotificationPanel" type="PanelContainer" parent="." unique_id=1362225]
+visible = false
+offset_left = 528.0
+offset_top = 827.0
+offset_right = 1402.0
+offset_bottom = 912.0
+
+[node name="NotificationLabel" type="Label" parent="NotificationPanel" unique_id=2057399562]
+layout_mode = 2
+theme_override_fonts/font = SubResource("FontVariation_cv32t")
+theme_override_font_sizes/font_size = 48
+text = "Test"
+horizontal_alignment = 1
+vertical_alignment = 1
