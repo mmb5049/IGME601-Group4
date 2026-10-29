@@ -378,16 +378,10 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 			if has_animation:
 				animationManager.take_action.connect(attack)
 				await animationManager.animationPlayer.animation_finished
-
 				if animationManager.take_action.is_connected(attack):
 					animationManager.take_action.disconnect(attack)
-
-				if not action_fired:
-					# Temporary fallback for builds where the event fails.
-		   			# Damage occurs at the end of the animation.
-					attack.call(0)
-				else:
-					attack.call(0)
+			else:
+				attack.call(0)
 				
 		Global.AbilityType.TRAP:
 			var trap_cell: Vector2i = (
