@@ -360,35 +360,31 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 		Global.AbilityType.ATTACK:
 			# Lambda function that damages the enemy
-			var action_fired := false
-
+			var action_fired : bool = false
+			print("in attack")
 			var attack = func():
 				action_fired = true
-
 				var target_cell: Vector2i = target.target_cell + movement.current_cell
-
+				
 				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
 					(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
 				else:
-					var new_display: Node3D = number_display.instantiate()
+					var new_display:Node3D = number_display.instantiate()
 					get_parent().add_child(new_display)
+					
 					new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
 					new_display.set_number(0)
-
+			# if there is an animation, wait for it to finish and only call attack
+			# when it lines up with the animation
 			if has_animation:
 				animationManager.take_action.connect(attack)
 				await animationManager.animationPlayer.animation_finished
 
+   		 # Diagnostic: ensure damage executes even if the animation
+   		 # never triggered its action keyframe.
 				if animationManager.take_action.is_connected(attack):
 					animationManager.take_action.disconnect(attack)
-					if not action_fired:
-						# Temporary fallback for builds where the event fails.
-						# Damage occurs at the end of the animation.
-						print("inside if")
-						attack.call()
-			else:
-				print("inside else")
-				attack.call()
+
 				
 		Global.AbilityType.TRAP:
 			var trap_cell: Vector2i = (
