@@ -360,7 +360,11 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 		Global.AbilityType.ATTACK:
 			# Lambda function that damages the enemy
+			var action_fired := false
+
 			var attack = func():
+				action_fired = true
+
 				var target_cell: Vector2i = target.target_cell + movement.current_cell
 
 				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
@@ -377,8 +381,14 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 				if animationManager.take_action.is_connected(attack):
 					animationManager.take_action.disconnect(attack)
+					if not action_fired:
+						# Temporary fallback for builds where the event fails.
+						# Damage occurs at the end of the animation.
+						print("inside if")
+						attack.call()
 			else:
-				attack.call(0)
+				print("inside else")
+				attack.call()
 				
 		Global.AbilityType.TRAP:
 			var trap_cell: Vector2i = (
