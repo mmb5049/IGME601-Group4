@@ -381,7 +381,6 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 				if animationManager.take_action.is_connected(attack):
 					animationManager.take_action.disconnect(attack)
-				
 			else:
 				attack.call(0)
 				
