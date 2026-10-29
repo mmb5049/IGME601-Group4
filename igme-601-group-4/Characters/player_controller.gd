@@ -360,11 +360,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 		Global.AbilityType.ATTACK:
 			# Lambda function that damages the enemy
-			var action_fired := false
-
-			var attack = func(_action_num):
-				action_fired = true
-
+			var attack = func():
 				var target_cell: Vector2i = target.target_cell + movement.current_cell
 
 				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
