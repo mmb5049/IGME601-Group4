@@ -42,6 +42,10 @@ var is_dead: bool = false
 @export_category("Abilities")
 @export var abilities: Array[Ability] = []
 
+var _attack_ability: Ability = null
+var _attack_target: AbilityTarget = null
+var _attack_applied: bool = false
+
 var selected_ability: Ability = null
 var cursor_position: Vector2 = Vector2.ZERO
 ## Remains true across the small gaps between queued abilities. current_mode
@@ -360,30 +364,24 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 		Global.AbilityType.ATTACK:
 			# Lambda function that damages the enemy
-			var action_fired : bool = false
-			print("in attack")
-			var attack = func():
-				action_fired = true
-				var target_cell: Vector2i = target.target_cell + movement.current_cell
-				
-				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
-					(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
-				else:
-					var new_display:Node3D = number_display.instantiate()
-					get_parent().add_child(new_display)
-					
-					new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
-					new_display.set_number(0)
-			# if there is an animation, wait for it to finish and only call attack
-			# when it lines up with the animation
-			if has_animation:
-				animationManager.take_action.connect(attack)
-				await animationManager.animationPlayer.animation_finished
+			_attack_ability = ability
+			_attack_target = target
+			_attack_applied = false
 
-   		 # Diagnostic: ensure damage executes even if the animation
-   		 # never triggered its action keyframe.
-				if animationManager.take_action.is_connected(attack):
-					animationManager.take_action.disconnect(attack)
+			if has_animation:
+				animationManager.take_action.connect(_apply_attack)
+				await animationManager.animationPlayer.animation_finished
+				if animationManager.take_action.is_connected(_apply_attack):
+					animationManager.take_action.disconnect(_apply_attack)
+				# Fallback: does nothing if the keyframe already fired.
+				if not _attack_applied:
+					push_warning("take_action never fired; applying attack as fallback")
+				_apply_attack()
+			else:
+				_apply_attack()
+
+			_attack_ability = null
+			_attack_target = null
 
 				
 		Global.AbilityType.TRAP:
@@ -513,3 +511,20 @@ func show_mana_message(message: String) -> void:
 	
 func can_afford_ability(ability: Ability) -> bool:
 	return ability != null and current_mana >= ability.cost
+
+
+## Connected to AnimationManager.take_action, and also called directly as a fallback.
+func _apply_attack() -> void:
+	if _attack_applied or _attack_ability == null or _attack_target == null:
+		return
+	_attack_applied = true
+
+	var target_cell: Vector2i = _attack_target.target_cell + movement.current_cell
+
+	if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
+		(HexGrid.occupied_cells[target_cell] as Enemy).damage(_attack_ability.damage)
+	else:
+		var new_display: Node3D = number_display.instantiate()
+		get_parent().add_child(new_display)
+		new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
+		new_display.set_number(0)
