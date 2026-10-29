@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://c35cgvpcvfvxk"]
+
+[ext_resource type="Shader" uid="uid://bkdvlt7l8h5f8" path="res://VFX/Self_Enhancement.gdshader" id="1_ljjub"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ljjub"]
+render_priority = 0
+shader = ExtResource("1_ljjub")
+shader_parameter/circle_color = Color(0.3, 0.6, 1, 1)
+shader_parameter/emission_strength = 3.0
+shader_parameter/ring_1_radius = 0.45
+shader_parameter/ring_1_width = 0.01
+shader_parameter/ring_2_radius = 0.4
+shader_parameter/ring_2_width = 0.005
+shader_parameter/dash_count = 6
+shader_parameter/dash_speed = 1.0
+shader_parameter/dash_radius = 0.33
+shader_parameter/dash_width = 0.02
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_i3jvf"]
+material = SubResource("ShaderMaterial_ljjub")
+
+[node name="MeshInstance3D" type="MeshInstance3D" unique_id=164593598]
+mesh = SubResource("PlaneMesh_i3jvf")
