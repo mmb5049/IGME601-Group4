@@ -378,8 +378,10 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 			if has_animation:
 				animationManager.take_action.connect(attack)
 				await animationManager.animationPlayer.animation_finished
+
 				if animationManager.take_action.is_connected(attack):
 					animationManager.take_action.disconnect(attack)
+				
 			else:
 				attack.call(0)
 				
