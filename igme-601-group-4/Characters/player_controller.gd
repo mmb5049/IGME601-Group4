@@ -27,6 +27,8 @@ const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 @onready var camera: Camera3D = get_viewport().get_camera_3d()
 @export var movement: CharacterMovement
 @export var animationManager:AnimationManager
+## Outer pivot isolates procedural movement from AnimationPlayer root tracks.
+@export var presentation_visual: Node3D
 
 @export_category("Health")
 @export var max_health: int = 100
@@ -47,6 +49,12 @@ var cursor_position: Vector2 = Vector2.ZERO
 ## Remains true across the small gaps between queued abilities. current_mode
 ## alone cannot provide this lock because each individual action resets it.
 var _action_sequence_active: bool = false
+signal action_number_changed(number: int)
+
+var action_number: int = 1:
+	set(value):
+		action_number = value
+		action_number_changed.emit(value)
 
 enum PlayerMode {
 	NONE,
@@ -69,7 +77,7 @@ func _ready() -> void:
 		animationManager.play_animation(animationManager.idle_animation)
 		
 	health_changed.emit(current_health, max_health)
-	mesh = $Animation/Skeleton3D/Cube
+	mesh = animationManager.get_node("Skeleton3D/Cube")
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -233,6 +241,14 @@ func _update_targeting_preview() -> void:
 				HexGrid.create_highlight(HexGrid.material_select,
 					target.target_cell + movement.current_cell)
 
+		Global.TargetingType.ANNULAR:
+			var cells: Array[Vector2i] = []
+			for radius in range(1, selected_ability.range + 1):
+				cells.append_array(HexGrid.get_ring(movement.current_cell, radius))
+			HexGrid.highlight_cells(highlight_material, cells)
+			if target.is_valid:
+				HexGrid.highlight_cells(HexGrid.material_select, target.resolve_cells(movement.current_cell))
+
 		Global.TargetingType.SHAPE:
 			pass
 
@@ -311,6 +327,13 @@ func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget
 			# Shape placement will use the same AbilityTarget object when implemented.
 			result.target_cell = clicked_cell
 
+		Global.TargetingType.ANNULAR:
+			var radius: int = HexGrid.hex_distance(clicked_cell, movement.current_cell)
+			if radius >= 1 and radius <= ability.range:
+				result.ring_radius = radius
+				result.target_cells = HexGrid.get_ring(Vector2i.ZERO, radius)
+				result.is_valid = true
+
 	return result
 
 ## Called by the action-phase queue executor. Movement branches suspend until
@@ -328,52 +351,46 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 	var has_animation:bool = false
 	if animationManager:
 		has_animation = animationManager.has_animation(ability.animation)
-		if has_animation:
+		if has_animation and ability.presentation == null:
 			animationManager.play_animation(ability.animation)
 	
 	match ability.type:
 		Global.AbilityType.MOVEMENT:
-			print("in movement")
-			var destination: Vector2i = target.target_cell
-			
-			# set target for direction types
-			if ability.targeting_type == Global.TargetingType.DIRECTION:
-				if target.direction == Vector2i.ZERO:
-					_finish_queued_ability()
-					return false
-				destination = HexGrid.raycast(
-					movement.current_cell,
-					target.direction,
-					ability.range,
-					true
-				)
-				
-			# make sure the cell is not the current one of off the grid
-			if destination == movement.current_cell or not HexGrid.is_valid_cell(destination):
+			if ability.targeting_type == Global.TargetingType.ANNULAR:
+				# A ring has no single movement destination.
 				succeeded = false
+			elif ability.targeting_type == Global.TargetingType.DIRECTION:
+				succeeded = await movement.execute_directional_move(target.direction, ability.range)
 			else:
-				movement.pathfind(destination)
-				# CharacterMovement can finish an empty path synchronously. Only
-				# await when pathfind actually selected a different target cell.
-				if movement.target_cell != movement.current_cell or movement.is_moving:
-					await movement.done_moving
+				var destination: Vector2i = target.target_cell
+				if destination == movement.current_cell or not HexGrid.is_valid_cell(destination):
+					succeeded = false
+				else:
+					movement.pathfind(destination)
+					if movement.target_cell != movement.current_cell or movement.is_moving:
+						await movement.done_moving
 
 		Global.AbilityType.ATTACK:
 			# Lambda function that damages the enemy
 			print("in attack")
 			var attack = func(_action_num):
-				var target_cell: Vector2i = target.target_cell + movement.current_cell
-				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
-					(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
-				else:
-					var new_display:Node3D = number_display.instantiate()
-					get_parent().add_child(new_display)
-					
-					new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
-					new_display.set_number(0)
+				for target_cell: Vector2i in target.resolve_cells(movement.current_cell):
+					if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
+						(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
+					else:
+						var new_display:Node3D = number_display.instantiate()
+						get_parent().add_child(new_display)
+						new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
+						new_display.set_number(0)
 			# if there is an animation, wait for it to finish and only call attack
 			# when it lines up with the animation
-			if has_animation:
+			if ability.presentation != null:
+				var completed: bool = await ability.presentation.play(self, presentation_visual, target)
+				if completed and not is_dead:
+					attack.call(0)
+				else:
+					succeeded = false
+			elif has_animation:
 				animationManager.take_action.connect(attack)
 				await animationManager.animationPlayer.animation_finished
 				animationManager.take_action.disconnect(attack)
@@ -381,20 +398,11 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 				attack.call(0)
 				
 		Global.AbilityType.TRAP:
-			var trap_cell: Vector2i = (
-				target.target_cell + movement.current_cell
-			)
-
-			if not HexGrid.is_valid_cell(trap_cell):
-				succeeded = false
-			elif HexGrid.traps.has(trap_cell):
-				# Do not overwrite an existing trap.
-				succeeded = false
-			else:
-				succeeded = HexGrid.place_trap(
-					trap_cell,
-					ability.damage
-				)
+			succeeded = false
+			for trap_cell: Vector2i in target.resolve_cells(movement.current_cell):
+				if not HexGrid.traps.has(trap_cell):
+					if HexGrid.place_trap(trap_cell, ability.damage):
+						succeeded = true
 			# Wait and not-yet-specialized Ability types still consume one
 			# queue step. Their gameplay effects can be added here later.
 			pass

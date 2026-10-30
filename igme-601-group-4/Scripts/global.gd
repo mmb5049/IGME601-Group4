@@ -11,5 +11,6 @@ enum TargetingType {
 	NONE,
 	DIRECTION,
 	SHAPE,
-	SINGLE_TILE
+	SINGLE_TILE,
+	ANNULAR
 }
