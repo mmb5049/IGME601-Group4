@@ -11,7 +11,9 @@
 [ext_resource type="Resource" uid="uid://ws7vkafabric" path="res://Abilities/Trap.tres" id="8_f1bm4"]
 [ext_resource type="Resource" uid="uid://bd8u5js5idheq" path="res://Abilities/Wait.tres" id="9_4yh7d"]
 [ext_resource type="PackedScene" path="res://UI/AbilitySequenceUI.tscn" id="10_ability_sequence"]
+[ext_resource type="Resource" uid="uid://6cjwk84iec8y" path="res://Abilities/Attack_Up.tres" id="10_d75p2"]
 [ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="11_action_dock"]
+[ext_resource type="PackedScene" uid="uid://c35cgvpcvfvxk" path="res://VFX/Self_Enhancement.tscn" id="11_exqbx"]
 [ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="12_ui_sway"]
 [ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="13_action_executor"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
@@ -33,7 +35,39 @@ size = 6.607
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
 
 [node name="Player" parent="." unique_id=372403699 groups=["player"] instance=ExtResource("5_dsr05")]
-abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d")])
+abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d"), ExtResource("10_d75p2")])
+self_enhance_effect_scene = ExtResource("11_exqbx")
+
+[node name="Skeleton3D" parent="Player/Animation" parent_id_path=PackedInt32Array(372403699, 1821010304) index="0" unique_id=30258424]
+bones/0/position = Vector3(-0.03115716, 0.86909187, -0.005647987)
+bones/0/rotation = Quaternion(-0.077028394, -0.58965826, -0.063929126, 0.80142564)
+bones/1/rotation = Quaternion(-0.10382818, 0.030334778, -0.008452209, 0.9940966)
+bones/2/rotation = Quaternion(0.0586892, 0.03694571, 0.035624508, 0.9969561)
+bones/3/rotation = Quaternion(0.05917866, 0.036316458, 0.035463046, 0.99695617)
+bones/4/rotation = Quaternion(0.21552569, 0.068850465, -0.05943676, 0.9722529)
+bones/5/rotation = Quaternion(-0.039499383, 0.30966264, -0.027956486, 0.94961435)
+bones/7/rotation = Quaternion(-0.5646923, -0.4274496, 0.5826755, -0.398621)
+bones/8/rotation = Quaternion(0.1774395, -0.057524033, -0.085654356, 0.9787081)
+bones/9/rotation = Quaternion(-0.00011192099, 0.002011463, 0.7420298, 0.67036396)
+bones/10/rotation = Quaternion(0.051998086, -0.24081339, -0.06712461, 0.9668502)
+bones/11/rotation = Quaternion(0.50263363, 0.5427203, 0.5309453, 0.41341424)
+bones/12/rotation = Quaternion(0.0048290538, 0.12021997, 0.6667602, 0.7354962)
+bones/13/rotation = Quaternion(-0.008996269, 0.14692347, 0.3230854, 0.93485206)
+bones/15/rotation = Quaternion(0.56247, -0.43814543, 0.5777425, 0.39732826)
+bones/16/rotation = Quaternion(0.33240598, 0.014834719, -0.50074434, 0.7990878)
+bones/17/rotation = Quaternion(-0.0024414451, -0.0016339722, -0.81853634, 0.5744473)
+bones/18/rotation = Quaternion(-0.09860178, 0.20046465, -0.01922, 0.97453696)
+bones/19/rotation = Quaternion(0.5709008, -0.48445752, -0.4855691, 0.45121595)
+bones/20/rotation = Quaternion(0.3728023, -0.30958316, -0.4956835, 0.72074586)
+bones/21/rotation = Quaternion(-0.006812647, -0.24782576, -0.16191198, 0.9551547)
+bones/23/rotation = Quaternion(0.21070772, -0.013875562, 0.9598746, -0.18452834)
+bones/24/rotation = Quaternion(-0.25365904, 0.070398204, -0.09517315, 0.96002257)
+bones/25/rotation = Quaternion(0.43191952, 0.1482327, -0.04201937, 0.8886546)
+bones/26/rotation = Quaternion(0.38137347, -0.09085165, 0.019983443, 0.91972876)
+bones/28/rotation = Quaternion(-0.094259545, -0.0944144, 0.9816724, 0.13608955)
+bones/29/rotation = Quaternion(-0.12597929, -0.072163716, 0.07281492, 0.9867217)
+bones/30/rotation = Quaternion(0.4001414, -0.06670191, 0.07312464, 0.91109306)
+bones/31/rotation = Quaternion(0.47089353, 0.05423863, -0.028740184, 0.880052)
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
