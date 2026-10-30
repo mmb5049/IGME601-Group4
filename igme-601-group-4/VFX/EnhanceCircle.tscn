@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://cnu2ldal22d88"]
+
+[ext_resource type="Shader" uid="uid://bqwxs7rl3coqv" path="res://VFX/EnhanceCircle.gdshader" id="1_vgeut"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ktn47"]
+render_priority = 0
+shader = ExtResource("1_vgeut")
+shader_parameter/circle_color = Color(0, 0.5, 1, 1)
+shader_parameter/rotation_speed = 1.0
+shader_parameter/pulse_speed = 2.0
+shader_parameter/glow_intensity = 1.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_ikcgo"]
+
+[node name="EnhanceCircle" type="MeshInstance3D" unique_id=134594632]
+material_override = SubResource("ShaderMaterial_ktn47")
+mesh = SubResource("QuadMesh_ikcgo")
