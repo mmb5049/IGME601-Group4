@@ -35,7 +35,21 @@ func _physics_process(delta):
 		else:
 			is_moving = true
 
-# Creates a path toward
+## Shared by player and enemy directional movement abilities.
+func execute_directional_move(direction: Vector2i, distance: int) -> bool:
+	if direction == Vector2i.ZERO or distance <= 0:
+		return false
+	var destination: Vector2i = HexGrid.raycast(current_cell, direction, distance, true)
+	if destination == current_cell or not HexGrid.is_valid_cell(destination):
+		return false
+	pathfind(destination)
+	if target_cell == current_cell and not is_moving:
+		return false
+	await done_moving
+	return true
+
+
+# Creates a path toward the requested destination.
 func pathfind(end_cell:Vector2i):
 	## Should not pathfind when dashing... 
 	path = HexGrid.find_path(current_cell, end_cell)

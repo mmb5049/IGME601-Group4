@@ -25,9 +25,8 @@ func show_targeting(ability: Ability) -> void:
 	visible = true
 
 
-## DIRECTION highlights only the edge under the cursor. SINGLE_TILE surrounds
-## the entire indicator because the player is choosing a position rather than
-## an orientation. Both modes reuse green/red validity feedback.
+## DIRECTION highlights one edge. SINGLE_TILE and ANNULAR surround the entire
+## indicator because they select tiles rather than an orientation.
 func set_target_preview(target: AbilityTarget) -> void:
 	if _current_ability == null or target == null:
 		_direction_edges.hide_directions(true, edge_transition_duration)
@@ -48,7 +47,7 @@ func set_target_preview(target: AbilityTarget) -> void:
 				edge_transition_duration
 			)
 
-		Global.TargetingType.SINGLE_TILE:
+		Global.TargetingType.SINGLE_TILE, Global.TargetingType.ANNULAR:
 			_direction_edges.show_all_directions(
 				target.is_valid,
 				edge_transition_duration

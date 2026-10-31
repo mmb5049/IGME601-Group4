@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://dglwrx0n21jcs" path="res://Characters/animation_manager.gd" id="6_qhb0e"]
 [ext_resource type="Animation" uid="uid://lw8jf78su53e" path="res://Animations/Player/FightingIdle.res" id="7_7pihf"]
 [ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="10_x35ji"]
+[ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="11_action_number"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0f3il"]
 
@@ -128,10 +129,11 @@ bind/27/name = &"mixamorig_RightHandIndex3"
 bind/27/bone = -1
 bind/27/pose = Transform3D(28.728098, 1.2462152, -1.6286288, -2.5939248, 6.6265182, -25.541498, -1.4543905, 12.797598, 13.383826, 0.3076788, 0.45622382, -0.31531394)
 
-[node name="Player" type="CharacterBody3D" unique_id=372403699 node_paths=PackedStringArray("movement", "animationManager")]
+[node name="Player" type="CharacterBody3D" unique_id=372403699 node_paths=PackedStringArray("movement", "animationManager", "presentation_visual")]
 script = ExtResource("1_v6d5b")
 movement = NodePath("Movement")
-animationManager = NodePath("Animation")
+animationManager = NodePath("VisualPivot/Animation")
+presentation_visual = NodePath("VisualPivot")
 abilities = Array[ExtResource("2_v6d5b")]([ExtResource("3_55lj8"), ExtResource("4_qhb0e"), ExtResource("5_c3bgu"), ExtResource("6_nwlvs"), ExtResource("3_55lj8")])
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=696857639]
@@ -141,11 +143,13 @@ shape = SubResource("CapsuleShape3D_0f3il")
 script = ExtResource("5_55lj8")
 character = NodePath("..")
 
-[node name="Animation" type="Node3D" parent="." unique_id=1821010304]
+[node name="VisualPivot" type="Node3D" parent="."]
+
+[node name="Animation" type="Node3D" parent="VisualPivot" unique_id=1821010304]
 script = ExtResource("6_qhb0e")
 idle_animation = ExtResource("7_7pihf")
 
-[node name="Skeleton3D" type="Skeleton3D" parent="Animation" unique_id=30258424]
+[node name="Skeleton3D" type="Skeleton3D" parent="VisualPivot/Animation" unique_id=30258424]
 bones/0/name = "mixamorig_Hips"
 bones/0/parent = -1
 bones/0/rest = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.81398165, 0.06814192)
@@ -378,11 +382,14 @@ bones/32/position = Vector3(1.1321344e-10, 0.06272304, 1.2571237e-11)
 bones/32/rotation = Quaternion(-2.0516866e-10, 1.6059745e-18, 6.938894e-18, 1)
 bones/32/scale = Vector3(1, 1, 1)
 
-[node name="Cube" type="MeshInstance3D" parent="Animation/Skeleton3D" unique_id=513151489]
+[node name="Cube" type="MeshInstance3D" parent="VisualPivot/Animation/Skeleton3D" unique_id=513151489]
 mesh = SubResource("ArrayMesh_ylcf5")
 skin = SubResource("Skin_dua0b")
 skeleton = NodePath("..")
 script = ExtResource("10_x35ji")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Animation" unique_id=1731858539]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualPivot/Animation" unique_id=1731858539]
 libraries/Attack = ExtResource("6_55lj8")
+
+[node name="ActionNumberUI" parent="." instance=ExtResource("11_action_number")]
+position = Vector3(0, 2.15, 0)

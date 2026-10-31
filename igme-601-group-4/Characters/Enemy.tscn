@@ -5,6 +5,8 @@
 [ext_resource type="ArrayMesh" uid="uid://g4m25t6f7cyc" path="res://Meshes/combocoreduende.obj" id="2_tcaex"]
 [ext_resource type="Material" uid="uid://b44yqc3msjja6" path="res://Materials/enemy.tres" id="3_mfhi6"]
 [ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="4_oie3p"]
+[ext_resource type="PackedScene" path="res://UI/EnemyAbilityQueueUI.tscn" id="6_queue_ui"]
+[ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="7_action_number"]
 
 [node name="Enemy" type="Node3D" unique_id=1359998768 node_paths=PackedStringArray("movement")]
 script = ExtResource("1_1oqew")
@@ -19,3 +21,7 @@ script = ExtResource("4_oie3p")
 [node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character")]
 script = ExtResource("2_mig5a")
 character = NodePath("..")
+
+[node name="EnemyAbilityQueueUI" parent="." instance=ExtResource("6_queue_ui")]
+
+[node name="ActionNumberUI" parent="." instance=ExtResource("7_action_number")]

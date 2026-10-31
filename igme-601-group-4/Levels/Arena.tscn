@@ -16,8 +16,10 @@
 [ext_resource type="PackedScene" uid="uid://c35cgvpcvfvxk" path="res://VFX/Self_Enhancement.tscn" id="11_exqbx"]
 [ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="12_ui_sway"]
 [ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="13_action_executor"]
+[ext_resource type="Resource" uid="uid://c6k8dqbeef8ht" path="res://Abilities/Whirlwind.tres" id="14_exqbx"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="16_famn7"]
+[ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="17_queue_visibility"]
 
 [sub_resource type="Theme" id="Theme_tmhow"]
 
@@ -35,10 +37,16 @@ size = 6.607
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
 
 [node name="Player" parent="." unique_id=372403699 groups=["player"] instance=ExtResource("5_dsr05")]
-abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d"), ExtResource("10_d75p2")])
+abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d"), ExtResource("10_d75p2"), ExtResource("14_exqbx")])
 self_enhance_effect_scene = ExtResource("11_exqbx")
 
+[node name="ActionNumberUI" parent="Player" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
+
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
+
+[node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
+script = ExtResource("17_queue_visibility")
 
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("14_mo5sh")]
 visible = false
@@ -66,7 +74,7 @@ mouse_filter = 2
 
 [node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("8_ability_bar")]
 layout_mode = 1
-abilities = Array[ExtResource("4_kn3ki")]([ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("9_4yh7d"), ExtResource("5_8ml7l"), ExtResource("8_f1bm4"), ExtResource("10_d75p2"), null, null, null])
+abilities = Array[ExtResource("4_kn3ki")]([ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("9_4yh7d"), ExtResource("5_8ml7l"), ExtResource("8_f1bm4"), ExtResource("14_exqbx"), ExtResource("10_d75p2"), null, null])
 rotation_step_degrees = 3.0
 breathing_amplitude_pixels = 2.0
 breathing_speed_hz = 0.25
