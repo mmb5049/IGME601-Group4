@@ -41,6 +41,12 @@ var is_dead: bool = false
 
 @export_category("Abilities")
 @export var abilities: Array[Ability] = []
+@export var self_enhance_effect_scene: PackedScene
+
+var self_enhance_stacks: int = 0
+var self_enhance_effect: Node3D = null
+
+const SELF_ENHANCE_MULTIPLIER: float = 1.5
 
 var _attack_ability: Ability = null
 var _attack_target: AbilityTarget = null
@@ -101,6 +107,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				request_ability(get_ability("Trap"))
 			KEY_H:
 				damage(20)
+			KEY_A:
+				request_ability(get_ability("Attack_Up"))
 
 	elif event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event as InputEventMouseButton
@@ -363,7 +371,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 					await movement.done_moving
 
 		Global.AbilityType.ATTACK:
-			# Lambda function that damages the enemy
+			
 			_attack_ability = ability
 			_attack_target = target
 			_attack_applied = false
@@ -399,8 +407,10 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 					trap_cell,
 					ability.damage
 				)
-			# Wait and not-yet-specialized Ability types still consume one
-			# queue step. Their gameplay effects can be added here later.
+			
+		Global.AbilityType.STATUS:
+			activate_self_enhance()
+			
 			pass
 		
 		
@@ -428,6 +438,16 @@ func begin_action_sequence() -> void:
 func end_action_sequence() -> void:
 	_action_sequence_active = false
 	current_mode = PlayerMode.NONE
+	
+	 # Reset Self Enhance stacks.
+	self_enhance_stacks = 0
+
+	# Remove visual effect.
+	if is_instance_valid(self_enhance_effect):
+		self_enhance_effect.queue_free()
+
+	self_enhance_effect = null
+
 	
 	# Restore mana for the next turn.
 	refill_mana()
@@ -522,9 +542,33 @@ func _apply_attack() -> void:
 	var target_cell: Vector2i = _attack_target.target_cell + movement.current_cell
 
 	if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
-		(HexGrid.occupied_cells[target_cell] as Enemy).damage(_attack_ability.damage)
+		var final_damage: int = _attack_ability.damage
+
+		if self_enhance_stacks > 0:
+			var multiplier: float = pow(
+			SELF_ENHANCE_MULTIPLIER,
+			self_enhance_stacks
+			)
+			final_damage = roundi(final_damage * multiplier)
+
+		(HexGrid.occupied_cells[target_cell] as Enemy).damage(final_damage)
 	else:
 		var new_display: Node3D = number_display.instantiate()
 		get_parent().add_child(new_display)
 		new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
 		new_display.set_number(0)
+		
+		
+func activate_self_enhance() -> void:
+	# Every activation adds another stack.
+	self_enhance_stacks += 1
+
+	# Only spawn the effect if one doesn't already exist.
+	if not is_instance_valid(self_enhance_effect):
+		if self_enhance_effect_scene:
+			self_enhance_effect = self_enhance_effect_scene.instantiate()
+			add_child(self_enhance_effect)
+
+			# Position underneath the player.
+		self_enhance_effect.position = Vector3(0, 0, 0)
+		print("Self Enhance stacks: ", self_enhance_stacks)
