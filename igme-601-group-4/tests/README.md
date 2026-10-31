@@ -9,7 +9,8 @@ godot --headless --path . res://tests/enemy_attack_test.tscn
 Checks immediate Whirlwind plans, approaching within the 2-3-slot budget,
 obstacle-aware movement prediction, a real Move/Whirlwind turn, player damage,
 friendly fire, delayed damage and model restoration, dodging by moving out of
-the prepared ring, lethal friendly fire, and cancellation on attacker death.
+the prepared ring, lethal friendly fire, target death/removal during presentation
+(including stale grid references), and cancellation on attacker death.
 
 Whirlwind procedural presentation:
 

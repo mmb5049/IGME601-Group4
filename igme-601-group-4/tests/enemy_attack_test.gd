@@ -122,14 +122,46 @@ func run() -> void:
 	check(enemies[1].is_queued_for_deletion() and not HexGrid.is_occupied(Vector2i(0, 1)), "Friendly-fire death must release occupancy")
 	await get_tree().process_frame
 
+	# Normal lethal damage during presentation releases the target's cell.
+	player.movement.set_pos(Vector2i(1, 0))
+	enemies[3].movement.set_pos(Vector2i(0, 1))
+	attacker.prepare_turn(player)
+	action_done = false
+	controller.execute_next(attacker, attacker.ability_queue)
+	await get_tree().create_timer(0.10).timeout
+	enemies[3].damage(100)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not action_done:
+		await controller.action_finished
+	check(action_succeeded and not HexGrid.is_occupied(Vector2i(0, 1)), "Target death during Whirlwind must release its cell and let the attack finish")
+
+	# A target can leave the tree while the attack is awaiting presentation.
+	# Keep its old grid entry to exercise a previously freed instance as well.
+	player.movement.set_pos(Vector2i(1, 0))
+	enemies[2].movement.set_pos(Vector2i(0, 1))
+	attacker.prepare_turn(player)
+	action_done = false
+	controller.execute_next(attacker, attacker.ability_queue)
+	await get_tree().create_timer(0.10).timeout
+	enemies[2].queue_free()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not action_done:
+		await controller.action_finished
+	check(action_succeeded, "A target disappearing during Whirlwind must not interrupt the action")
+	check(attacker.ability_queue.queued_entries.size() == 2, "Disappearing target must still allow queue consumption")
+	HexGrid.set_occupied(Vector2i(0, 1), false)
+
 	# Killing the attacker during its own presentation cancels the attack.
 	player.movement.set_pos(Vector2i(1, 0))
 	attacker.prepare_turn(player)
 	action_done = false
 	controller.execute_next(attacker, attacker.ability_queue)
 	await get_tree().create_timer(0.10).timeout
+	var health_before_death: int = player.current_health
 	attacker.damage(100)
-	check(action_done and not action_succeeded and player.current_health == 97, "Attacker death must cancel presentation without dealing damage")
+	check(action_done and not action_succeeded and player.current_health == health_before_death, "Attacker death must cancel presentation without dealing damage")
 	check(attacker.mesh.transform.is_equal_approx(visual), "Cancelled enemy presentation must restore the mesh")
 	await get_tree().process_frame
 	await get_tree().process_frame

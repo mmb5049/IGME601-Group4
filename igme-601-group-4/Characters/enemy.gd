@@ -124,7 +124,10 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 			# Resolve around the actual execution position. Prepared plans do
 			# not track or retarget a player who moved out of the selected ring.
 			for cell in entry.target.resolve_cells(movement.current_cell):
-				var victim: Node = HexGrid.occupied_cells.get(cell)
+				# A target may have been freed while presentation was awaiting.
+				# Keep the raw Variant until validated: assigning a freed instance
+				# to a typed Node fails before is_instance_valid can run.
+				var victim: Variant = HexGrid.occupied_cells.get(cell)
 				if not is_instance_valid(victim):
 					continue
 				if victim == self or victim.is_queued_for_deletion():
