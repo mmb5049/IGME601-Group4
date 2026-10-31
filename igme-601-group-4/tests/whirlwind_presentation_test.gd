@@ -86,6 +86,20 @@ func run() -> void:
 	check(action_done and action_succeeded, "Clearing the optional presentation must restore immediate attack behavior")
 	check(visual.transform.is_equal_approx(saved_visual), "Disabled presentation must not change the model")
 
+	# Both branches' abilities must remain available after merging the arena.
+	check(player.get_ability("Whirlwind") != null, "Player must retain Whirlwind")
+	var enhancement: Ability = player.get_ability("Attack_Up")
+	check(enhancement != null, "Player must retain Attack Up")
+	var enhancement_target := AbilityTarget.new(Global.TargetingType.NONE)
+	enhancement_target.is_valid = true
+	check(await player.execute_ability(enhancement, enhancement_target), "Attack Up must execute")
+	check(player.self_enhance_stacks == 1, "Attack Up must add one stack")
+	var health_before_enhancement: int = enemies[0].health
+	check(await player.execute_ability(ability, target), "Enhanced Whirlwind must finish")
+	check(enemies[0].health == health_before_enhancement - 5 and enemies[1].health == health_before_enhancement - 5, "Attack Up must boost damage across the complete ring")
+	player.end_action_sequence()
+	check(player.self_enhance_stacks == 0 and player.self_enhance_effect == null, "Turn end must clear Attack Up and its effect")
+
 	# Death midway through the animation cancels damage and restores the model.
 	action_done = false
 	controller.player_queue.add_confirmed_ability(ability, target)

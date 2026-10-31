@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://c35cgvpcvfvxk"]
+
+[ext_resource type="Shader" uid="uid://bkdvlt7l8h5f8" path="res://VFX/Self_Enhancement.gdshader" id="1_ljjub"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ljjub"]
+render_priority = 0
+shader = ExtResource("1_ljjub")
+shader_parameter/outer_ring_color = Color(0.2, 0.7, 1, 1)
+shader_parameter/second_ring_color = Color(1, 1, 1, 1)
+shader_parameter/inner_ring_color = Color(0.3, 0.9, 1, 1)
+shader_parameter/dash_color = Color(0.4, 0.8, 1, 1)
+shader_parameter/outer_radius = 0.45
+shader_parameter/outer_width = 0.012
+shader_parameter/outer_emission = 5.0
+shader_parameter/outer_glow_width = 0.04
+shader_parameter/outer_glow_strength = 1.5
+shader_parameter/second_radius = 0.4
+shader_parameter/second_width = 0.006
+shader_parameter/second_gap_count = 4
+shader_parameter/second_gap_size = 0.08
+shader_parameter/second_rotation_speed = 0.0
+shader_parameter/second_emission = 3.0
+shader_parameter/inner_radius = 0.1790000085025
+shader_parameter/inner_width = 0.012
+shader_parameter/inner_emission = 3.0
+shader_parameter/dash_count = 20
+shader_parameter/dash_speed = 1.0
+shader_parameter/dash_radius = 0.33
+shader_parameter/dash_width = 0.02
+shader_parameter/dash_emission = 3.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_i3jvf"]
+material = SubResource("ShaderMaterial_ljjub")
+
+[sub_resource type="Curve" id="Curve_ljjub"]
+_data = [Vector2(0, 0.19718313), 0.0, 0.0, 0, 0, Vector2(1, 0.5492958), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_gtgc1"]
+curve = SubResource("Curve_ljjub")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_0f3il"]
+gravity = Vector3(0, 1, 0)
+use_scale_3d = true
+scale_3d_min = Vector3(1, 1, 1)
+scale_3d_max = Vector3(1, 1, 1)
+scale_curve = SubResource("CurveTexture_gtgc1")
+
+[sub_resource type="TorusMesh" id="TorusMesh_gs75m"]
+inner_radius = 1.5
+outer_radius = 1.51
+
+[node name="MeshInstance3D" type="MeshInstance3D" unique_id=164593598]
+mesh = SubResource("PlaneMesh_i3jvf")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=1403940003]
+amount = 2
+lifetime = 1.75
+process_material = SubResource("ParticleProcessMaterial_0f3il")
+draw_pass_1 = SubResource("TorusMesh_gs75m")
