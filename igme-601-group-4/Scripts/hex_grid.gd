@@ -224,12 +224,13 @@ func reconstruct_path(
 func create_highlight(material:ShaderMaterial, coord:Vector2i):
 	if not cell_meshes.has(coord):
 		return
-	
+	print("Highlighting cell: " + str(coord))
 	var cell: MeshInstance3D = cell_meshes[coord]
 	cell.material_override = material
 	highlighted_cells[coord] = cell
 
 func clear_highlights():
+	print("Clearing highlights")
 	for coord in highlighted_cells.keys():
 		if cell_meshes.has(coord):
 			cell_meshes[coord].material_override = null

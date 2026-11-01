@@ -1,4 +1,7 @@
 extends Node
+
+var player
+
 enum AbilityType {
 	MOVEMENT,
 	ATTACK,

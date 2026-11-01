@@ -173,6 +173,7 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 		var entry := queued_entries[index]
 		item.configure(
 			entry.id,
+			index,
 			entry.ability,
 			entry.target,
 			index % 2 == 1,

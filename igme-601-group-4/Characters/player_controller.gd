@@ -73,6 +73,7 @@ var current_mode: PlayerMode = PlayerMode.NONE
 
 
 func _ready() -> void:
+	
 	cursor_position = get_viewport().get_mouse_position()
 	
 	current_health = max_health
@@ -85,6 +86,8 @@ func _ready() -> void:
 		
 	health_changed.emit(current_health, max_health)
 	mesh = animationManager.get_node("Skeleton3D/Cube")
+	
+	Global.player = self
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -131,7 +134,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var motion_event: InputEventMouseMotion = event as InputEventMouseMotion
 		cursor_position = motion_event.position
 		if current_mode == PlayerMode.TARGETING:
-			_update_targeting_preview(estimate_future_position())
+			update_ability_preview(estimate_future_position())
 
 func get_ability(ability_name: String) -> Ability:
 	for ability in abilities:
@@ -176,7 +179,7 @@ func request_ability(ability: Ability) -> void:
 
 	current_mode = PlayerMode.TARGETING
 	targeting_started.emit(ability)
-	_update_targeting_preview(estimate_future_position())
+	update_ability_preview(estimate_future_position())
 
 func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
@@ -208,58 +211,62 @@ func _confirm_current_target() -> void:
 		show_mana_message("Not enough mana!")
 		cancel_targeting()
 		return
-	
-	
 		
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
 
 ## Reuses one evaluation result for grid highlighting, indicator feedback, and
 ## final confirmation so all three always agree about target legality.
-func _update_targeting_preview(origin:Vector2i = movement.current_cell, show_possible:bool = true) -> void:
-	var target:AbilityTarget
-	if selected_ability:
-		target = evaluate_target(selected_ability, cursor_position, origin)
+func update_ability_preview(origin:Vector2i = movement.current_cell, ability = selected_ability, 
+show_possible:bool = true, target:AbilityTarget  = null) -> void:
+	var possible_material: ShaderMaterial = _get_target_material(ability)
+	var target_material: ShaderMaterial = HexGrid.material_select
+	
+	if ability:
+		if not target:
+			target = evaluate_target(ability, cursor_position, origin)
+		else:
+			# use color to show ability type when previewing
+			target_material = possible_material
 	
 	HexGrid.clear_highlights()
-	var highlight_material: ShaderMaterial = _get_highlight_material(selected_ability)
-
-	match selected_ability.targeting_type:
+	
+	match ability.targeting_type:
 		Global.TargetingType.DIRECTION:
 			if show_possible:
 				for direction: Vector2i in HexGrid.DIRECTIONS:
 					HexGrid.highlight_line(
-						highlight_material,
+						possible_material,
 						origin,
 						direction,
-						selected_ability.range
+						ability.range
 					)
 			if target and target.is_valid:
 				HexGrid.highlight_line(
-					HexGrid.material_select,
+					target_material,
 					origin,
 					target.direction,
-					selected_ability.range
+					ability.range
 				)
 
 		Global.TargetingType.SINGLE_TILE:
 			if show_possible:
 				var cells: Array[Vector2i] = []
-				for radius in range(1, selected_ability.range + 1):
+				for radius in range(1, ability.range + 1):
 					cells.append_array(HexGrid.get_ring(origin, radius))
-				HexGrid.highlight_cells(highlight_material, cells)
+				HexGrid.highlight_cells(possible_material, cells)
 			if target and target.is_valid:
-				HexGrid.create_highlight(HexGrid.material_select,
+				HexGrid.create_highlight(target_material,
 					target.target_cell + origin)
 
 		Global.TargetingType.ANNULAR:
 			if show_possible:
 				var cells: Array[Vector2i] = []
-				for radius in range(1, selected_ability.range + 1):
+				for radius in range(1, ability.range + 1):
 					cells.append_array(HexGrid.get_ring(origin, radius))
-				HexGrid.highlight_cells(highlight_material, cells)
+				HexGrid.highlight_cells(possible_material, cells)
 			if target and target.is_valid:
-				HexGrid.highlight_cells(HexGrid.material_select, target.resolve_cells(origin))
+				HexGrid.highlight_cells(target_material, target.resolve_cells(origin))
 
 		Global.TargetingType.SHAPE:
 			pass
@@ -269,7 +276,7 @@ func _update_targeting_preview(origin:Vector2i = movement.current_cell, show_pos
 
 	target_preview_changed.emit(target)
 
-func _get_highlight_material(ability: Ability) -> ShaderMaterial:
+func _get_target_material(ability: Ability) -> ShaderMaterial:
 	if ability.type == Global.AbilityType.MOVEMENT:
 		return HexGrid.material_move
 	return HexGrid.material_attack
