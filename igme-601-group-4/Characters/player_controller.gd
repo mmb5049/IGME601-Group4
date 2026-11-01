@@ -13,13 +13,10 @@ signal ability_confirmed(ability: Ability, target: AbilityTarget)
 signal mana_changed(current_mana: int, max_mana: int)
 signal notification_requested(message: String)
 
-
-
-
+@onready var action_execution_controller := $"../ActionExecutionController"
 
 var number_display = preload("res://Misc/number_display.tscn")
 @export var mesh:MeshInstance3D
-
 
 const INVALID_CELL := Vector2i(2147483647, 2147483647)
 const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
@@ -367,7 +364,9 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 			animationManager.play_animation(ability.animation)
 	
 	match ability.type:
-		Global.AbilityType.MOVEMENT:
+		Global.AbilityType.MOVEMENT: 
+			## sister function "get_destination" in movement. Make sure to update when
+			## changing functionality here
 			if ability.targeting_type == Global.TargetingType.ANNULAR:
 				# A ring has no single movement destination.
 				succeeded = false
@@ -379,7 +378,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 					succeeded = false
 				else:
 					movement.pathfind(destination)
-					if movement.target_cell != movement.current_cell or movement.is_moving:
+					if movement.target_cell != movement.current_cell:
 						await movement.done_moving
 
 		Global.AbilityType.ATTACK:
@@ -404,10 +403,8 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 				_apply_attack()
 			else:
 				_apply_attack()
-
 			_attack_ability = null
 			_attack_target = null
-
 				
 		Global.AbilityType.TRAP:
 			succeeded = false
@@ -418,9 +415,6 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 		Global.AbilityType.STATUS:
 			activate_self_enhance()
-
-			pass
-		
 		
 	_finish_queued_ability()
 	return succeeded
@@ -576,3 +570,19 @@ func activate_self_enhance() -> void:
 			# Position underneath the player.
 		self_enhance_effect.position = Vector3(0, 0, 0)
 		print("Self Enhance stacks: ", self_enhance_stacks)
+
+# returns the grid position if movement is not interupted
+# pass in an int to get a specific spot in queue, otherwise it will go to the end
+func estimate_future_position(index:int = -1) -> Vector2i:
+	var queue:Array[QueuedAbility] = action_execution_controller.player_queue.queued_entries
+	var estimated_position:Vector2i = movement.current_cell
+	# Get the end of the queue
+	if index == -1:
+		index = queue.size()
+	# Loop through existing queue to get estimated position
+	for i in range(0,index):
+		if queue[i].ability.type == Global.AbilityType.MOVEMENT:
+			estimated_position
+
+		pass
+	return Vector2i.ZERO
