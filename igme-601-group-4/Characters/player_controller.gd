@@ -131,7 +131,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var motion_event: InputEventMouseMotion = event as InputEventMouseMotion
 		cursor_position = motion_event.position
 		if current_mode == PlayerMode.TARGETING:
-			_update_targeting_preview()
+			_update_targeting_preview(estimate_future_position())
 
 func get_ability(ability_name: String) -> Ability:
 	for ability in abilities:
@@ -176,7 +176,7 @@ func request_ability(ability: Ability) -> void:
 
 	current_mode = PlayerMode.TARGETING
 	targeting_started.emit(ability)
-	_update_targeting_preview()
+	_update_targeting_preview(estimate_future_position())
 
 func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
@@ -191,7 +191,7 @@ func _confirm_current_target() -> void:
 	if selected_ability == null:
 		return
 
-	var target: AbilityTarget = evaluate_target(selected_ability, cursor_position)
+	var target: AbilityTarget = evaluate_target(selected_ability, cursor_position, estimate_future_position())
 	if not target.is_valid:
 		return
 
@@ -216,47 +216,50 @@ func _confirm_current_target() -> void:
 
 ## Reuses one evaluation result for grid highlighting, indicator feedback, and
 ## final confirmation so all three always agree about target legality.
-func _update_targeting_preview() -> void:
-	if selected_ability == null:
-		return
-
+func _update_targeting_preview(origin:Vector2i = movement.current_cell, show_possible:bool = true) -> void:
+	var target:AbilityTarget
+	if selected_ability:
+		target = evaluate_target(selected_ability, cursor_position, origin)
+	
 	HexGrid.clear_highlights()
-	var target: AbilityTarget = evaluate_target(selected_ability, cursor_position)
 	var highlight_material: ShaderMaterial = _get_highlight_material(selected_ability)
 
 	match selected_ability.targeting_type:
 		Global.TargetingType.DIRECTION:
-			for direction: Vector2i in HexGrid.DIRECTIONS:
-				HexGrid.highlight_line(
-					highlight_material,
-					movement.current_cell,
-					direction,
-					selected_ability.range
-				)
-			if target.is_valid:
+			if show_possible:
+				for direction: Vector2i in HexGrid.DIRECTIONS:
+					HexGrid.highlight_line(
+						highlight_material,
+						origin,
+						direction,
+						selected_ability.range
+					)
+			if target and target.is_valid:
 				HexGrid.highlight_line(
 					HexGrid.material_select,
-					movement.current_cell,
+					origin,
 					target.direction,
 					selected_ability.range
 				)
 
 		Global.TargetingType.SINGLE_TILE:
-			var cells: Array[Vector2i] = []
-			for radius in range(1, selected_ability.range + 1):
-				cells.append_array(HexGrid.get_ring(movement.current_cell, radius))
-			HexGrid.highlight_cells(highlight_material, cells)
-			if target.is_valid:
+			if show_possible:
+				var cells: Array[Vector2i] = []
+				for radius in range(1, selected_ability.range + 1):
+					cells.append_array(HexGrid.get_ring(origin, radius))
+				HexGrid.highlight_cells(highlight_material, cells)
+			if target and target.is_valid:
 				HexGrid.create_highlight(HexGrid.material_select,
-					target.target_cell + movement.current_cell)
+					target.target_cell + origin)
 
 		Global.TargetingType.ANNULAR:
-			var cells: Array[Vector2i] = []
-			for radius in range(1, selected_ability.range + 1):
-				cells.append_array(HexGrid.get_ring(movement.current_cell, radius))
-			HexGrid.highlight_cells(highlight_material, cells)
-			if target.is_valid:
-				HexGrid.highlight_cells(HexGrid.material_select, target.resolve_cells(movement.current_cell))
+			if show_possible:
+				var cells: Array[Vector2i] = []
+				for radius in range(1, selected_ability.range + 1):
+					cells.append_array(HexGrid.get_ring(origin, radius))
+				HexGrid.highlight_cells(highlight_material, cells)
+			if target and target.is_valid:
+				HexGrid.highlight_cells(HexGrid.material_select, target.resolve_cells(origin))
 
 		Global.TargetingType.SHAPE:
 			pass
@@ -272,7 +275,7 @@ func _get_highlight_material(ability: Ability) -> ShaderMaterial:
 	return HexGrid.material_attack
 
 ## Produces a typed target without changing UI or grid state.
-func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget:
+func evaluate_target(ability: Ability, mouse_position: Vector2, origin:Vector2i) -> AbilityTarget:
 	var result := AbilityTarget.new(ability.targeting_type)
 	if ability.targeting_type == Global.TargetingType.NONE:
 		result.is_valid = true
@@ -289,7 +292,7 @@ func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget
 				return result
 
 			var player_position: Vector3 = HexGrid.to_global(
-				HexGrid.hex_to_world(movement.current_cell)
+				HexGrid.hex_to_world(origin)
 			)
 			var world_difference: Vector3 = clicked_position - player_position
 			var flat_difference := Vector2(world_difference.x, world_difference.z).normalized()
@@ -312,32 +315,32 @@ func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget
 			result.is_valid = best_direction != Vector2i.ZERO
 			if result.is_valid and ability.type == Global.AbilityType.MOVEMENT:
 				var destination: Vector2i = HexGrid.raycast(
-					movement.current_cell,
+					origin,
 					best_direction,
 					ability.range
 				)
-				result.is_valid = destination != movement.current_cell
+				result.is_valid = destination != origin
 
 		Global.TargetingType.SINGLE_TILE:
 			result.target_cell = clicked_cell
 			# checks if cell is in range of player
 			result.is_valid = (
-				HexGrid.hex_distance(clicked_cell, movement.current_cell) <= ability.range
+				HexGrid.hex_distance(clicked_cell, origin) <= ability.range
 			)
 			# can't move onto current position
 			if result.is_valid and ability.type == Global.AbilityType.MOVEMENT:
 				result.is_valid = (
-					clicked_cell != movement.current_cell
+					clicked_cell != origin
 				)
 			# make target relative to player position
-			result.target_cell -= movement.current_cell
+			result.target_cell -= origin
 
 		Global.TargetingType.SHAPE:
 			# Shape placement will use the same AbilityTarget object when implemented.
 			result.target_cell = clicked_cell
 
 		Global.TargetingType.ANNULAR:
-			var radius: int = HexGrid.hex_distance(clicked_cell, movement.current_cell)
+			var radius: int = HexGrid.hex_distance(clicked_cell,origin)
 			if radius >= 1 and radius <= ability.range:
 				result.ring_radius = radius
 				result.target_cells = HexGrid.get_ring(Vector2i.ZERO, radius)
@@ -477,7 +480,6 @@ func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 	var local_position: Vector3 = HexGrid.to_local(hit_position)
 	return HexGrid.world_to_hex(local_position)
 	
-	
 func damage(amount: int) -> void:
 	if is_dead or amount <= 0:
 		return
@@ -508,7 +510,6 @@ func heal(amount: int) -> void:
 	current_health = mini(current_health + amount, max_health)
 	health_changed.emit(current_health, max_health)
 
-
 func spend_mana(amount: int) -> bool:
 	if amount < 0 or current_mana < amount:
 		return false
@@ -518,7 +519,6 @@ func spend_mana(amount: int) -> bool:
 	print("Mana", current_mana)
 	return true
 
-
 func refill_mana() -> void:
 	current_mana = mini(
 		current_mana + mana_per_turn,
@@ -527,13 +527,11 @@ func refill_mana() -> void:
 	mana_changed.emit(current_mana, max_mana)
 	print("Mana", current_mana)
 
-
 func show_mana_message(message: String) -> void:
 	notification_requested.emit(message)
 	
 func can_afford_ability(ability: Ability) -> bool:
 	return ability != null and current_mana >= ability.cost
-
 
 ## Connected to AnimationManager.take_action, and also called directly as a fallback.
 func _apply_attack() -> void:
@@ -555,7 +553,6 @@ func _apply_attack() -> void:
 			get_parent().add_child(new_display)
 			new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
 			new_display.set_number(0)
-
 
 func activate_self_enhance() -> void:
 	# Every activation adds another stack.
@@ -582,7 +579,5 @@ func estimate_future_position(index:int = -1) -> Vector2i:
 	# Loop through existing queue to get estimated position
 	for i in range(0,index):
 		if queue[i].ability.type == Global.AbilityType.MOVEMENT:
-			estimated_position
-
-		pass
-	return Vector2i.ZERO
+			estimated_position = movement.get_destination(queue[i].ability,queue[i].target,estimated_position)
+	return estimated_position

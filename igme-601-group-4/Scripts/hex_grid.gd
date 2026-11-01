@@ -139,7 +139,7 @@ func set_occupied(coord: Vector2i, value):
 func is_valid_cell(coord: Vector2i) -> bool:
 	return valid_cells.has(coord)
 
-func raycast(start:Vector2i, direction:Vector2i,length:int, 
+func raycast(start:Vector2i, direction:Vector2i,length:int,
 check_flag: = Global.OccupiedType.NONE) -> Vector2i:
 	var cell
 	for i in range(1,length+1):
