@@ -18,9 +18,10 @@ surface_material_override/0 = ExtResource("3_mfhi6")
 surface_material_override/1 = ExtResource("3_mfhi6")
 script = ExtResource("4_oie3p")
 
-[node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character")]
+[node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character", "facing_visual")]
 script = ExtResource("2_mig5a")
 character = NodePath("..")
+facing_visual = NodePath("../MeshInstance3D")
 
 [node name="EnemyAbilityQueueUI" parent="." instance=ExtResource("6_queue_ui")]
 

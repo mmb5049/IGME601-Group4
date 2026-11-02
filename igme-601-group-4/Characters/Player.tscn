@@ -141,12 +141,12 @@ abilities = Array[ExtResource("2_v6d5b")]([ExtResource("3_55lj8"), ExtResource("
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_0f3il")
 
-[node name="Movement" type="Node" parent="." unique_id=1414287046 node_paths=PackedStringArray("character", "hologram")]
+[node name="Movement" type="Node" parent="." unique_id=1414287046 node_paths=PackedStringArray("character", "facing_visual")]
 script = ExtResource("5_55lj8")
 character = NodePath("..")
-hologram = NodePath("../VisualPivotHologram")
+facing_visual = NodePath("../VisualPivot")
 
-[node name="VisualPivot" type="Node3D" parent="." unique_id=248447547]
+[node name="VisualPivot" type="Node3D" parent="." unique_id=141469518]
 
 [node name="Animation" type="Node3D" parent="VisualPivot" unique_id=1821010304]
 script = ExtResource("6_qhb0e")
@@ -643,5 +643,5 @@ script = ExtResource("10_x35ji")
 libraries/Attack = ExtResource("6_55lj8")
 autoplay = &"Attack/FightingIdle"
 
-[node name="ActionNumberUI" parent="." unique_id=389478820 instance=ExtResource("11_action_number")]
+[node name="ActionNumberUI" parent="." unique_id=162314650 instance=ExtResource("11_action_number")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
