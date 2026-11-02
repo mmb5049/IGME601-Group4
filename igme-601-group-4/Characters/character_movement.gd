@@ -27,6 +27,8 @@ var floorHeight:float
 signal done_moving(sender:Signal)
 var is_moving:bool
 
+@export var hologram:Node3D
+
 func _ready():
 	target_cell = current_cell
 	floorHeight = HexGrid.hex_height
@@ -60,7 +62,8 @@ func execute_directional_move(direction: Vector2i, distance: int) -> bool:
 		HexGrid.to_global(HexGrid.hex_to_world(current_cell + direction))
 		- HexGrid.to_global(HexGrid.hex_to_world(current_cell))
 	)
-	var destination: Vector2i = HexGrid.raycast(current_cell, direction, distance, true)
+	var destination: Vector2i = HexGrid.raycast(current_cell, direction, distance, 
+	Global.OccupiedType.STATIC | Global.OccupiedType.DYNAMIC)
 	if destination == current_cell or not HexGrid.is_valid_cell(destination):
 		await _play_blocked_move(direction)
 		return false
@@ -126,7 +129,6 @@ func _exit_tree() -> void:
 
 # Creates a path toward the requested destination.
 func pathfind(end_cell:Vector2i):
-	## Should not pathfind when dashing... 
 	path = HexGrid.find_path(current_cell, end_cell)
 	## Old code... Checks if path has enough tiles to move
 	if path.is_empty():
@@ -139,7 +141,17 @@ func pathfind(end_cell:Vector2i):
 	
 	HexGrid.set_occupied(current_cell, false)
 	target_cell = path.pop_front()
-	print("New target is: " + str(target_cell))
+
+## returns the end position when using a movement ability. Does not consider dynamic blockers (enemies)
+func get_destination(ability: Ability, target: AbilityTarget, start:Vector2i) -> Vector2i:
+	if ability.type != Global.AbilityType.MOVEMENT:
+		return start
+	match ability.targeting_type:
+		Global.TargetingType.DIRECTION:
+			return HexGrid.raycast(start, target.direction, ability.range, Global.OccupiedType.STATIC)
+		Global.TargetingType.SINGLE_TILE:
+			return target.target_cell
+	return start
 
 # Move character towards target hex. Returns true if the target has been reached
 func move_to(cell:Vector2i, delta) -> bool:
@@ -186,3 +198,14 @@ func set_pos(cell:Vector2i):
 	character.global_position = target_position
 	current_cell = cell
 	target_cell = current_cell
+
+func set_hologram_pos(cell:Vector2i):
+	if hologram:
+		hologram.visible = true
+		
+		var target_position = HexGrid.to_global(HexGrid.hex_to_world(cell))
+		# Adjust target height
+		target_position.y = floorHeight
+		hologram.global_position = target_position
+	else:
+		push_error("No hologram pivot set")

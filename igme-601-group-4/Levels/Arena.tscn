@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://bkw5j0bx88rjt" path="res://UI/AbilityBarUI.tscn" id="8_ability_bar"]
 [ext_resource type="Resource" uid="uid://ws7vkafabric" path="res://Abilities/Trap.tres" id="8_f1bm4"]
 [ext_resource type="Resource" uid="uid://bd8u5js5idheq" path="res://Abilities/Wait.tres" id="9_4yh7d"]
-[ext_resource type="PackedScene" path="res://UI/AbilitySequenceUI.tscn" id="10_ability_sequence"]
+[ext_resource type="PackedScene" uid="uid://cvr0mhxrtq6oq" path="res://UI/AbilitySequenceUI.tscn" id="10_ability_sequence"]
 [ext_resource type="Resource" uid="uid://6cjwk84iec8y" path="res://Abilities/Attack_Up.tres" id="10_d75p2"]
 [ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="11_action_dock"]
 [ext_resource type="PackedScene" uid="uid://c35cgvpcvfvxk" path="res://VFX/Self_Enhancement.tscn" id="11_exqbx"]
@@ -22,6 +22,14 @@
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="17_queue_visibility"]
 
 [sub_resource type="Theme" id="Theme_tmhow"]
+
+[sub_resource type="Environment" id="Environment_pdfgs"]
+glow_enabled = true
+glow_hdr_luminance_cap = 46.67
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_dfd4s"]
+
+[sub_resource type="Compositor" id="Compositor_fy3br"]
 
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
@@ -40,9 +48,6 @@ transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41
 abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d"), ExtResource("10_d75p2"), ExtResource("14_exqbx")])
 self_enhance_effect_scene = ExtResource("11_exqbx")
 ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
-
-[node name="ActionNumberUI" parent="Player" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
@@ -109,6 +114,11 @@ offset_bottom = 138.0
 theme = SubResource("Theme_tmhow")
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136143873]
+environment = SubResource("Environment_pdfgs")
+camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
+compositor = SubResource("Compositor_fy3br")
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]

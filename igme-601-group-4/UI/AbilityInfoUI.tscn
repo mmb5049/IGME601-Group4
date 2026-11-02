@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://dqpbwdhgw28jb"]
+
+[ext_resource type="Script" path="res://UI/ability_info_ui.gd" id="1_it27v"]
+[ext_resource type="Texture2D" path="res://Arts/Textures/Cards/AtkUpCard.png" id="2_vgegk"]
+
+[node name="AbilityInfoUi" type="Control" unique_id=200573368]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_it27v")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1172349912]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -520.0
+offset_bottom = 775.0
+grow_horizontal = 0
+size_flags_horizontal = 10
+offset_transform_enabled = true
+offset_transform_position = Vector2(-32, 32)
+mouse_filter = 0
+texture = ExtResource("2_vgegk")
+expand_mode = 1
+stretch_mode = 4

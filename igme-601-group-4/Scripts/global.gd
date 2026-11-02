@@ -1,4 +1,8 @@
 extends Node
+
+# typing this variable prevents the playerController script from compiling (godot is weird)
+var player
+
 enum AbilityType {
 	MOVEMENT,
 	ATTACK,
@@ -14,3 +18,13 @@ enum TargetingType {
 	SINGLE_TILE,
 	ANNULAR
 }
+
+# Bitshift is used to enable logical operators
+enum OccupiedType {
+	NONE = 0,
+	STATIC = 1 << 0,
+	DYNAMIC = 1 << 1
+}
+
+func has_flag(value, flag) -> bool:
+	return (value & flag) == flag

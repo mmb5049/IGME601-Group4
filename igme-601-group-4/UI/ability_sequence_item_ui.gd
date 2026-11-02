@@ -45,6 +45,7 @@ const RIGHT_HEX_POSITION := Vector2(92.0, 46.0)
 @export_range(0.01, 0.5, 0.01, "suffix:s") var removal_color_transition: float = 0.14
 
 var _entry_id: int = -1
+var _index:int = 0
 var _ability: Ability
 var _target: AbilityTarget
 var _align_right: bool = false
@@ -62,6 +63,7 @@ var _drag_preview_hex: AbilityHexDisplayUI
 var _drag_preview_is_removal: bool = false
 var _drag_preview_color_tween: Tween
 var _interaction_enabled: bool = true
+var _is_hovered: bool = false
 
 @onready var _hex_display: AbilityHexDisplayUI = $AbilityHexDisplayUI
 @onready var _direction_edges: AbilityDirectionEdgesUI = %DirectionEdges
@@ -77,12 +79,14 @@ func _ready() -> void:
 	_hex_display.visible = not _pending_reveal
 	if _animate_appearance:
 		_play_appearance_animation()
-
+	mouse_entered.connect(func(): _is_hovered=true; show_preview())
+	mouse_exited.connect(func(): _is_hovered=false; stop_preview())
 
 ## Configures one queue entry. Alternating alignment produces the linked
 ## hexagon pattern while the VBoxContainer still controls vertical ordering.
 func configure(
 	entry_id: int,
+	index: int,
 	ability: Ability,
 	target: AbilityTarget,
 	align_right: bool,
@@ -91,6 +95,7 @@ func configure(
 	pending_reveal: bool = false
 ) -> void:
 	_entry_id = entry_id
+	_index = index
 	_ability = ability
 	_target = target
 	_align_right = align_right
@@ -109,6 +114,11 @@ func _refresh_display() -> void:
 	_configure_direction_edges(_direction_edges)
 	tooltip_text = _ability.ability_name if _ability else "Empty Queue Entry"
 
+func show_preview() -> void:
+	print("Showing preview")
+	Global.player.update_ability_preview(Global.player.estimate_future_position(_index),_ability,false,_target)
+func stop_preview() -> void:
+	HexGrid.clear_highlights()
 
 ## Queue entries preserve their confirmed AbilityTarget. Directional entries
 ## therefore show a fixed green edge matching the direction that will execute.
