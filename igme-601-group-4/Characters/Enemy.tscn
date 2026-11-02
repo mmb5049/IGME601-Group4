@@ -21,9 +21,16 @@ _data = {
 script = ExtResource("1_1oqew")
 movement = NodePath("Movement")
 
-[node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character")]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1287119294]
+mesh = ExtResource("2_tcaex")
+surface_material_override/0 = ExtResource("3_mfhi6")
+surface_material_override/1 = ExtResource("3_mfhi6")
+script = ExtResource("4_oie3p")
+
+[node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character", "facing_visual")]
 script = ExtResource("2_mig5a")
 character = NodePath("..")
+facing_visual = NodePath("../MeshInstance3D")
 
 [node name="Pivot" parent="." unique_id=1204073741 instance=ExtResource("3_16c55")]
 script = ExtResource("4_gsoy2")

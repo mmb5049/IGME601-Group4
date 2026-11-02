@@ -1,5 +1,19 @@
 # Turn preparation integration test
 
+Blocked movement feedback:
+
+```text
+godot --headless --path . res://tests/blocked_movement_test.tscn
+```
+
+Checks player Move/Dash and enemy Move against occupied tiles and arena edges,
+ordered short advance/quick return/0.5-second horizontal shake, queue completion
+timing, unchanged grid occupancy and height, exact position restoration, repeated
+failures followed by legal movement, partially blocked Dash, and death cancellation.
+Also checks player/enemy body facing in all six movement directions, retaining
+facing after stopping and during blocked feedback, and unchanged actor rotation,
+visual position and scale.
+
 Enemy planning and friendly-fire attacks:
 
 ```text

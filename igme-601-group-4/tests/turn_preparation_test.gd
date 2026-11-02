@@ -98,7 +98,7 @@ func run() -> void:
 	if HexGrid.is_valid_cell(destination):
 		HexGrid.set_occupied(destination, controller.player_actor)
 	var entry := QueuedAbility.new(999, enemy.move_ability, target)
-	check(not await enemy.execute_queued_ability(entry), "Occupied or out-of-bounds Move must fail immediately")
+	check(not await enemy.execute_queued_ability(entry), "Occupied or out-of-bounds Move must fail after blocked feedback")
 	check(enemy.movement.current_cell == cell, "Blocked Move must preserve position")
 	if HexGrid.is_valid_cell(destination):
 		HexGrid.set_occupied(destination, false)

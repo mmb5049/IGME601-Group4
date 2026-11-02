@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://cvr0mhxrtq6oq"]
 
-[ext_resource type="Script" path="res://UI/ability_sequence_ui.gd" id="1_sequence_script"]
+[ext_resource type="Script" uid="uid://dm4b0f167y0wa" path="res://UI/ability_sequence_ui.gd" id="1_sequence_script"]
 
-[node name="AbilitySequenceUI" type="Control"]
+[node name="AbilitySequenceUI" type="Control" unique_id=1629301790]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,10 +12,10 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_sequence_script")
 
-[node name="SequenceDropRegion" type="Control" parent="."]
+[node name="SequenceDropRegion" type="Control" parent="." unique_id=907889457]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = 9
 anchor_bottom = 1.0
 offset_left = 24.0
 offset_top = 24.0
@@ -24,7 +24,7 @@ offset_bottom = -180.0
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="SequenceDropRegion"]
+[node name="ScrollContainer" type="ScrollContainer" parent="SequenceDropRegion" unique_id=1002569330]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -34,7 +34,7 @@ grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
 
-[node name="SequenceContainer" type="VBoxContainer" parent="SequenceDropRegion/ScrollContainer"]
+[node name="SequenceContainer" type="VBoxContainer" parent="SequenceDropRegion/ScrollContainer" unique_id=831461276]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

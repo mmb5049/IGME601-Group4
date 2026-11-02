@@ -139,14 +139,24 @@ func set_occupied(coord: Vector2i, value):
 func is_valid_cell(coord: Vector2i) -> bool:
 	return valid_cells.has(coord)
 
-func raycast(start:Vector2i,direction:Vector2i,length:int, track_occupied:bool = false) -> Vector2i:
+func raycast(start:Vector2i, direction:Vector2i,length:int,
+check_flag: = Global.OccupiedType.NONE) -> Vector2i:
 	var cell
 	for i in range(1,length+1):
 		cell = start + direction*i
-		if not is_valid_cell(cell) or (track_occupied and is_occupied(cell)):
+		# check if cell is valid and if check_flag includes the cell
+		if not is_valid_cell(cell) or (get_flag_from_cell(cell) != Global.OccupiedType.NONE and 
+		Global.has_flag(check_flag,get_flag_from_cell(cell))):
 			cell = start + direction*(i-1)
 			break
 	return cell
+
+func get_flag_from_cell(cell:Vector2i) -> Global.OccupiedType:
+	if is_occupied(cell):
+		if occupied_cells[cell] is PlayerController or occupied_cells[cell] is Enemy:
+			return Global.OccupiedType.DYNAMIC
+		return Global.OccupiedType.STATIC
+	return Global.OccupiedType.NONE
 
 func find_path(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 	var open_set: Array[Vector2i] = [start]
@@ -214,7 +224,6 @@ func reconstruct_path(
 func create_highlight(material:ShaderMaterial, coord:Vector2i):
 	if not cell_meshes.has(coord):
 		return
-	
 	var cell: MeshInstance3D = cell_meshes[coord]
 	cell.material_override = material
 	highlighted_cells[coord] = cell

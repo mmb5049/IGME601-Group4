@@ -77,7 +77,7 @@ func _sync_queue() -> void:
 			old_position = item.get_hex_global_position()
 		else:
 			item = item_scene.instantiate() as AbilitySequenceItemUI
-			item.configure(entry.id, entry.ability, entry.target, align_right, null, true)
+			item.configure(entry.id, index, entry.ability, entry.target, align_right, null, true)
 			item.set_interaction_enabled(false)
 			item.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_items_root.add_child(item)
@@ -87,7 +87,7 @@ func _sync_queue() -> void:
 		item.position = Vector2(-AbilitySequenceItemUI.LEFT_HEX_POSITION.x,
 			-AbilitySequenceItemUI.LEFT_HEX_POSITION.y - depth * row_spacing)
 		if existing:
-			item.configure(entry.id, entry.ability, entry.target, align_right, null)
+			item.configure(entry.id, index, entry.ability, entry.target, align_right, null)
 			item.animate_from_global_position(old_position, animation_duration,
 				animation_duration if removed_any else 0.0)
 
