@@ -9,3 +9,4 @@ shader = ExtResource("1_1o2p4")
 shader_parameter/emission_power = 4.0
 shader_parameter/emission_color = Vector3(0, 1, 1)
 shader_parameter/code_texture = ExtResource("2_6ldxt")
+shader_parameter/alpha = 0.5
