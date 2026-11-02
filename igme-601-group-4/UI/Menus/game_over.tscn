@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://d2af5376r7sff"]
 
 [ext_resource type="Texture2D" uid="uid://b250mkha5s746" path="res://Arts/Textures/cat-thumbs-up-thumbs-up.png" id="1_nitg1"]
+[ext_resource type="Texture2D" uid="uid://bgtr30lmeyok0" path="res://Arts/Textures/cat-thumbs-down-thumbs-down.png" id="2_v761r"]
 
 [node name="GameOver" type="Control" unique_id=1785312048]
+z_index = 100
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,7 +12,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="Panel" parent="." unique_id=1282693027]
+[node name="Win" type="Control" parent="." unique_id=1377251073]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,38 +21,96 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="." unique_id=307714951]
+[node name="Panel" type="Panel" parent="Win" unique_id=1282693027]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Win" unique_id=307714951]
+layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -93.0
-offset_top = -11.5
-offset_right = 132.0
-offset_bottom = 11.5
+offset_left = -325.5
+offset_top = -260.0
+offset_right = 325.5
+offset_bottom = -85.0
 grow_horizontal = 2
 grow_vertical = 2
 offset_transform_enabled = true
-offset_transform_position = Vector2(0, -128)
 theme_override_font_sizes/font_size = 128
 text = "You Win! :)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=2011784540]
+[node name="TextureRect" type="TextureRect" parent="Win" unique_id=2011784540]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.556
+anchor_top = 0.7
 anchor_right = 0.5
-anchor_bottom = 0.646
-offset_left = -388.0
-offset_top = -20.0
-offset_right = 480.0
-offset_bottom = 20.0
+anchor_bottom = 0.8
+offset_left = -434.0
+offset_top = -292.5
+offset_right = 434.0
+offset_bottom = -52.5
 grow_horizontal = 2
 grow_vertical = 2
 offset_transform_enabled = true
 texture = ExtResource("1_nitg1")
+
+[node name="Lose" type="Control" parent="." unique_id=1115002641]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="Lose" unique_id=137038640]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Lose" unique_id=2071482167]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -348.0
+offset_top = -270.0
+offset_right = 348.0
+offset_bottom = -95.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_enabled = true
+theme_override_font_sizes/font_size = 128
+text = "You Lose! :("
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Lose" unique_id=121225659]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.7
+anchor_right = 0.5
+anchor_bottom = 0.8
+offset_left = -434.0
+offset_top = -302.5
+offset_right = 434.0
+offset_bottom = -62.5
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_enabled = true
+texture = ExtResource("2_v761r")

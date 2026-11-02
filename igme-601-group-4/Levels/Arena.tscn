@@ -18,9 +18,10 @@
 [ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="13_action_executor"]
 [ext_resource type="Resource" uid="uid://c6k8dqbeef8ht" path="res://Abilities/Whirlwind.tres" id="14_exqbx"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
+[ext_resource type="Script" uid="uid://dnyo8nf7sudpe" path="res://UI/Menus/game_over.gd" id="15_ujjvo"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="16_famn7"]
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="17_queue_visibility"]
-[ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
+[ext_resource type="PackedScene" uid="uid://dqpbwdhgw28jb" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
 
 [sub_resource type="Theme" id="Theme_tmhow"]
 
@@ -50,6 +51,9 @@ abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("
 self_enhance_effect_scene = ExtResource("11_exqbx")
 ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 
+[node name="Cube" parent="Player/VisualPivotHologram/Animation/Skeleton3D" parent_id_path=PackedInt32Array(372403699, 2108595506) index="0" unique_id=1123867961]
+surface_material_override/0 = null
+
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
 [node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
@@ -57,6 +61,7 @@ script = ExtResource("17_queue_visibility")
 
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("14_mo5sh")]
 visible = false
+script = ExtResource("15_ujjvo")
 
 [node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
 layout_mode = 3
