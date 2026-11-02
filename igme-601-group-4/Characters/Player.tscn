@@ -143,7 +143,7 @@ shape = SubResource("CapsuleShape3D_0f3il")
 script = ExtResource("5_55lj8")
 character = NodePath("..")
 
-[node name="VisualPivot" type="Node3D" parent="."]
+[node name="VisualPivot" type="Node3D" parent="." unique_id=141469518]
 
 [node name="Animation" type="Node3D" parent="VisualPivot" unique_id=1821010304]
 script = ExtResource("6_qhb0e")
@@ -391,5 +391,5 @@ script = ExtResource("10_x35ji")
 [node name="AnimationPlayer" type="AnimationPlayer" parent="VisualPivot/Animation" unique_id=1731858539]
 libraries/Attack = ExtResource("6_55lj8")
 
-[node name="ActionNumberUI" parent="." instance=ExtResource("11_action_number")]
-position = Vector3(0, 2.15, 0)
+[node name="ActionNumberUI" parent="." unique_id=162314650 instance=ExtResource("11_action_number")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)

@@ -31,8 +31,8 @@ const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 @export var presentation_visual: Node3D
 
 @export_category("Health")
-@export var max_health: int = 100
-var current_health: int = 100
+@export var max_health: int = 20
+var current_health: int = 20
 var is_dead: bool = false
 
 @export_category("Mana")
@@ -49,6 +49,8 @@ var self_enhance_stacks: int = 0
 var self_enhance_effect: Node3D = null
 
 const SELF_ENHANCE_MULTIPLIER: float = 1.5
+
+@export var ability_sequence_ui: AbilitySequenceUI
 
 var _attack_ability: Ability = null
 var _attack_target: AbilityTarget = null
@@ -88,6 +90,10 @@ func _ready() -> void:
 		
 	health_changed.emit(current_health, max_health)
 	mesh = animationManager.get_node("Skeleton3D/Cube")
+	ability_sequence_ui.ability_removed.connect(
+	func(ability: Ability):
+		refund_mana(ability.cost)
+	)
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -576,3 +582,13 @@ func activate_self_enhance() -> void:
 			# Position underneath the player.
 		self_enhance_effect.position = Vector3(0, 0, 0)
 		print("Self Enhance stacks: ", self_enhance_stacks)
+		
+		
+func refund_mana(amount: int) -> void:
+	if amount <= 0:
+		return
+
+	current_mana = mini(current_mana + amount, max_mana)
+	mana_changed.emit(current_mana, max_mana)
+
+	print("Mana refunded: ", amount, " | Current mana: ", current_mana)

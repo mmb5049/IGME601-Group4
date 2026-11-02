@@ -3,6 +3,7 @@ class_name AbilitySequenceUI
 
 ## Emitted whenever an entry is added, removed, or reordered.
 signal queue_changed
+signal ability_removed(ability: Ability)
 
 @export var item_scene: PackedScene = preload("res://UI/AbilitySequenceItemUI.tscn")
 
@@ -190,8 +191,20 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 
 
 func _on_item_removal_requested(entry_id: int) -> void:
-	if _interaction_enabled:
-		consume_entry(entry_id)
+	if not _interaction_enabled:
+		return
+
+	var index: int = _find_entry_index(entry_id)
+	if index < 0:
+		return
+
+	var ability: Ability = queued_entries[index].ability
+
+	# Refund mana before removing the entry.
+	ability_removed.emit(ability)
+
+	consume_entry(entry_id)
+	print("remove")
 
 
 ## Moves a unique queue entry relative to another entry. The target index is
