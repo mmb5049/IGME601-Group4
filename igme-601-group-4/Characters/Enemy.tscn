@@ -20,10 +20,9 @@ _data = {
 script = ExtResource("1_1oqew")
 movement = NodePath("Movement")
 
-[node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character", "facing_visual")]
+[node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character")]
 script = ExtResource("2_mig5a")
 character = NodePath("..")
-facing_visual = NodePath("")
 
 [node name="EnemyAbilityQueueUI" parent="." unique_id=949041406 instance=ExtResource("6_queue_ui")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)

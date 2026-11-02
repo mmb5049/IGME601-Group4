@@ -132,8 +132,10 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 					continue
 				if victim == self or victim.is_queued_for_deletion():
 					continue
-				if victim is Enemy or victim is PlayerController:
+				if victim is PlayerController:
 					victim.damage(entry.ability.damage)
+				else:
+					print(victim)
 			return true
 	return false
 

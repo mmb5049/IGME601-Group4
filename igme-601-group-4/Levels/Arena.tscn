@@ -50,9 +50,6 @@ abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("
 self_enhance_effect_scene = ExtResource("11_exqbx")
 ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 
-[node name="VisualPivotHologram" parent="Player" index="3" unique_id=947166165]
-visible = false
-
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
 [node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
@@ -133,5 +130,4 @@ compositor = SubResource("Compositor_fy3br")
 [connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
 
-[editable path="Player"]
 [editable path="HUD"]

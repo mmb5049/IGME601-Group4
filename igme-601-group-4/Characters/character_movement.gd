@@ -32,7 +32,9 @@ var is_moving:bool
 func _ready():
 	target_cell = current_cell
 	floorHeight = HexGrid.hex_height
+	
 	set_pos(spawn_position)
+	
 	# Release an awaiting queue action if its actor dies during feedback.
 	if character.has_signal("player_died"):
 		character.connect("player_died", _finish_blocked_move)
@@ -193,6 +195,7 @@ func set_pos(cell:Vector2i):
 	if current_cell:
 		HexGrid.set_occupied(current_cell, false)
 	HexGrid.set_occupied(cell, character)
+	
 		
 	# Snap position
 	character.global_position = target_position

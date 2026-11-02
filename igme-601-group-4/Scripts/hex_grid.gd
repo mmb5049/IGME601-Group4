@@ -131,7 +131,7 @@ func hex_distance(a: Vector2i, b: Vector2i) -> int:
 func is_occupied(coord: Vector2i) -> bool:
 	return occupied_cells.has(coord)
 
-func set_occupied(coord: Vector2i, value):
+func set_occupied(coord: Vector2i, value:Variant):
 	if value:
 		occupied_cells[coord] = value
 	else:
