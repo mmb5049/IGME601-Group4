@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://dqpbwdhgw28jb"]
+[gd_scene format=3 uid="uid://8sn2l0pafp8i"]
 
-[ext_resource type="Script" path="res://UI/ability_info_ui.gd" id="1_it27v"]
-[ext_resource type="Texture2D" path="res://Arts/Textures/Cards/AtkUpCard.png" id="2_vgegk"]
+[ext_resource type="Script" uid="uid://d3nc6nbwhk83x" path="res://UI/ability_info_ui.gd" id="1_it27v"]
+[ext_resource type="Texture2D" uid="uid://d2cxgjhop6twc" path="res://Arts/Textures/Cards/AtkUpCard.png" id="2_vgegk"]
 
 [node name="AbilityInfoUi" type="Control" unique_id=200573368]
 layout_mode = 3

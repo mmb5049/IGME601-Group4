@@ -3,6 +3,7 @@ extends Node3D
 class_name Enemy
 
 @export var movement:CharacterMovement
+@onready var mesh:MeshInstance3D = $Pivot/Skeleton3D/Cube
 @export_category("Turn Planning")
 @export var move_ability: Ability = preload("res://Abilities/Move.tres")
 @export var attack_ability: Ability = preload("res://Abilities/Whirlwind.tres")
@@ -16,7 +17,6 @@ var action_number: int = 0:
 		action_number = value
 		action_number_changed.emit(value)
 var ability_queue: AbilityQueue = AbilityQueue.new()
-@onready var mesh:MeshInstance3D = $MeshInstance3D
 var number_display = preload("res://Misc/number_display.tscn")
 
 var health:int = 10

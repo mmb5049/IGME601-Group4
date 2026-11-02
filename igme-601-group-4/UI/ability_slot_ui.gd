@@ -21,6 +21,8 @@ var _interaction_enabled: bool = true
 
 @onready var _hex_display: AbilityHexDisplayUI = $AbilityHexDisplayUI
 
+signal show_ability_info(ability:Ability)
+signal hide_ability_info(ability:Ability)
 
 func _ready() -> void:
 	# HBoxContainer owns this component's root transform. HexDisplay is a Node2D
@@ -125,12 +127,14 @@ func set_interaction_enabled(enabled: bool) -> void:
 func _on_mouse_entered() -> void:
 	_hover_target = 1.0
 	z_index = 10
-
+	if ability:
+		show_ability_info.emit(ability)
 
 func _on_mouse_exited() -> void:
 	_hover_target = 0.0
 	z_index = 0
-
+	if ability:
+		hide_ability_info.emit(ability)
 
 ## Updates existing scene components; it does not create any UI nodes.
 func _refresh_display() -> void:

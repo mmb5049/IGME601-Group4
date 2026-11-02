@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="16_famn7"]
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="17_queue_visibility"]
+[ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
 
 [sub_resource type="Theme" id="Theme_tmhow"]
 
@@ -90,6 +91,9 @@ hover_lift_pixels = 26.0
 layout_mode = 1
 
 [node name="ActionDockUI" parent="GlobalUIRoot/SwayLayer" unique_id=1286708918 instance=ExtResource("11_action_dock")]
+layout_mode = 1
+
+[node name="AbilityInfoUi" parent="GlobalUIRoot/SwayLayer" unique_id=200573368 instance=ExtResource("19_sb1hv")]
 layout_mode = 1
 
 [node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue", "player_ability_bar", "execute_button")]

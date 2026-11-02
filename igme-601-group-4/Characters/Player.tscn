@@ -397,6 +397,7 @@ libraries/Attack = ExtResource("6_55lj8")
 autoplay = &"Attack/FightingIdle"
 
 [node name="VisualPivotHologram" type="Node3D" parent="." unique_id=947166165]
+visible = false
 
 [node name="Animation" type="Node3D" parent="VisualPivotHologram" unique_id=110330085]
 

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="1_5dgc1"]
 [ext_resource type="Texture2D" uid="uid://bce2lv65jo68b" path="res://Arts/Textures/Dash.png" id="2_icon"]
+[ext_resource type="Texture2D" uid="uid://b0vfbr6t07gk4" path="res://Arts/Textures/Cards/DashCard.png" id="2_stjd2"]
 
 [resource]
 script = ExtResource("1_5dgc1")
@@ -11,4 +12,5 @@ type = 0
 cost = 20
 range = 5
 targeting_type = 1
+info_card = ExtResource("2_stjd2")
 metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"
