@@ -3,7 +3,7 @@ extends Node3D
 class_name Enemy
 
 @export var movement:CharacterMovement
-@onready var mesh:MeshInstance3D = $MeshInstance3D
+@onready var mesh:MeshInstance3D = $Pivot/Skeleton3D/Cube
 var number_display = preload("res://Misc/number_display.tscn")
 
 var health:int = 10
