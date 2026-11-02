@@ -38,6 +38,10 @@ func _ready():
 
 # needs to reset every round because this is an autoload script
 func reset():
+	# Clear traps
+	for coord in traps:
+		traps[coord].queue_free()
+	traps.clear()
 	occupied_cells.clear()
 	hex_height = hex_mesh.height
 	generate_grid()

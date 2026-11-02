@@ -55,8 +55,20 @@ ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 [node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
 script = ExtResource("17_queue_visibility")
 
-[node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("14_mo5sh")]
-visible = false
+[node name="HUD" parent="." unique_id=1543784001 instance=ExtResource("16_famn7")]
+
+[node name="HealthBar" parent="HUD" index="0" unique_id=51208162]
+offset_left = 240.0
+offset_right = 763.0
+
+[node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
+offset_right = 763.0
+offset_bottom = 138.0
+
+[node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
+theme = SubResource("Theme_tmhow")
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
 layout_mode = 3
@@ -104,25 +116,13 @@ player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
 execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
 between_actions_delay = 0.45
 
-[node name="HUD" parent="." unique_id=1543784001 instance=ExtResource("16_famn7")]
-
-[node name="HealthBar" parent="HUD" index="0" unique_id=51208162]
-offset_left = 240.0
-offset_right = 763.0
-
-[node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
-offset_right = 763.0
-offset_bottom = 138.0
-
-[node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
-theme = SubResource("Theme_tmhow")
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136143873]
 environment = SubResource("Environment_pdfgs")
 camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
 compositor = SubResource("Compositor_fy3br")
+
+[node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("14_mo5sh")]
+visible = false
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]

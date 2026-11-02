@@ -118,13 +118,17 @@ offset_transform_enabled = true
 texture = ExtResource("2_v761r")
 
 [node name="Button" type="Button" parent="." unique_id=642421849]
+z_index = 101
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.3
 anchor_top = 1.0
 anchor_right = 0.7
 anchor_bottom = 1.0
-offset_top = -181.0
+offset_left = 2.0
+offset_top = -183.0
+offset_right = 2.0
+offset_bottom = -2.0
 grow_horizontal = 2
 grow_vertical = 0
 offset_transform_enabled = true
