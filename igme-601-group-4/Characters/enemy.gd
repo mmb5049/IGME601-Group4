@@ -27,7 +27,6 @@ signal died()
 func _ready() -> void:
 	add_to_group("enemies")
 
-
 ## Override this method for enemy types with different planning rules.
 func prepare_turn(player: PlayerController) -> void:
 	ability_queue.clear_queue()

@@ -75,6 +75,7 @@ var current_mode: PlayerMode = PlayerMode.NONE
 
 
 func _ready() -> void:
+	movement.set_pos(movement.spawn_position)
 	
 	cursor_position = get_viewport().get_mouse_position()
 	
