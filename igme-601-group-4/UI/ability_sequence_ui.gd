@@ -121,6 +121,10 @@ func consume_entry(entry_id: int) -> bool:
 		return false
 
 	var previous_positions: Dictionary[int, Vector2] = _capture_item_positions()
+	var removed_item: AbilitySequenceItemUI = _find_item(entry_id)
+	if removed_item != null:
+		removed_item.reparent(self, true)
+		removed_item.play_removal_animation(layout_animation_duration)
 	queued_entries.remove_at(index)
 	_pending_reveal_entry_ids.erase(entry_id)
 	_rebuild_items()

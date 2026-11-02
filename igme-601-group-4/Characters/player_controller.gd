@@ -3,12 +3,23 @@ class_name PlayerController
 
 ## UI and gameplay systems observe these signals instead of duplicating target
 ## calculations. The Player remains the single authority for legal targets.
+
+signal health_changed(current_health: int, max_health: int)
+signal player_died
 signal targeting_started(ability: Ability)
 signal target_preview_changed(target: AbilityTarget)
 signal targeting_ended
 signal ability_confirmed(ability: Ability, target: AbilityTarget)
+signal mana_changed(current_mana: int, max_mana: int)
+signal notification_requested(message: String)
+
+
+
+
 
 var number_display = preload("res://Misc/number_display.tscn")
+@export var mesh:MeshInstance3D
+
 
 const INVALID_CELL := Vector2i(2147483647, 2147483647)
 const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
@@ -16,15 +27,44 @@ const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 @onready var camera: Camera3D = get_viewport().get_camera_3d()
 @export var movement: CharacterMovement
 @export var animationManager:AnimationManager
+## Outer pivot isolates procedural movement from AnimationPlayer root tracks.
+@export var presentation_visual: Node3D
+
+@export_category("Health")
+@export var max_health: int = 100
+var current_health: int = 100
+var is_dead: bool = false
+
+@export_category("Mana")
+@export var max_mana: int = 100
+@export var mana_per_turn: int = 100
+@export var current_mana: int = 100
+
 
 @export_category("Abilities")
 @export var abilities: Array[Ability] = []
+@export var self_enhance_effect_scene: PackedScene
+
+var self_enhance_stacks: int = 0
+var self_enhance_effect: Node3D = null
+
+const SELF_ENHANCE_MULTIPLIER: float = 1.5
+
+var _attack_ability: Ability = null
+var _attack_target: AbilityTarget = null
+var _attack_applied: bool = false
 
 var selected_ability: Ability = null
 var cursor_position: Vector2 = Vector2.ZERO
 ## Remains true across the small gaps between queued abilities. current_mode
 ## alone cannot provide this lock because each individual action resets it.
 var _action_sequence_active: bool = false
+signal action_number_changed(number: int)
+
+var action_number: int = 1:
+	set(value):
+		action_number = value
+		action_number_changed.emit(value)
 
 enum PlayerMode {
 	NONE,
@@ -37,9 +77,17 @@ var current_mode: PlayerMode = PlayerMode.NONE
 
 func _ready() -> void:
 	cursor_position = get_viewport().get_mouse_position()
+	
+	current_health = max_health
+	current_mana = max_mana
+	mana_changed.emit(current_mana, max_mana)
+
+	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
-
+		
+	health_changed.emit(current_health, max_health)
+	mesh = animationManager.get_node("Skeleton3D/Cube")
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -63,6 +111,12 @@ func _unhandled_input(event: InputEvent) -> void:
 				request_ability(get_ability("Dash"))
 			KEY_S:
 				request_ability(get_ability("Slash"))
+			KEY_T:
+				request_ability(get_ability("Trap"))
+			KEY_H:
+				damage(20)
+			KEY_A:
+				request_ability(get_ability("Attack_Up"))
 
 	elif event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event as InputEventMouseButton
@@ -84,6 +138,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func get_ability(ability_name: String) -> Ability:
 	for ability in abilities:
+		print(ability.ability_name)
 		if ability.ability_name == ability_name:
 			return ability
 	return null
@@ -92,8 +147,15 @@ func get_ability(ability_name: String) -> Ability:
 ## NONE abilities can be confirmed and queued immediately.
 func request_ability(ability: Ability) -> void:
 	if ability == null or current_mode == PlayerMode.ACTING or _action_sequence_active:
+		print("ability: ", ability)
+		print("current mode: ", current_mode)
+		print("request fail")
 		return
-
+		
+	if not can_afford_ability(ability):
+		show_mana_message("Not enough mana!")
+		return
+		
 	HexGrid.clear_highlights()
 	selected_ability = ability
 	cursor_position = get_viewport().get_mouse_position()
@@ -101,6 +163,14 @@ func request_ability(ability: Ability) -> void:
 	if ability.targeting_type == Global.TargetingType.NONE:
 		var immediate_target := AbilityTarget.new(Global.TargetingType.NONE)
 		immediate_target.is_valid = true
+		
+		# Don't confirm ability if not enough mana
+		if not spend_mana(ability.cost):
+			show_mana_message("Not enough mana!")
+			selected_ability = null
+			current_mode = PlayerMode.NONE
+			return
+			
 		ability_confirmed.emit(ability, immediate_target)
 		selected_ability = null
 		current_mode = PlayerMode.NONE
@@ -132,6 +202,18 @@ func _confirm_current_target() -> void:
 	HexGrid.clear_highlights()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
+	if not can_afford_ability(confirmed_ability):
+		show_mana_message("Not enough mana!")
+		cancel_targeting()
+		return
+
+	if not spend_mana(confirmed_ability.cost):
+		show_mana_message("Not enough mana!")
+		cancel_targeting()
+		return
+	
+	
+		
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
 
@@ -170,6 +252,14 @@ func _update_targeting_preview() -> void:
 			if target.is_valid:
 				HexGrid.create_highlight(HexGrid.material_select,
 					target.target_cell + movement.current_cell)
+
+		Global.TargetingType.ANNULAR:
+			var cells: Array[Vector2i] = []
+			for radius in range(1, selected_ability.range + 1):
+				cells.append_array(HexGrid.get_ring(movement.current_cell, radius))
+			HexGrid.highlight_cells(highlight_material, cells)
+			if target.is_valid:
+				HexGrid.highlight_cells(HexGrid.material_select, target.resolve_cells(movement.current_cell))
 
 		Global.TargetingType.SHAPE:
 			pass
@@ -249,6 +339,13 @@ func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget
 			# Shape placement will use the same AbilityTarget object when implemented.
 			result.target_cell = clicked_cell
 
+		Global.TargetingType.ANNULAR:
+			var radius: int = HexGrid.hex_distance(clicked_cell, movement.current_cell)
+			if radius >= 1 and radius <= ability.range:
+				result.ring_radius = radius
+				result.target_cells = HexGrid.get_ring(Vector2i.ZERO, radius)
+				result.is_valid = true
+
 	return result
 
 ## Called by the action-phase queue executor. Movement branches suspend until
@@ -256,69 +353,75 @@ func evaluate_target(ability: Ability, mouse_position: Vector2) -> AbilityTarget
 ## awaitable API for both asynchronous movement and immediate attacks.
 func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 	if ability == null or target == null or not target.is_valid:
+		print("null")
 		return false
 
 	current_mode = PlayerMode.ACTING
 	var succeeded: bool = true
-	
+	print("start acting")
 	# play animation
 	var has_animation:bool = false
 	if animationManager:
 		has_animation = animationManager.has_animation(ability.animation)
-		if has_animation:
+		if has_animation and ability.presentation == null:
 			animationManager.play_animation(ability.animation)
 	
 	match ability.type:
 		Global.AbilityType.MOVEMENT:
-			var destination: Vector2i = target.target_cell
-			
-			# set target for direction types
-			if ability.targeting_type == Global.TargetingType.DIRECTION:
-				if target.direction == Vector2i.ZERO:
-					_finish_queued_ability()
-					return false
-				destination = HexGrid.raycast(
-					movement.current_cell,
-					target.direction,
-					ability.range,
-					true
-				)
-				
-			# make sure the cell is not the current one of off the grid
-			if destination == movement.current_cell or not HexGrid.is_valid_cell(destination):
+			if ability.targeting_type == Global.TargetingType.ANNULAR:
+				# A ring has no single movement destination.
 				succeeded = false
+			elif ability.targeting_type == Global.TargetingType.DIRECTION:
+				succeeded = await movement.execute_directional_move(target.direction, ability.range)
 			else:
-				movement.pathfind(destination)
-				# CharacterMovement can finish an empty path synchronously. Only
-				# await when pathfind actually selected a different target cell.
-				if movement.target_cell != movement.current_cell or movement.is_moving:
-					await movement.done_moving
+				var destination: Vector2i = target.target_cell
+				if destination == movement.current_cell or not HexGrid.is_valid_cell(destination):
+					succeeded = false
+				else:
+					movement.pathfind(destination)
+					if movement.target_cell != movement.current_cell or movement.is_moving:
+						await movement.done_moving
 
 		Global.AbilityType.ATTACK:
-			# Lambda function that damages the enemy
-			var attack = func(_action_num):
-				var target_cell: Vector2i = target.target_cell + movement.current_cell
-				if HexGrid.is_occupied(target_cell) and HexGrid.occupied_cells[target_cell] is Enemy:
-					(HexGrid.occupied_cells[target_cell] as Enemy).damage(ability.damage)
-				else:
-					var new_display:Node3D = number_display.instantiate()
-					get_parent().add_child(new_display)
-					
-					new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
-					new_display.set_number(0)
-			# if there is an animation, wait for it to finish and only call attack
-			# when it lines up with the animation
-			if has_animation:
-				animationManager.take_action.connect(attack)
-				await animationManager.animationPlayer.animation_finished
-				animationManager.take_action.disconnect(attack)
-			else:
-				attack.call(0)
-		_:
-			# Wait and not-yet-specialized Ability types still consume one
-			# queue step. Their gameplay effects can be added here later.
-			pass
+			_attack_ability = ability
+			_attack_target = target
+			_attack_applied = false
 
+			if ability.presentation != null:
+				var completed: bool = await ability.presentation.play(self, presentation_visual, target)
+				if completed and not is_dead:
+					_apply_attack()
+				else:
+					succeeded = false
+			elif has_animation:
+				animationManager.take_action.connect(_apply_attack)
+				await animationManager.animationPlayer.animation_finished
+				if animationManager.take_action.is_connected(_apply_attack):
+					animationManager.take_action.disconnect(_apply_attack)
+				# Fallback: does nothing if the keyframe already fired.
+				if not _attack_applied:
+					push_warning("take_action never fired; applying attack as fallback")
+				_apply_attack()
+			else:
+				_apply_attack()
+
+			_attack_ability = null
+			_attack_target = null
+
+				
+		Global.AbilityType.TRAP:
+			succeeded = false
+			for trap_cell: Vector2i in target.resolve_cells(movement.current_cell):
+				if not HexGrid.traps.has(trap_cell):
+					if HexGrid.place_trap(trap_cell, ability.damage):
+						succeeded = true
+
+		Global.AbilityType.STATUS:
+			activate_self_enhance()
+
+			pass
+		
+		
 	_finish_queued_ability()
 	return succeeded
 
@@ -343,6 +446,20 @@ func begin_action_sequence() -> void:
 func end_action_sequence() -> void:
 	_action_sequence_active = false
 	current_mode = PlayerMode.NONE
+
+	# Reset Self Enhance stacks.
+	self_enhance_stacks = 0
+
+	# Remove visual effect.
+	if is_instance_valid(self_enhance_effect):
+		self_enhance_effect.queue_free()
+
+	self_enhance_effect = null
+
+	
+	# Restore mana for the next turn.
+	refill_mana()
+	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
 
@@ -365,3 +482,97 @@ func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 
 	var local_position: Vector3 = HexGrid.to_local(hit_position)
 	return HexGrid.world_to_hex(local_position)
+	
+	
+func damage(amount: int) -> void:
+	if is_dead or amount <= 0:
+		return
+		
+	var new_display:Node3D = number_display.instantiate()
+	get_parent().add_child(new_display)
+	
+	new_display.global_position = global_position + Vector3(0, 1.1, 0)
+	new_display.set_number(-amount)
+
+	mesh.flash()
+
+	current_health = current_health - amount
+	health_changed.emit(current_health, max_health)
+
+	print("Player HP: ", current_health, "/", max_health)
+
+	if current_health <= 0:
+		is_dead = true
+		player_died.emit()
+		print("Player died!")
+
+#Nothing can heal the player as of yet but still a useful function to have
+func heal(amount: int) -> void:
+	if is_dead or amount <= 0:
+		return
+
+	current_health = mini(current_health + amount, max_health)
+	health_changed.emit(current_health, max_health)
+
+
+func spend_mana(amount: int) -> bool:
+	if amount < 0 or current_mana < amount:
+		return false
+
+	current_mana -= amount
+	mana_changed.emit(current_mana, max_mana)
+	print("Mana", current_mana)
+	return true
+
+
+func refill_mana() -> void:
+	current_mana = mini(
+		current_mana + mana_per_turn,
+		max_mana
+	)
+	mana_changed.emit(current_mana, max_mana)
+	print("Mana", current_mana)
+
+
+func show_mana_message(message: String) -> void:
+	notification_requested.emit(message)
+	
+func can_afford_ability(ability: Ability) -> bool:
+	return ability != null and current_mana >= ability.cost
+
+
+## Connected to AnimationManager.take_action, and also called directly as a fallback.
+func _apply_attack() -> void:
+	if _attack_applied or _attack_ability == null or _attack_target == null:
+		return
+	_attack_applied = true
+
+	var final_damage: int = _attack_ability.damage
+	if self_enhance_stacks > 0:
+		var multiplier: float = pow(SELF_ENHANCE_MULTIPLIER, self_enhance_stacks)
+		final_damage = roundi(final_damage * multiplier)
+
+	for target_cell: Vector2i in _attack_target.resolve_cells(movement.current_cell):
+		var victim: Variant = HexGrid.occupied_cells.get(target_cell)
+		if is_instance_valid(victim) and victim is Enemy and not victim.is_queued_for_deletion():
+			victim.damage(final_damage)
+		else:
+			var new_display: Node3D = number_display.instantiate()
+			get_parent().add_child(new_display)
+			new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)
+			new_display.set_number(0)
+
+
+func activate_self_enhance() -> void:
+	# Every activation adds another stack.
+	self_enhance_stacks += 1
+
+	# Only spawn the effect if one doesn't already exist.
+	if not is_instance_valid(self_enhance_effect):
+		if self_enhance_effect_scene:
+			self_enhance_effect = self_enhance_effect_scene.instantiate()
+			add_child(self_enhance_effect)
+
+			# Position underneath the player.
+		self_enhance_effect.position = Vector3(0, 0, 0)
+		print("Self Enhance stacks: ", self_enhance_stacks)

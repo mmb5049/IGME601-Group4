@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Ability" format=3 uid="uid://6cjwk84iec8y"]
+
+[ext_resource type="Texture2D" uid="uid://gg4f8bytiflp" path="res://Arts/Textures/Self_Enhancement.png" id="1_8kipt"]
+[ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="1_a8i8w"]
+
+[resource]
+script = ExtResource("1_a8i8w")
+ability_name = "Attack_Up"
+icon = ExtResource("1_8kipt")
+type = 3
+cost = 40
+metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"

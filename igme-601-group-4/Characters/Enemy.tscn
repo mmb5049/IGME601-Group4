@@ -13,6 +13,9 @@ _data = {
 &"Idle": ExtResource("5_f64xo"),
 &"Punch": ExtResource("6_15fs6")
 }
+[ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="4_oie3p"]
+[ext_resource type="PackedScene" path="res://UI/EnemyAbilityQueueUI.tscn" id="6_queue_ui"]
+[ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="7_action_number"]
 
 [node name="Enemy" type="Node3D" unique_id=1359998768 node_paths=PackedStringArray("movement")]
 script = ExtResource("1_1oqew")
@@ -116,3 +119,6 @@ libraries/Enemy = SubResource("AnimationLibrary_r4647")
 autoplay = &"Enemy/Idle"
 
 [editable path="Pivot"]
+[node name="EnemyAbilityQueueUI" parent="." instance=ExtResource("6_queue_ui")]
+
+[node name="ActionNumberUI" parent="." instance=ExtResource("7_action_number")]

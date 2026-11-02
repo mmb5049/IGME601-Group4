@@ -15,8 +15,11 @@ class_name Ability
 
 @export_category("Animation")
 @export var animation:Animation
+## Optional replaceable presentation, awaited before attack damage.
+@export var presentation: AbilityPresentation
 
 @export_category("Targeting")
+## ANNULAR: hover any tile at distance 1..range to select its entire ring.
 @export var targeting_type: Global.TargetingType = Global.TargetingType.NONE
 
 @export_category("Shape")

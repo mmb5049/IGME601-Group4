@@ -5,14 +5,13 @@ class_name ActionExecutionController
 signal execution_started
 signal execution_finished
 
-## These per-entry signals form the extension points for future animation,
-## sound, combat logging, and the full multi-actor turn-order controller.
+signal preparation_started(turn_number: int)
+signal phase_changed(phase: TurnPhase)
+
+## Per-entry extension points for animation, UI, and combat logging.
 signal action_started(actor: Node, entry: QueuedAbility)
 signal action_finished(actor: Node, entry: QueuedAbility, succeeded: bool)
 
-## This milestone wires one actor and one visible queue. execute_next() itself
-## intentionally uses a small method-based contract so a future enemy queue can
-## use the same executor without needing an AbilitySequenceUI node.
 @export_category("Current Player Plan")
 @export var player_actor: PlayerController
 @export var player_queue: AbilitySequenceUI
@@ -25,6 +24,11 @@ signal action_finished(actor: Node, entry: QueuedAbility, succeeded: bool)
 @export_range(0.0, 1.0, 0.01, "suffix:s") var between_actions_delay: float = 0.20
 
 var _is_executing: bool = false
+enum TurnPhase { INITIALIZING, PREPARATION, EXECUTION }
+var current_phase: TurnPhase = TurnPhase.INITIALIZING
+var turn_number: int = 0
+## Player first, followed by this turn's shuffled enemies. Readable by future UI.
+var action_order: Array[Node] = []
 
 
 func _ready() -> void:
@@ -32,47 +36,110 @@ func _ready() -> void:
 		push_error("ActionExecutionController needs an ExecuteButtonUI reference.")
 		return
 	execute_button.execute_requested.connect(_on_execute_requested)
+	# Arena._ready() spawns enemies after this child becomes ready.
+	begin_preparation.call_deferred()
+
+
+func begin_preparation() -> void:
+	if _is_executing or current_phase == TurnPhase.PREPARATION:
+		return
+	if not is_instance_valid(player_actor) or player_actor.is_dead:
+		return
+	turn_number += 1
+	action_order.clear()
+	player_actor.action_number = 1
+	action_order.append(player_actor)
+	var enemies: Array[Enemy] = []
+	for node in get_tree().get_nodes_in_group("enemies"):
+		if node is Enemy and get_parent().is_ancestor_of(node) and _actor_can_act(node):
+			enemies.append(node)
+	enemies.shuffle()
+	for index in range(enemies.size()):
+		var enemy: Enemy = enemies[index]
+		enemy.action_number = index + 2
+		enemy.prepare_turn(player_actor)
+		action_order.append(enemy)
+	current_phase = TurnPhase.PREPARATION
+	_set_planning_interaction_enabled(true)
+	phase_changed.emit(current_phase)
+	preparation_started.emit(turn_number)
 
 
 func _on_execute_requested() -> void:
 	# A second click must never start another coroutine over the same queue.
-	if _is_executing:
+	if _is_executing or current_phase != TurnPhase.PREPARATION:
 		return
 	if player_actor == null or player_queue == null:
 		push_error("ActionExecutionController needs a player and player queue.")
 		return
-	if not player_queue.has_entries():
+	if player_actor.is_dead or player_actor.current_mode == PlayerController.PlayerMode.TARGETING:
 		return
 
-	_execute_current_player_plan()
+	_execute_turn()
 
 
-## Current milestone behavior: because enemies have empty plans, repeatedly
-## executing the player's next entry produces the same visible result as the
-## future round-robin scheduler. That scheduler should call execute_next() once
-## per actor instead of replacing the ability execution code below.
-func _execute_current_player_plan() -> void:
+## One entry per living actor per pass, until every queue is exhausted.
+func _execute_turn() -> void:
 	_is_executing = true
+	current_phase = TurnPhase.EXECUTION
 	_set_planning_interaction_enabled(false)
 	player_actor.begin_action_sequence()
+	phase_changed.emit(current_phase)
 	execution_started.emit()
 
-	while player_queue.has_entries():
-		await execute_next(player_actor, player_queue)
-		if player_queue.has_entries() and between_actions_delay > 0.0:
-			await get_tree().create_timer(between_actions_delay).timeout
+	while _has_pending_actions():
+		for actor in action_order:
+			if not _actor_can_act(player_actor):
+				break
+			if not _actor_can_act(actor):
+				continue
+			var queue: Object = _get_actor_queue(actor)
+			if queue == null or not queue.has_entries():
+				continue
+			await execute_next(actor, queue)
+			if _has_pending_actions() and between_actions_delay > 0.0:
+				await get_tree().create_timer(between_actions_delay).timeout
 
-	player_actor.end_action_sequence()
-	_set_planning_interaction_enabled(true)
+	if is_instance_valid(player_actor):
+		player_actor.end_action_sequence()
 	_is_executing = false
 	execution_finished.emit()
+	begin_preparation()
+
+
+func _actor_can_act(actor: Variant) -> bool:
+	if not is_instance_valid(actor) or actor.is_queued_for_deletion():
+		return false
+	if actor is Enemy:
+		return actor.health > 0
+	if actor is PlayerController:
+		return not actor.is_dead
+	return false
+
+
+func _get_actor_queue(actor: Node) -> Object:
+	if actor == player_actor:
+		return player_queue
+	if actor is Enemy:
+		return actor.ability_queue
+	return null
+
+
+func _has_pending_actions() -> bool:
+	if not _actor_can_act(player_actor):
+		return false
+	for actor in action_order:
+		if _actor_can_act(actor):
+			var queue: Object = _get_actor_queue(actor)
+			if queue != null and queue.has_entries():
+				return true
+	return false
 
 
 ## Executes exactly one queue entry. The queue_source contract is deliberately
-## small: has_entries(), peek_front_entry(), and consume_entry(id). A later
-## enemy-owned, non-visual queue can implement those same methods.
+## small: has_entries(), peek_front_entry(), and consume_entry(id).
 func execute_next(actor: Node, queue_source: Object) -> bool:
-	if actor == null or queue_source == null:
+	if not _actor_can_act(actor) or not is_instance_valid(queue_source):
 		return false
 	if (
 		not queue_source.has_method("has_entries")
@@ -95,7 +162,7 @@ func execute_next(actor: Node, queue_source: Object) -> bool:
 	# synchronously and proceed directly to queue consumption.
 	var succeeded: bool = bool(await actor.call("execute_queued_ability", entry))
 	queue_source.call("consume_entry", entry.id)
-	action_finished.emit(actor, entry, succeeded)
+	action_finished.emit(actor if is_instance_valid(actor) else null, entry, succeeded)
 	return succeeded
 
 

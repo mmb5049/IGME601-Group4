@@ -25,7 +25,9 @@ jobs:
           include-templates: true
 
       - name: Import project
-        run: godot --headless --editor --quit
+        run: |
+          godot --headless --verbose --editor --quit 2>&1 | tee import1.log || true
+          godot --headless --verbose --editor --quit 2>&1 | tee import2.log
 
       - name: Build Windows
         run: |

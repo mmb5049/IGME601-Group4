@@ -371,8 +371,35 @@ func get_entry_id() -> int:
 	return _entry_id
 
 
+func set_frame_color(color: Color) -> void:
+	_hex_display.set_frame_color(color)
+
+
+## Shared exit effect for player and enemy queue entries. The owner detaches
+## the item from its layout before playing this non-interactive visual tail.
+func play_removal_animation(duration: float = 0.20) -> void:
+	set_interaction_enabled(false)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _reorder_tween != null and _reorder_tween.is_valid():
+		_reorder_tween.kill()
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_hex_display, "scale", Vector2.ZERO, duration)
+	tween.tween_property(_hex_display, "modulate:a", 0.0, duration)
+	tween.chain().tween_callback(queue_free)
+
+
 func get_hex_global_position() -> Vector2:
 	return _hex_display.global_position
+
+
+func get_hex_screen_polygon() -> PackedVector2Array:
+	# Same point-up hex geometry as hex_ui_mask.gdshader, including animations.
+	var polygon := PackedVector2Array([
+		Vector2(0, -64), Vector2(55.4256, -32), Vector2(55.4256, 32),
+		Vector2(0, 64), Vector2(-55.4256, 32), Vector2(-55.4256, -32),
+	])
+	return _hex_display.get_global_transform_with_canvas() * polygon
 
 
 func get_hex_scale() -> Vector2:
@@ -409,7 +436,7 @@ func hold_layout_transition_at_global_position(start_position: Vector2) -> void:
 ## Used after the data order changes. A newly rebuilt Item starts visually at
 ## its previous screen position, then travels to the position assigned by its
 ## new queue index and left/right alignment.
-func animate_from_global_position(start_position: Vector2, duration: float) -> void:
+func animate_from_global_position(start_position: Vector2, duration: float, delay: float = 0.0) -> void:
 	if not is_node_ready():
 		return
 
@@ -443,7 +470,7 @@ func animate_from_global_position(start_position: Vector2, duration: float) -> v
 		"position",
 		target_position,
 		duration
-	)
+	).set_delay(delay)
 
 
 ## Godot notifies the source Control when a drag finishes. The Item delegates

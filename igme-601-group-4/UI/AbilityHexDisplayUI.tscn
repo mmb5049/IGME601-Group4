@@ -1,9 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Shader" uid="uid://s8vnyjhd8qdn" path="res://Materials/Shaders/hex_ui_mask.gdshader" id="1_mask_shader"]
 [ext_resource type="Texture2D" uid="uid://5j07m71nm74a" path="res://Arts/Textures/HexShaderTexture.png" id="2_hex_mask"]
 [ext_resource type="Texture2D" uid="uid://dl63bux8kddhv" path="res://Arts/Textures/Slash.png" id="3_preview_icon"]
-[ext_resource type="Script" path="res://UI/ability_hex_display_ui.gd" id="4_display_script"]
+[ext_resource type="Script" uid="uid://bitukguieuk4m" path="res://UI/ability_hex_display_ui.gd" id="4_display_script"]
 [ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="5_slash"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hex_mask"]
