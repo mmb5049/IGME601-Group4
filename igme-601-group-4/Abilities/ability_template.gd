@@ -24,3 +24,6 @@ class_name Ability
 
 @export_category("Shape")
 @export var shape: Array[Vector2i] = []
+
+@export_category("UI")
+@export var info_card: Texture2D

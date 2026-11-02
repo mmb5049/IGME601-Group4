@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://dtakd72l1qpwy" path="res://Arts/Textures/Whirlwind.png" id="1_qot6t"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="2_yceao"]
 [ext_resource type="Resource" path="res://Abilities/Presentation/WhirlwindPresentation.tres" id="3_presentation"]
+[ext_resource type="Texture2D" uid="uid://c0etbwxr23lmx" path="res://Arts/Textures/Cards/WhirlwindCard.png" id="3_unf4d"]
 
 [resource]
 script = ExtResource("2_yceao")
@@ -15,4 +16,5 @@ damage = 3
 animation = ExtResource("1_amp14")
 presentation = ExtResource("3_presentation")
 targeting_type = 4
+info_card = ExtResource("3_unf4d")
 metadata/_custom_type_script = "uid://bb2g6ka3m3kqr"
