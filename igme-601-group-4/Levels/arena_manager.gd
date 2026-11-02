@@ -8,10 +8,15 @@ var total_enemies:int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	HexGrid.reset()
+	
+	gameOverScreen.restart_game.connect(func():get_tree().reload_current_scene())
+	
 	spawn_enemy(Vector2i(1,1))
 	spawn_enemy(Vector2i(3,-1))
 	spawn_enemy(Vector2i(-2,-2))
 	spawn_enemy(Vector2i(-4,3))
+	
 	Global.player.player_died.connect(func():game_over(false))
 
 func spawn_enemy(pos:Vector2i):

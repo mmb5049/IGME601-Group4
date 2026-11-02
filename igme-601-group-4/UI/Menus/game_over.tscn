@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://d2af5376r7sff"]
 
+[ext_resource type="Script" uid="uid://dnyo8nf7sudpe" path="res://UI/Menus/game_over.gd" id="1_d2pq3"]
 [ext_resource type="Texture2D" uid="uid://b250mkha5s746" path="res://Arts/Textures/cat-thumbs-up-thumbs-up.png" id="1_nitg1"]
 [ext_resource type="Texture2D" uid="uid://bgtr30lmeyok0" path="res://Arts/Textures/cat-thumbs-down-thumbs-down.png" id="2_v761r"]
 
@@ -11,9 +12,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_d2pq3")
 
 [node name="Win" type="Control" parent="." unique_id=1377251073]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -65,6 +66,7 @@ offset_transform_enabled = true
 texture = ExtResource("1_nitg1")
 
 [node name="Lose" type="Control" parent="." unique_id=1115002641]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -114,3 +116,20 @@ grow_horizontal = 2
 grow_vertical = 2
 offset_transform_enabled = true
 texture = ExtResource("2_v761r")
+
+[node name="Button" type="Button" parent="." unique_id=642421849]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.3
+anchor_top = 1.0
+anchor_right = 0.7
+anchor_bottom = 1.0
+offset_top = -181.0
+grow_horizontal = 2
+grow_vertical = 0
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, -44.005)
+theme_override_font_sizes/font_size = 112
+text = "Restart"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
