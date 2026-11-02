@@ -1,5 +1,6 @@
 extends Node
 
+# typing this variable prevents the playerController script from compiling (godot is weird)
 var player
 
 enum AbilityType {

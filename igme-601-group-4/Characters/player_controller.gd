@@ -156,7 +156,7 @@ func request_ability(ability: Ability) -> void:
 		show_mana_message("Not enough mana!")
 		return
 		
-	HexGrid.clear_highlights()
+	clear_preview()
 	selected_ability = ability
 	cursor_position = get_viewport().get_mouse_position()
 
@@ -185,7 +185,7 @@ func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
 		return
 
-	HexGrid.clear_highlights()
+	clear_preview()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
 	targeting_ended.emit()
@@ -199,7 +199,7 @@ func _confirm_current_target() -> void:
 		return
 
 	var confirmed_ability: Ability = selected_ability
-	HexGrid.clear_highlights()
+	clear_preview()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
 	if not can_afford_ability(confirmed_ability):
@@ -229,7 +229,11 @@ show_possible:bool = true, target:AbilityTarget  = null) -> void:
 			# use color to show ability type when previewing
 			target_material = possible_material
 	
-	HexGrid.clear_highlights()
+	clear_preview()
+	
+	# Display hologram
+	if origin != movement.current_cell:
+		movement.set_hologram_pos(origin)
 	
 	match ability.targeting_type:
 		Global.TargetingType.DIRECTION:
@@ -444,7 +448,7 @@ func _finish_queued_ability() -> void:
 func begin_action_sequence() -> void:
 	_action_sequence_active = true
 	current_mode = PlayerMode.ACTING
-	HexGrid.clear_highlights()
+	clear_preview()
 	selected_ability = null
 
 func end_action_sequence() -> void:
@@ -588,3 +592,8 @@ func estimate_future_position(index:int = -1) -> Vector2i:
 		if queue[i].ability.type == Global.AbilityType.MOVEMENT:
 			estimated_position = movement.get_destination(queue[i].ability,queue[i].target,estimated_position)
 	return estimated_position
+
+func clear_preview() -> void:
+	HexGrid.clear_highlights()
+	if movement.hologram:
+		movement.hologram.visible = false

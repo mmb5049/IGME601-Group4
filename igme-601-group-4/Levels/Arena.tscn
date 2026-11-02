@@ -23,6 +23,14 @@
 
 [sub_resource type="Theme" id="Theme_tmhow"]
 
+[sub_resource type="Environment" id="Environment_pdfgs"]
+glow_enabled = true
+glow_hdr_luminance_cap = 46.67
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_dfd4s"]
+
+[sub_resource type="Compositor" id="Compositor_fy3br"]
+
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
 
@@ -105,6 +113,11 @@ offset_bottom = 138.0
 theme = SubResource("Theme_tmhow")
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136143873]
+environment = SubResource("Environment_pdfgs")
+camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
+compositor = SubResource("Compositor_fy3br")
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]

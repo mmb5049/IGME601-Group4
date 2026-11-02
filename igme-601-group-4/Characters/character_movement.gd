@@ -15,6 +15,8 @@ var floorHeight:float
 signal done_moving(sender:Signal)
 var is_moving:bool
 
+@export var hologram:Node3D
+
 func _ready():
 	target_cell = current_cell
 	floorHeight = HexGrid.hex_height
@@ -119,3 +121,14 @@ func set_pos(cell:Vector2i):
 	character.global_position = target_position
 	current_cell = cell
 	target_cell = current_cell
+
+func set_hologram_pos(cell:Vector2i):
+	if hologram:
+		hologram.visible = true
+		
+		var target_position = HexGrid.to_global(HexGrid.hex_to_world(cell))
+		# Adjust target height
+		target_position.y = floorHeight
+		hologram.global_position = target_position
+	else:
+		push_error("No hologram pivot set")
