@@ -5,17 +5,17 @@
 [ext_resource type="PackedScene" uid="uid://dauvbbdht1e4l" path="res://Animations/Enemy/DuendeIdle.fbx" id="3_16c55"]
 [ext_resource type="Material" uid="uid://b44yqc3msjja6" path="res://Materials/enemy.tres" id="3_mfhi6"]
 [ext_resource type="Script" uid="uid://dglwrx0n21jcs" path="res://Characters/animation_manager.gd" id="4_gsoy2"]
+[ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="4_oie3p"]
 [ext_resource type="Animation" uid="uid://dgodn7i5go2s" path="res://Animations/Enemy/Idle.res" id="5_f64xo"]
 [ext_resource type="Animation" uid="uid://xwbmssnqjq4o" path="res://Animations/Enemy/Punch.res" id="6_15fs6"]
+[ext_resource type="PackedScene" path="res://UI/EnemyAbilityQueueUI.tscn" id="6_queue_ui"]
+[ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="7_action_number"]
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_r4647"]
 _data = {
 &"Idle": ExtResource("5_f64xo"),
 &"Punch": ExtResource("6_15fs6")
 }
-[ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="4_oie3p"]
-[ext_resource type="PackedScene" path="res://UI/EnemyAbilityQueueUI.tscn" id="6_queue_ui"]
-[ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="7_action_number"]
 
 [node name="Enemy" type="Node3D" unique_id=1359998768 node_paths=PackedStringArray("movement")]
 script = ExtResource("1_1oqew")
@@ -113,12 +113,16 @@ bones/63/rotation = Quaternion(0.3431002, 0.10457877, 0.0916434, 0.9289494)
 [node name="Cube" parent="Pivot/Skeleton3D" index="0" unique_id=1922800396]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
 surface_material_override/0 = ExtResource("3_mfhi6")
+script = ExtResource("4_oie3p")
 
 [node name="AnimationPlayer" parent="Pivot" index="1" unique_id=1383296118]
 libraries/Enemy = SubResource("AnimationLibrary_r4647")
 autoplay = &"Enemy/Idle"
 
-[editable path="Pivot"]
-[node name="EnemyAbilityQueueUI" parent="." instance=ExtResource("6_queue_ui")]
+[node name="EnemyAbilityQueueUI" parent="." unique_id=1796320261 instance=ExtResource("6_queue_ui")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3425969, 0)
 
-[node name="ActionNumberUI" parent="." instance=ExtResource("7_action_number")]
+[node name="ActionNumberUI" parent="." unique_id=1725357206 instance=ExtResource("7_action_number")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3425969, 0)
+
+[editable path="Pivot"]
