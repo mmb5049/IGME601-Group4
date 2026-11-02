@@ -75,13 +75,13 @@ var current_mode: PlayerMode = PlayerMode.NONE
 
 
 func _ready() -> void:
+	movement.set_pos(movement.spawn_position)
 	
 	cursor_position = get_viewport().get_mouse_position()
 	
 	current_health = max_health
 	current_mana = max_mana
 	mana_changed.emit(current_mana, max_mana)
-
 	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
@@ -92,9 +92,13 @@ func _ready() -> void:
 	func(ability: Ability):
 		refund_mana(ability.cost)
 	)
-
-	
 	Global.player = self
+	
+	## TODO: There is a weird bug where setting the occupancy at on_ready doesn't 
+	## allow the enemies to read that a player is on this tile. Setting the position 
+	## shortly after fixes this...
+	await get_tree().create_timer(0.1).timeout
+	movement.set_pos(movement.current_cell)
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -103,7 +107,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		var key_event: InputEventKey = event as InputEventKey
 		if not key_event.pressed or key_event.echo:
 			return
-
 		if key_event.keycode == KEY_ESCAPE and current_mode == PlayerMode.TARGETING:
 			cancel_targeting()
 			get_viewport().set_input_as_handled()
@@ -145,7 +148,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func get_ability(ability_name: String) -> Ability:
 	for ability in abilities:
-		print(ability.ability_name)
 		if ability.ability_name == ability_name:
 			return ability
 	return null
@@ -371,7 +373,6 @@ func evaluate_target(ability: Ability, mouse_position: Vector2, origin:Vector2i)
 ## awaitable API for both asynchronous movement and immediate attacks.
 func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 	if ability == null or target == null or not target.is_valid:
-		print("null")
 		return false
 
 	current_mode = PlayerMode.ACTING
