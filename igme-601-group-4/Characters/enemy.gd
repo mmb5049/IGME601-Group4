@@ -27,7 +27,6 @@ signal died()
 func _ready() -> void:
 	add_to_group("enemies")
 
-
 ## Override this method for enemy types with different planning rules.
 func prepare_turn(player: PlayerController) -> void:
 	ability_queue.clear_queue()
@@ -132,8 +131,10 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 					continue
 				if victim == self or victim.is_queued_for_deletion():
 					continue
-				if victim is Enemy or victim is PlayerController:
+				if victim is PlayerController:
 					victim.damage(entry.ability.damage)
+				else:
+					print(victim)
 			return true
 	return false
 

@@ -26,10 +26,7 @@ const DIRECTIONS = [
 	Vector2i(-1, 0),
 	Vector2i(0, -1),
 	Vector2i(1, -1)
-	
 ]
-
-
 
 var traps: Dictionary = {}
 
@@ -37,6 +34,15 @@ var trap_scene: PackedScene = preload("res://Abilities/Trap.tscn")
 
 
 func _ready():
+	reset()
+
+# needs to reset every round because this is an autoload script
+func reset():
+	# Clear traps
+	for coord in traps:
+		traps[coord].queue_free()
+	traps.clear()
+	occupied_cells.clear()
 	hex_height = hex_mesh.height
 	generate_grid()
 
@@ -129,7 +135,7 @@ func hex_distance(a: Vector2i, b: Vector2i) -> int:
 func is_occupied(coord: Vector2i) -> bool:
 	return occupied_cells.has(coord)
 
-func set_occupied(coord: Vector2i, value):
+func set_occupied(coord: Vector2i, value:Variant):
 	if value:
 		occupied_cells[coord] = value
 	else:
@@ -153,7 +159,8 @@ check_flag: = Global.OccupiedType.NONE) -> Vector2i:
 
 func get_flag_from_cell(cell:Vector2i) -> Global.OccupiedType:
 	if is_occupied(cell):
-		if occupied_cells[cell] is PlayerController or occupied_cells[cell] is Enemy:
+		if (is_instance_valid(occupied_cells[cell]) and 
+		(occupied_cells[cell] is PlayerController or occupied_cells[cell] is Enemy)):
 			return Global.OccupiedType.DYNAMIC
 		return Global.OccupiedType.STATIC
 	return Global.OccupiedType.NONE
