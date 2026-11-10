@@ -147,9 +147,11 @@ compositor = SubResource("Compositor_fy3br")
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("21_py3uu")]
 visible = false
 
-[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("darkenUI")]
+[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("ability_bar", "ability_info_ui", "darkenUI")]
 layer = 2
 script = ExtResource("17_x2wxu")
+ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+ability_info_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilityInfoUi")
 darkenUI = NodePath("../DarkenUI/ColorRect")
 
 [node name="Welcome" type="PanelContainer" parent="MovementOnboardUI" unique_id=1890896728]
@@ -172,7 +174,7 @@ text = "Welcome To Combo Core"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SelectAbility" type="PanelContainer" parent="MovementOnboardUI" unique_id=1809753597]
+[node name="TutorialPrompt" type="PanelContainer" parent="MovementOnboardUI" unique_id=1809753597]
 custom_maximum_size = Vector2(20000, 20000)
 anchors_preset = -1
 anchor_left = 0.5
@@ -184,7 +186,7 @@ offset_bottom = 790.0
 grow_horizontal = 2
 script = ExtResource("19_3j5mq")
 
-[node name="Label" type="Label" parent="MovementOnboardUI/SelectAbility" unique_id=1012019933]
+[node name="TutorialText" type="Label" parent="MovementOnboardUI/TutorialPrompt" unique_id=1012019933]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("22_ypint")
 theme_override_font_sizes/font_size = 48

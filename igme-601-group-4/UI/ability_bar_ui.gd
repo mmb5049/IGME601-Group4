@@ -5,6 +5,9 @@ class_name AbilityBarUI
 ## Ability; consumers such as AbilitySequenceUI decide what to do with it.
 signal ability_selected(ability: Ability)
 
+## Signal when the user hover an ability
+signal ability_hovered(ability: Ability, slot: Control)
+
 ## Each array entry creates one slot. Null entries create empty slots, so this
 ## array is the single source of truth for both slot count and slot contents.
 @export var abilities: Array[Ability] = []
@@ -79,7 +82,12 @@ func rebuild_slots() -> void:
 		slot.configure(abilities[index])
 		slot.set_interaction_enabled(_interaction_enabled)
 		slot.show_ability_info.connect(
-			func(ability):_ability_info_ui.set_image(ability);_ability_info_ui.show_image())
+			func(ability):
+				_ability_info_ui.set_image(ability)
+				_ability_info_ui.show_image()
+				ability_hovered.emit(ability, slot)
+		)
+
 		slot.hide_ability_info.connect(_ability_info_ui.hide_image)
 
 		var signed_distance: float = float(index) - center_index
