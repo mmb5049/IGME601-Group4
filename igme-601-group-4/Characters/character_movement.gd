@@ -17,7 +17,7 @@ var _blocked_tween: Tween
 var _blocked_origin: Vector3
 var _blocked_sideways: Vector3
 
-var spawn_position:Vector2i = Vector2i.ZERO
+@export var spawn_position:Vector2i = Vector2i.ZERO
 var current_cell:Vector2i
 var target_cell:Vector2i
 var path:Array[Vector2i]

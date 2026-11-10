@@ -2,6 +2,7 @@ extends Node3D
 
 @onready var enemyParent = $Enemies
 @onready var gameOverScreen:GameOver = $GameOver
+@export var onBoardMovement:bool;
 var enemyScene = preload("res://Characters/Enemy.tscn")
 var enemies:Array[Enemy]
 var total_enemies:int = 0
@@ -12,10 +13,11 @@ func _ready() -> void:
 	
 	gameOverScreen.restart_game.connect(func():get_tree().reload_current_scene())
 	
-	spawn_enemy(Vector2i(1,1))
-	spawn_enemy(Vector2i(3,-1))
-	spawn_enemy(Vector2i(-2,-2))
-	spawn_enemy(Vector2i(-4,3))
+	if enemyParent:
+		spawn_enemy(Vector2i(1,1))
+		spawn_enemy(Vector2i(3,-1))
+		spawn_enemy(Vector2i(-2,-2))
+		spawn_enemy(Vector2i(-4,3))
 	
 	Global.player.player_died.connect(func():game_over(false))
 
@@ -33,6 +35,7 @@ func enemy_died():
 		game_over(true)
 
 func game_over(won:bool):
-	gameOverScreen.visible = true
-	gameOverScreen.win_screen.visible = won
-	gameOverScreen.lose_screen.visible = not won
+	if onBoardMovement == false:
+		gameOverScreen.visible = true	
+		gameOverScreen.win_screen.visible = won
+		gameOverScreen.lose_screen.visible = not won
