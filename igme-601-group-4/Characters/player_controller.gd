@@ -517,14 +517,16 @@ func _apply_attack(_action_num:int = 0) -> void:
 		return
 	_attack_applied = true
 
+	# Calculate damage
 	var final_damage: int = _attack_ability.damage
 	if self_enhance_stacks > 0:
 		var multiplier: float = pow(SELF_ENHANCE_MULTIPLIER, self_enhance_stacks)
 		final_damage = roundi(final_damage * multiplier)
-
+	
+	# Apply damage
 	for target_cell: Vector2i in _attack_target.resolve_cells(movement.current_cell):
 		var victim: Variant = HexGrid.occupied_cells.get(target_cell)
-		if is_instance_valid(victim) and victim is Enemy and not victim.is_queued_for_deletion():
+		if is_instance_valid(victim) and victim.health and not victim.is_queued_for_deletion():
 			victim.health.damage(final_damage)
 		else:
 			var new_display: Node3D = number_display.instantiate()

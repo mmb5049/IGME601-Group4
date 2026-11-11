@@ -1,8 +1,7 @@
 shader_type spatial;
 
-uniform vec3 base_color = vec3(1,0,0);
-uniform vec3 flash_color = vec3(1,1,1);
-instance uniform bool is_flashing = false;
+uniform vec3 color:source_color = vec3(1,1,1);
+uniform sampler2D cracked_texture;
 
 void vertex() {
 	// Called for every vertex the material is visible on.
@@ -10,14 +9,8 @@ void vertex() {
 
 void fragment() {
 	// Called for every pixel the material is visible on.
-	if (is_flashing){
-		ALBEDO = flash_color;
-		ROUGHNESS = 1.0;
-		EMISSION = flash_color;
-	}
-	else{
-		ALBEDO = base_color;
-	}
+	vec3 cracked_mult = texture(cracked_texture,UV).xyz;
+	ALBEDO = color * cracked_mult; 
 }
 
 //void light() {

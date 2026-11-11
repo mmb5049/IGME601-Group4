@@ -292,3 +292,16 @@ func trigger_trap(coord: Vector2i, target: Node) -> void:
 		trap.trigger(target)
 	else:
 		traps.erase(coord)
+# Check all entities and cast to their respective classes
+func cast_entities() -> void:
+	for cell in occupied_cells:
+		var entity = occupied_cells[cell]
+		if entity is PlayerController:
+			occupied_cells[cell] = entity as PlayerController
+			print("Cast player")
+		elif entity is Enemy:
+			occupied_cells[cell] = entity as Enemy
+			print("Cast enemy")
+		elif entity is Obstacle:
+			occupied_cells[cell] = entity as Obstacle
+			print("Cast obstacle")
