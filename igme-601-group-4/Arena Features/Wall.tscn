@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://2fjq2caqt5ok"]
+
+[ext_resource type="CylinderMesh" uid="uid://dwdwv6krhjo7n" path="res://Meshes/wall.tres" id="1_e5f56"]
+[ext_resource type="Script" uid="uid://c4yy1p2mryrie" path="res://Arena Features/obstacle.gd" id="2_ffebi"]
+
+[node name="Wall" type="MeshInstance3D" unique_id=1989918431]
+mesh = ExtResource("1_e5f56")
+script = ExtResource("2_ffebi")

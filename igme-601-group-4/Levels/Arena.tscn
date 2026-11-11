@@ -20,7 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="16_famn7"]
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="17_queue_visibility"]
-[ext_resource type="PackedScene" uid="uid://dqpbwdhgw28jb" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
+[ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
 
 [sub_resource type="Theme" id="Theme_tmhow"]
 
@@ -49,6 +49,8 @@ transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41
 abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d"), ExtResource("10_d75p2"), ExtResource("14_exqbx")])
 self_enhance_effect_scene = ExtResource("11_exqbx")
 ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+
+[node name="Obstacles" type="Node3D" parent="." unique_id=478288077]
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
