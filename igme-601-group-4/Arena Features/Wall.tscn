@@ -1,8 +1,12 @@
 [gd_scene format=3 uid="uid://2fjq2caqt5ok"]
 
-[ext_resource type="CylinderMesh" uid="uid://dwdwv6krhjo7n" path="res://Meshes/wall.tres" id="1_e5f56"]
-[ext_resource type="Script" uid="uid://c4yy1p2mryrie" path="res://Arena Features/obstacle.gd" id="2_ffebi"]
+[ext_resource type="Script" uid="uid://c4yy1p2mryrie" path="res://Arena Features/obstacle.gd" id="1_soqan"]
+[ext_resource type="CylinderMesh" uid="uid://dwdwv6krhjo7n" path="res://Meshes/wall.tres" id="2_djirw"]
+[ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="3_lb6w6"]
 
-[node name="Wall" type="MeshInstance3D" unique_id=1989918431]
-mesh = ExtResource("1_e5f56")
-script = ExtResource("2_ffebi")
+[node name="Wall" type="Node3D" unique_id=345674792]
+script = ExtResource("1_soqan")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2048529158]
+mesh = ExtResource("2_djirw")
+script = ExtResource("3_lb6w6")

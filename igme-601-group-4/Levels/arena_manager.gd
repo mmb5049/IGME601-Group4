@@ -5,7 +5,7 @@ extends Node3D
 @onready var gameOverScreen:GameOver = $GameOver
 @export var onBoardMovement:bool;
 var enemyScene = preload("res://Characters/Enemy.tscn")
-var wallScene = preload("res://Arena Features/Wall.tscn")
+var wallScene = preload("res://Arena Features/wall.tscn")
 var enemies:Array[Enemy]
 var total_enemies:int = 0
 
