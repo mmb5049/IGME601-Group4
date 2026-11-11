@@ -9,10 +9,8 @@ var _actor: Node3D
 func _ready() -> void:
 	_actor = get_parent() as Node3D
 	_actor.connect("action_number_changed", _refresh_number)
-	if _actor is Enemy:
-		_actor.died.connect(_hide_number)
-	elif _actor is PlayerController:
-		_actor.player_died.connect(_hide_number)
+	if _actor.health:
+		_actor.health.died.connect(_hide_number)
 	_refresh_number(int(_actor.get("action_number")))
 	_update_position()
 

@@ -19,18 +19,18 @@ var action_number: int = 0:
 var ability_queue: AbilityQueue = AbilityQueue.new()
 var number_display = preload("res://Misc/number_display.tscn")
 
-var health:int = 10
-
-signal died()
+@onready var health:Health = $Health
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	add_to_group("enemies")
+	# trigger this script's die when health script dies
+	health.died.connect(die)
 
 ## Override this method for enemy types with different planning rules.
 func prepare_turn(player: PlayerController) -> void:
 	ability_queue.clear_queue()
-	if not is_instance_valid(player) or player.is_dead or health <= 0 or movement == null:
+	if not is_instance_valid(player) or player.health.is_dead or health.is_dead or movement == null:
 		return
 	var planned_cell: Vector2i = movement.current_cell
 	var player_cell: Vector2i = player.movement.current_cell
@@ -107,7 +107,7 @@ func _direction_toward(start: Vector2i, player_cell: Vector2i) -> Vector2i:
 
 
 func execute_queued_ability(entry: QueuedAbility) -> bool:
-	if health <= 0 or entry == null or entry.ability == null or entry.target == null:
+	if health.is_dead or entry == null or entry.ability == null or entry.target == null:
 		return false
 	if not entry.target.is_valid:
 		return false
@@ -118,7 +118,7 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 			if entry.ability.presentation != null:
 				if not await entry.ability.presentation.play(self, mesh, entry.target):
 					return false
-			if health <= 0 or is_queued_for_deletion():
+			if health.is_dead or is_queued_for_deletion():
 				return false
 			# Resolve around the actual execution position. Prepared plans do
 			# not track or retarget a player who moved out of the selected ring.
@@ -132,30 +132,12 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 				if victim == self or victim.is_queued_for_deletion():
 					continue
 				if victim is PlayerController:
-					victim.damage(entry.ability.damage)
+					victim.health.damage(entry.ability.damage)
 				else:
 					print(victim)
 			return true
 	return false
 
-func damage(amount:int):
-	if health <= 0:
-		return
-	health -= amount
-	print("Enemy health is now: " + str(health))
-	
-	var new_display:Node3D = number_display.instantiate()
-	get_parent().add_child(new_display)
-	
-	new_display.global_position = global_position + Vector3(0, 1.1, 0)
-	new_display.set_number(-amount)
-
-	mesh.flash()
-	
-	if health <= 0:
-		die()
-
 func die():
 	HexGrid.set_occupied(movement.current_cell, false)
-	died.emit()
 	queue_free()

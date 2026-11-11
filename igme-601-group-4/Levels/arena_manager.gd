@@ -25,14 +25,14 @@ func _ready() -> void:
 		spawn_obstacle(Vector2i(0,-1))
 		spawn_obstacle(Vector2i(1,-1))
 	
-	Global.player.player_died.connect(func():game_over(false))
+	Global.player.health.died.connect(func():game_over(false))
 
 func spawn_enemy(pos:Vector2i, type = enemyScene):
 	total_enemies += 1
 	var new_enemy:Enemy = type.instantiate()
 	enemyParent.add_child(new_enemy)
 	new_enemy.movement.set_pos(pos)
-	new_enemy.died.connect(enemy_died)
+	new_enemy.health.died.connect(enemy_died)
 	enemies.push_back(new_enemy)
 
 func spawn_obstacle(pos:Vector2i, type = wallScene):

@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://c1a8bcrjruokn" path="res://Characters/character_movement.gd" id="2_mig5a"]
 [ext_resource type="PackedScene" uid="uid://dauvbbdht1e4l" path="res://Animations/Enemy/DuendeIdle.fbx" id="3_16c55"]
 [ext_resource type="Material" uid="uid://b44yqc3msjja6" path="res://Materials/enemy.tres" id="3_mfhi6"]
+[ext_resource type="Script" uid="uid://diqv0bf2lruki" path="res://Characters/health.gd" id="3_r4647"]
 [ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="4_oie3p"]
 [ext_resource type="Animation" uid="uid://dgodn7i5go2s" path="res://Animations/Enemy/Idle.res" id="5_f64xo"]
 [ext_resource type="Animation" uid="uid://xwbmssnqjq4o" path="res://Animations/Enemy/Punch.res" id="6_15fs6"]
@@ -24,6 +25,11 @@ movement = NodePath("Movement")
 script = ExtResource("2_mig5a")
 character = NodePath("..")
 
+[node name="Health" type="Node3D" parent="." unique_id=1291475363]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9622617, 0)
+script = ExtResource("3_r4647")
+max = 10
+
 [node name="EnemyAbilityQueueUI" parent="." unique_id=949041406 instance=ExtResource("6_queue_ui")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
 
@@ -33,7 +39,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
 [node name="Pivot" parent="." unique_id=790799423 instance=ExtResource("3_16c55")]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
 
-[node name="Skeleton3D" parent="Pivot" index="0" unique_id=1981908507]
+[node name="Skeleton3D" parent="Pivot" index="0" unique_id=1240676367]
 bones/0/position = Vector3(3.6955162e-06, 0.0037289688, -9.156036e-06)
 bones/0/rotation = Quaternion(-0.002209702, 1.9924191e-05, -0.010155487, 0.999946)
 bones/1/rotation = Quaternion(0.13959458, 0.0017724494, 0.0042623617, 0.9901981)
@@ -88,11 +94,11 @@ bones/61/rotation = Quaternion(-0.45352447, -0.07092409, 0.038608834, 0.88757807
 bones/62/rotation = Quaternion(0.60430354, -0.0038151778, 0.10986775, 0.78913355)
 bones/63/rotation = Quaternion(0.34310022, 0.10457866, 0.09164328, 0.9289495)
 
-[node name="Cube" parent="Pivot/Skeleton3D" index="0" unique_id=1922800396]
+[node name="Cube" parent="Pivot/Skeleton3D" index="0" unique_id=1700799061]
 surface_material_override/0 = ExtResource("3_mfhi6")
 script = ExtResource("4_oie3p")
 
-[node name="AnimationPlayer" parent="Pivot" index="1" unique_id=1383296118]
+[node name="AnimationPlayer" parent="Pivot" index="1" unique_id=2006512231]
 libraries/Enemy = SubResource("AnimationLibrary_r4647")
 autoplay = &"Enemy/Idle"
 
