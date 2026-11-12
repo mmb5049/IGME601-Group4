@@ -10,12 +10,16 @@ enum TutorialStep {
 	SHOW_QUEUE,
 	HOVER_QUEUE,
 	PRESS_START,
+	PROMPT_MULTIPLE_ABILITY,
 	COMPLETE
 }
+
+signal tutorial_complete(Vector2i)
 
 @export var ability_bar: AbilityBarUI
 @export var ability_sequence: AbilitySequenceUI
 @export var ability_item_sequence: AbilitySequenceItemUI
+@export var action_execute: ActionExecutionController
 @export var ability_info_ui: Control
 @export var darkenUI: ColorRect
 
@@ -31,7 +35,9 @@ func _ready() -> void:
 	ability_bar.ability_selected.connect(_on_ability_selected)
 	ability_sequence.ability_confirmed.connect(_on_direction_selected)
 	ability_sequence.child_entered_tree.connect(_on_sequence_child_added)
-
+	action_execute.execution_started.connect(queue_in_action)
+	action_execute.execution_finished.connect(prompt_multiple_ability)
+	tutorial_complete.connect(HexGrid.set_tutorial_target)
 	# Check existing descendants too, if necessary.
 	_connect_to_existing_children(ability_sequence)
 
@@ -93,6 +99,8 @@ func _on_ability_selected(ability: Ability) -> void:
 	prompt_label.text = "Select the direction"
 
 func _on_direction_selected() -> void:
+	if current_step != TutorialStep.CHOOSE_DIRECTION:
+		return
 	darkenUI.show()
 	show_queue()
 
@@ -118,18 +126,33 @@ func prompt_press_start () -> void:
 	darkenUI.show()
 	current_step = TutorialStep.PRESS_START
 	prompt_label.text = "Press start to execute the queue"
-	darkenUI.ChangeSize(Vector2 (200,200), Vector2 (100,800))
+	darkenUI.ChangeSize(Vector2 (200,200), Vector2 (175,950))
+	
+func queue_in_action() -> void:
+	if current_step != TutorialStep.PRESS_START:
+		return
+	darkenUI.hide()
+	tutorial_panel.hide()
+	
+func prompt_multiple_ability() -> void:
+	if current_step != TutorialStep.PRESS_START:
+		return
+	current_step = TutorialStep.PROMPT_MULTIPLE_ABILITY
+	prompt_label.text = "You can add multiple ability to the queue before execute it!"
+	tutorial_panel.show()
+	await get_tree().create_timer(4.0).timeout
+	complete_ability_tutorial()
 
 func complete_ability_tutorial() -> void:
 	current_step = TutorialStep.COMPLETE
 
-	prompt_label.hide()
+	tutorial_panel.hide()
 	darkenUI.hide()
 
 	print("Ability tutorial completed!")
+	tutorial_complete.emit(Vector2i(2,2))
 
 func _on_sequence_child_added(child: Node) -> void:
-	print("Detected: ", child.get_path())
 
 	# Monitor future children.
 	if not child.child_entered_tree.is_connected(_on_sequence_child_added):

@@ -394,6 +394,8 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 				succeeded = false
 			elif ability.targeting_type == Global.TargetingType.DIRECTION:
 				succeeded = await movement.execute_directional_move(target.direction, ability.range)
+				if succeeded:
+					check_tutorial_destination()
 			else:
 				var destination: Vector2i = target.target_cell
 				if destination == movement.current_cell or not HexGrid.is_valid_cell(destination):
@@ -615,3 +617,13 @@ func clear_preview() -> void:
 	HexGrid.clear_highlights()
 	if movement.hologram:
 		movement.hologram.visible = false
+
+func check_tutorial_destination() -> void:
+	if not HexGrid.tutorial_target_active:
+		return
+
+	if HexGrid.tutorial_target_reached:
+		return
+
+	if movement.current_cell == HexGrid.tutorial_target_cell:
+		HexGrid.reach_tutorial_target()
