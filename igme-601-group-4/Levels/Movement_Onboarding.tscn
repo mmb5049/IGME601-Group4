@@ -44,6 +44,7 @@ onBoardMovement = true
 [node name="DarkenUI" type="CanvasLayer" parent="." unique_id=1948548575]
 
 [node name="ColorRect" type="ColorRect" parent="DarkenUI" unique_id=1098515360]
+visible = false
 material = SubResource("ShaderMaterial_kvn1v")
 custom_maximum_size = Vector2(20000, 20000)
 anchors_preset = 15
@@ -147,10 +148,11 @@ compositor = SubResource("Compositor_fy3br")
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("21_py3uu")]
 visible = false
 
-[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("ability_bar", "ability_info_ui", "darkenUI")]
+[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("ability_bar", "ability_sequence", "ability_info_ui", "darkenUI")]
 layer = 2
 script = ExtResource("17_x2wxu")
 ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+ability_sequence = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 ability_info_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilityInfoUi")
 darkenUI = NodePath("../DarkenUI/ColorRect")
 
@@ -203,3 +205,10 @@ vertical_alignment = 1
 
 [editable path="Player"]
 [editable path="HUD"]
+[editable path="GlobalUIRoot/SwayLayer/AbilityBarUI"]
+[editable path="GlobalUIRoot/SwayLayer/AbilitySequenceUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI/OperationIndicatorUI"]
+[editable path="GlobalUIRoot/SwayLayer/AbilityInfoUi"]
+[editable path="GameOver"]
