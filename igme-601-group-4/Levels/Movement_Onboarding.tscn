@@ -4,9 +4,9 @@
 [ext_resource type="Shader" uid="uid://ckx4elrx78lc3" path="res://UI/Onboarding_Movement/Darken_UI.gdshader" id="2_3j5mq"]
 [ext_resource type="Script" uid="uid://bx20wmawrkbto" path="res://Levels/scene_transition.gd" id="2_5wh74"]
 [ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_grid.gd" id="2_ypint"]
+[ext_resource type="PackedScene" uid="uid://i65lwsdvht24" path="res://Levels/Attack_Onboarding.tscn" id="3_5wh74"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="3_ix0gq"]
 [ext_resource type="Script" uid="uid://dw3gn3rw8c31k" path="res://UI/Onboarding_Movement/Darken_UI.gd" id="3_vc7xe"]
-[ext_resource type="PackedScene" uid="uid://b0576k1jo61m6" path="res://Levels/Arena.tscn" id="3_wg0dr"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="4_5wh74"]
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="5_wg0dr"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="6_nngry"]
@@ -52,7 +52,7 @@ onBoardMovement = true
 [node name="SceneTransition" type="Node" parent="." unique_id=1919496798 node_paths=PackedStringArray("glitch_tv")]
 script = ExtResource("2_5wh74")
 glitch_tv = NodePath("../TVGlitch/ColorRect")
-NEXT_SCENE = ExtResource("3_wg0dr")
+NEXT_SCENE = ExtResource("3_5wh74")
 
 [node name="DarkenUI" type="CanvasLayer" parent="." unique_id=1948548575]
 

@@ -29,6 +29,7 @@
 [ext_resource type="Script" uid="uid://bf4vtvg2yf0tc" path="res://UI/Onboarding_Movement/PanelText.gd" id="22_lpsse"]
 [ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="23_lk3n8"]
 [ext_resource type="Shader" uid="uid://bsde1p6q4m62r" path="res://Levels/TVGlitch.gdshader" id="24_haktn"]
+[ext_resource type="Script" uid="uid://bodl1hwnvo2ud" path="res://UI/Onboarding_Attack/Attack_Onboard.gd" id="30_amkee"]
 
 [sub_resource type="Resource" id="Resource_gs75m"]
 script = ExtResource("2_jb6uf")
@@ -261,14 +262,14 @@ offset_bottom = 1106.0
 
 [node name="Task" type="PanelContainer" parent="TVGlitch" unique_id=2062470217]
 visible = false
-custom_maximum_size = Vector2(20000, 20000)
+custom_maximum_size = Vector2(400, 400)
 anchors_preset = -1
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = 340.0
-offset_top = 929.0
+offset_left = 540.0
+offset_top = 800.0
 offset_right = 940.0
-offset_bottom = 1082.0
+offset_bottom = 1005.0
 grow_horizontal = 2
 script = ExtResource("22_lpsse")
 
@@ -280,8 +281,27 @@ text = "Task
 
 Reach the highlight tile"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="Obstacles" type="Node3D" parent="." unique_id=1639613052]
+
+[node name="AttackOnboardingUI" type="CanvasLayer" parent="." unique_id=1767770669 node_paths=PackedStringArray("darkenUI", "task_panel")]
+script = ExtResource("30_amkee")
+darkenUI = NodePath("../DarkenUI/ColorRect")
+task_panel = NodePath("../TVGlitch/Task")
+
+[node name="Prompt" type="PanelContainer" parent="AttackOnboardingUI" unique_id=215854079]
+visible = false
+offset_left = 450.0
+offset_top = 874.0
+offset_right = 1606.0
+offset_bottom = 923.0
+
+[node name="Text" type="Label" parent="AttackOnboardingUI/Prompt" unique_id=364307511]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_lk3n8")
+theme_override_font_sizes/font_size = 48
+text = "These pillars can be broken using an attack ability"
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
