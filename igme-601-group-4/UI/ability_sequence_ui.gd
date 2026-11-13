@@ -19,6 +19,7 @@ var _active_drag_entry_id: int = -1
 var _preview_insertion_index: int = -1
 var _pending_reveal_entry_ids: Dictionary[int, bool] = {}
 var _interaction_enabled: bool = true
+var _scroll_restore_pending: bool = false
 
 @onready var _drop_region: Control = %SequenceDropRegion
 @onready var _scroll_container: ScrollContainer = %ScrollContainer
@@ -57,6 +58,9 @@ func add_confirmed_ability_pending(ability: Ability, target: AbilityTarget) -> i
 ## Waits for both the VBoxContainer layout and any required scrolling before
 ## returning the destination used by the indicator-to-queue animation.
 func wait_for_entry_visual_position(entry_id: int) -> Vector2:
+	# Rebuilding restores the scroll offset on the first pre-draw. Let the
+	# ScrollContainer reposition its children before checking their bounds.
+	await RenderingServer.frame_pre_draw
 	await RenderingServer.frame_pre_draw
 	var item: AbilitySequenceItemUI = _find_item(entry_id)
 	if item == null:
@@ -116,7 +120,7 @@ func peek_front_entry() -> QueuedAbility:
 
 ## Removes one resolved action by stable ID and reuses the existing layout
 ## animation. The executor may call this while player editing is locked.
-func consume_entry(entry_id: int) -> bool:
+func consume_entry(entry_id: int, release_viewport_position: Vector2 = Vector2.INF) -> bool:
 	var index: int = _find_entry_index(entry_id)
 	if index < 0:
 		return false
@@ -125,7 +129,7 @@ func consume_entry(entry_id: int) -> bool:
 	var removed_item: AbilitySequenceItemUI = _find_item(entry_id)
 	if removed_item != null:
 		removed_item.reparent(self, true)
-		removed_item.play_removal_animation(layout_animation_duration)
+		removed_item.play_removal_animation(layout_animation_duration, release_viewport_position)
 	queued_entries.remove_at(index)
 	_pending_reveal_entry_ids.erase(entry_id)
 	_rebuild_items()
@@ -157,6 +161,7 @@ func get_queued_abilities() -> Array[Ability]:
 ## the middle of the queue. Only animated_entry_id receives an entrance
 ## animation, so existing entries do not replay it whenever the queue changes.
 func _rebuild_items(animated_entry_id: int = -1) -> void:
+	_preserve_scroll_from_bottom()
 	for child in _item_container.get_children():
 		_item_container.remove_child(child)
 		child.queue_free()
@@ -165,7 +170,8 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 		push_warning("AbilitySequenceUI needs an Item Scene.")
 		return
 
-	for index in range(queued_entries.size()):
+	# The VBox lays out top to bottom, so its last child is the first action.
+	for index in range(queued_entries.size() - 1, -1, -1):
 		var item := item_scene.instantiate() as AbilitySequenceItemUI
 		if item == null:
 			push_error("Sequence Item Scene must have an AbilitySequenceItemUI root.")
@@ -191,7 +197,21 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 		_item_container.add_child(item)
 
 
-func _on_item_removal_requested(entry_id: int) -> void:
+func _preserve_scroll_from_bottom() -> void:
+	if _scroll_restore_pending:
+		return
+
+	var scrollbar: VScrollBar = _scroll_container.get_v_scroll_bar()
+	var distance_from_bottom: float = scrollbar.max_value - scrollbar.page - scrollbar.value
+	_scroll_restore_pending = true
+	# The scroll range changes during layout. Keep the same rows in view when
+	# entries are added or removed, including when the queue first overflows.
+	await RenderingServer.frame_pre_draw
+	scrollbar.value = scrollbar.max_value - scrollbar.page - distance_from_bottom
+	_scroll_restore_pending = false
+
+
+func _on_item_removal_requested(entry_id: int, release_viewport_position: Vector2) -> void:
 	if not _interaction_enabled:
 		return
 
@@ -204,7 +224,7 @@ func _on_item_removal_requested(entry_id: int) -> void:
 	# Refund mana before removing the entry.
 	ability_removed.emit(ability)
 
-	consume_entry(entry_id)
+	consume_entry(entry_id, release_viewport_position)
 	print("remove")
 
 
@@ -226,7 +246,9 @@ func _on_item_reorder_requested(
 	var previous_positions: Dictionary[int, Vector2] = _capture_item_positions()
 	# The dragged entry must continue from the icon under the player's cursor,
 	# not from the now-empty slot where that entry originally lived.
-	previous_positions[dragged_entry_id] = get_global_mouse_position()
+	previous_positions[dragged_entry_id] = get_canvas_transform().affine_inverse() * (
+		CRTOverlay.get_content_mouse_position(get_viewport())
+	)
 	_clear_reorder_preview(false)
 	var source_index: int = _find_entry_index(dragged_entry_id)
 	if source_index < 0:
@@ -307,18 +329,15 @@ func _on_item_reorder_preview_requested(
 		return
 
 	_preview_insertion_index = insertion_index
-	for index in range(_item_container.get_child_count()):
-		var item: AbilitySequenceItemUI = _item_container.get_child(index) as AbilitySequenceItemUI
-		if item == null:
-			continue
-
-		var entry_id: int = queued_entries[index].id
-		if entry_id == _active_drag_entry_id:
+	for child_index in range(_item_container.get_child_count()):
+		var item: AbilitySequenceItemUI = _item_container.get_child(child_index) as AbilitySequenceItemUI
+		if item.get_entry_id() == _active_drag_entry_id:
 			item.clear_reorder_preview_layout(reorder_animation_duration)
 			continue
 
 		# First close the source's empty row, then open one row at the proposed
 		# insertion point. The result can move an Item up, down, or not at all.
+		var index: int = queued_entries.size() - 1 - child_index
 		var compact_index: int = index - 1 if index > source_index else index
 		var preview_index: int = compact_index
 		if compact_index >= insertion_index:
@@ -326,7 +345,7 @@ func _on_item_reorder_preview_requested(
 		var row_offset: int = preview_index - index
 		item.set_reorder_preview_layout(
 			preview_index % 2 == 1,
-			float(row_offset) * reorder_gap_pixels,
+			-float(row_offset) * reorder_gap_pixels,
 			reorder_animation_duration
 		)
 
@@ -355,14 +374,9 @@ func _clear_reorder_preview(
 
 
 func _update_drag_source_appearance(active: bool) -> void:
-	for index in range(_item_container.get_child_count()):
-		if queued_entries[index].id != _active_drag_entry_id:
-			continue
-
-		var item: AbilitySequenceItemUI = _item_container.get_child(index) as AbilitySequenceItemUI
-		if item != null:
-			item.set_drag_source_active(active, reorder_animation_duration)
-		return
+	var item: AbilitySequenceItemUI = _find_item(_active_drag_entry_id)
+	if item != null:
+		item.set_drag_source_active(active, reorder_animation_duration)
 
 
 func _capture_item_positions() -> Dictionary[int, Vector2]:

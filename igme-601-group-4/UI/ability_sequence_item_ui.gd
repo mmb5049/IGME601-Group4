@@ -1,8 +1,8 @@
 extends Control
 class_name AbilitySequenceItemUI
 
-## The Sequence owns queue data. An Item only requests removal by stable ID.
-signal removal_requested(entry_id: int)
+## The Sequence owns queue data. The release position is in viewport coordinates.
+signal removal_requested(entry_id: int, release_viewport_position: Vector2)
 
 ## Requests that one stable queue entry be inserted before or after this Item.
 ## The Sequence remains responsible for changing the underlying data order.
@@ -33,6 +33,7 @@ const DIRECTION_EDGES_SCENE := preload("res://UI/AbilityDirectionEdgesUI.tscn")
 ## with the SequenceContainer's vertical step, this makes neighboring hexagons
 ## share an edge instead of looking like disconnected rows.
 const LEFT_HEX_POSITION := Vector2(52.0, 46.0)
+const HEX_RADIUS: float = 64.0
 const RIGHT_HEX_POSITION := Vector2(92.0, 46.0)
 
 ## Controls the entrance animation played only by a newly appended entry.
@@ -43,6 +44,7 @@ const RIGHT_HEX_POSITION := Vector2(92.0, 46.0)
 ## cursor leaves the same safe region used by the actual deletion check.
 @export var removal_preview_color: Color = Color(1.0, 0.2, 0.2, 1.0)
 @export_range(0.01, 0.5, 0.01, "suffix:s") var removal_color_transition: float = 0.14
+@export var use_red_direction_sign: bool = false
 
 var _entry_id: int = -1
 var _index:int = 0
@@ -72,6 +74,8 @@ var _is_hovered: bool = false
 func _ready() -> void:
 	set_process(false)
 	_normal_hex_scale = _hex_display.scale
+	if use_red_direction_sign:
+		_direction_edges.recolor_green_artwork_red()
 	_refresh_display()
 	# A targeting confirmation reserves its final queue row before the large
 	# indicator flies into it. Keeping only the visual hidden lets VBoxContainer
@@ -121,7 +125,7 @@ func stop_preview() -> void:
 	HexGrid.clear_highlights()
 
 ## Queue entries preserve their confirmed AbilityTarget. Directional entries
-## therefore show a fixed green edge matching the direction that will execute.
+## therefore show a fixed edge matching the direction that will execute.
 func _configure_direction_edges(edges: AbilityDirectionEdgesUI) -> void:
 	edges.hide_directions(false)
 	if (
@@ -211,7 +215,7 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(_drop_region):
 		return
 
-	var mouse_position: Vector2 = get_viewport().get_mouse_position()
+	var mouse_position := CRTOverlay.get_content_mouse_position(get_viewport())
 	var is_removal_position: bool = not _drop_region.get_global_rect().has_point(mouse_position)
 	if is_removal_position == _drag_preview_is_removal:
 		return
@@ -241,7 +245,7 @@ func _animate_drag_preview_color(target_color: Color) -> void:
 
 
 ## A queue Item accepts another queue entry as a reorder operation. Dropping
-## on the upper half inserts before this Item; the lower half inserts after it.
+## on the upper half schedules the dragged entry after this Item.
 func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
 	if not data is Dictionary:
 		return false
@@ -250,7 +254,7 @@ func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
 	if dragged_entry_id < 0:
 		return false
 
-	var insert_after: bool = at_position.y >= size.y * 0.5
+	var insert_after: bool = _drop_position(at_position).y < size.y * 0.5
 	reorder_preview_requested.emit(dragged_entry_id, _entry_id, insert_after)
 	return true
 
@@ -260,8 +264,19 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 		return
 
 	var dragged_entry_id: int = int(data.get("queue_entry_id", -1))
-	var insert_after: bool = at_position.y >= size.y * 0.5
+	var insert_after: bool = _drop_position(at_position).y < size.y * 0.5
 	reorder_requested.emit(dragged_entry_id, _entry_id, insert_after)
+
+
+func _drop_position(at_position: Vector2) -> Vector2:
+	# Godot's drag callbacks derive their local position from the OS cursor.
+	# Read the mapped cursor during an event forwarded by the CRT overlay.
+	var viewport := get_viewport()
+	if CRTOverlay.is_forwarding_mouse(viewport):
+		return get_global_transform_with_canvas().affine_inverse() * (
+			CRTOverlay.get_content_mouse_position(viewport)
+		)
+	return at_position
 
 
 ## Moves the visual child to its complete temporary queue layout. Both axes
@@ -387,11 +402,22 @@ func set_frame_color(color: Color) -> void:
 
 ## Shared exit effect for player and enemy queue entries. The owner detaches
 ## the item from its layout before playing this non-interactive visual tail.
-func play_removal_animation(duration: float = 0.20) -> void:
+func play_removal_animation(
+	duration: float = 0.20,
+	release_viewport_position: Vector2 = Vector2.INF
+) -> void:
 	set_interaction_enabled(false)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if _reorder_tween != null and _reorder_tween.is_valid():
 		_reorder_tween.kill()
+	if release_viewport_position.is_finite():
+		# The drag preview was centered on the cursor in viewport coordinates.
+		_hex_display.global_position = (
+			get_canvas_transform().affine_inverse() * release_viewport_position
+		)
+		_hex_display.visible = true
+		set_drag_source_active(false, 0.0)
+		z_index = 100
 	var tween := create_tween().set_parallel(true)
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_hex_display, "scale", Vector2.ZERO, duration)
@@ -406,8 +432,8 @@ func get_hex_global_position() -> Vector2:
 func get_hex_screen_polygon() -> PackedVector2Array:
 	# Same point-up hex geometry as hex_ui_mask.gdshader, including animations.
 	var polygon := PackedVector2Array([
-		Vector2(0, -64), Vector2(55.4256, -32), Vector2(55.4256, 32),
-		Vector2(0, 64), Vector2(-55.4256, 32), Vector2(-55.4256, -32),
+		Vector2(0, -HEX_RADIUS), Vector2(55.4256, -32), Vector2(55.4256, 32),
+		Vector2(0, HEX_RADIUS), Vector2(-55.4256, 32), Vector2(-55.4256, -32),
 	])
 	return _hex_display.get_global_transform_with_canvas() * polygon
 
@@ -496,11 +522,11 @@ func _notification(what: int) -> void:
 	_drag_preview_hex = null
 	_drag_preview_is_removal = false
 
-	var mouse_position := get_viewport().get_mouse_position()
+	var mouse_position := CRTOverlay.get_content_mouse_position(get_viewport())
 	var is_removal_position := (
 		is_instance_valid(_drop_region)
 		and not _drop_region.get_global_rect().has_point(mouse_position)
 	)
 	drag_finished.emit(_entry_id, mouse_position, not is_removal_position)
 	if is_removal_position:
-		removal_requested.emit(_entry_id)
+		removal_requested.emit(_entry_id, mouse_position)

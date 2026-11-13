@@ -17,24 +17,22 @@ class_name GlobalUISway
 
 
 func _process(delta: float) -> void:
-	var viewport_size: Vector2 = get_viewport_rect().size
-	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
-		return
-
-	var mouse_position: Vector2 = get_viewport().get_mouse_position()
-	var viewport_rect := Rect2(Vector2.ZERO, viewport_size)
-	var target_offset := Vector2.ZERO
-	if viewport_rect.has_point(mouse_position):
-		var half_size: Vector2 = viewport_size * 0.5
-		var normalized_mouse := Vector2(
-			clampf((mouse_position.x - half_size.x) / half_size.x, -1.0, 1.0),
-			clampf((mouse_position.y - half_size.y) / half_size.y, -1.0, 1.0)
-		)
-		target_offset = normalized_mouse * maximum_sway_pixels
-		if invert_direction:
-			target_offset = -target_offset
+	var target_offset := get_normalized_mouse_position(get_viewport()) * maximum_sway_pixels
+	if invert_direction:
+		target_offset = -target_offset
 
 	# This form of interpolation feels the same at 30, 60, or 144 FPS and
 	# returns smoothly to the center when the cursor leaves the game window.
 	var smoothing_weight: float = 1.0 - exp(-follow_speed * delta)
 	_sway_layer.position = _sway_layer.position.lerp(target_offset, smoothing_weight)
+
+
+## UI and camera motion use the same CRT-adjusted coordinates and viewport bounds.
+static func get_normalized_mouse_position(viewport: Viewport) -> Vector2:
+	var bounds := viewport.get_visible_rect()
+	if not bounds.has_point(viewport.get_mouse_position()):
+		return Vector2.ZERO
+	# CRT curvature can map a cursor at a visible corner beyond the content bounds.
+	var mouse := CRTOverlay.get_content_mouse_position(viewport)
+	var normalized := (mouse - bounds.get_center()) / (bounds.size * 0.5)
+	return normalized.clamp(-Vector2.ONE, Vector2.ONE)

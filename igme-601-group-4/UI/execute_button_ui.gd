@@ -1,8 +1,7 @@
-extends Control
+extends Button
 class_name ExecuteButtonUI
 
-## Consumers listen to this semantic signal instead of depending on the
-## internal Button node. ActionExecutionController currently consumes it.
+## ActionExecutionController listens to the dock's execution request.
 signal execute_requested
 
 @export_range(0.01, 0.5, 0.01, "suffix:s") var hover_duration: float = 0.12
@@ -10,27 +9,39 @@ signal execute_requested
 
 var _visual_tween: Tween
 var _normal_scale: Vector2
+var _interaction_enabled: bool = true
+var _dock_available: bool = true
 
-@onready var _button: Button = %ExecuteButton
 @onready var _visual: AbilityHexDisplayUI = %ActionDisplay
 
 
 func _ready() -> void:
 	_normal_scale = _visual.scale
-	_button.mouse_entered.connect(_on_mouse_entered)
-	_button.mouse_exited.connect(_on_mouse_exited)
-	_button.pressed.connect(_on_pressed)
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
+	pressed.connect(_on_pressed)
+
+
+func _has_point(point: Vector2) -> bool:
+	# Match the hex mask at rest so the queue can receive input in the
+	# transparent upper-left corner of the button's rectangular bounds.
+	var hex_point: Vector2 = (point - _visual.position).abs() / (_normal_scale * 128.0)
+	return maxf(hex_point.x / 0.8660254, hex_point.x * 0.5773503 + hex_point.y) <= 0.5
 
 
 func _on_pressed() -> void:
 	execute_requested.emit()
 
 
-## Used both while selecting a target and while an action queue is executing.
-## Keeping the lock inside this reusable component prevents programmatic or
-## rapid repeated presses from bypassing the visual dock state.
+## The turn controller and dock can each lock the button independently.
 func set_interaction_enabled(enabled: bool) -> void:
-	_button.disabled = not enabled
+	_interaction_enabled = enabled
+	disabled = not (_interaction_enabled and _dock_available)
+
+
+func set_dock_available(available: bool) -> void:
+	_dock_available = available
+	disabled = not (_interaction_enabled and _dock_available)
 
 
 func _on_mouse_entered() -> void:

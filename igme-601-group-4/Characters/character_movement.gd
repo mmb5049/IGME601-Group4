@@ -37,22 +37,21 @@ func _ready():
 	if character.has_signal("player_died"):
 		character.connect("player_died", _finish_blocked_move)
 	elif character.has_signal("died"):
-		character.connect("died", _finish_blocked_move)
+		character.connect("died", _stop_moving)
 
 func _physics_process(delta):
 	if(target_cell != current_cell):
+		is_moving = true
 		# Move to the target cell 
 		var reached_target = move_to(target_cell,delta)
-		if (reached_target):			
+		# A trap can stop movement synchronously on arrival.
+		if reached_target and is_physics_processing():
 			# Find next cell in the path
 			if path and not path.is_empty():
 				target_cell = path.pop_front()
-				is_moving = true
 			else:
 				is_moving = false
 				done_moving.emit(done_moving)
-		else:
-			is_moving = true
 
 ## Shared by player and enemy directional movement abilities.
 func execute_directional_move(direction: Vector2i, distance: int) -> bool:
@@ -72,7 +71,19 @@ func execute_directional_move(direction: Vector2i, distance: int) -> bool:
 		await _play_blocked_move(direction)
 		return false
 	await done_moving
-	return true
+	return is_physics_processing()
+
+
+func _stop_moving() -> void:
+	var was_moving := is_moving or target_cell != current_cell
+	set_physics_process(false)
+	path.clear()
+	target_cell = current_cell
+	if _blocked_tween != null:
+		_finish_blocked_move()
+	elif was_moving:
+		is_moving = false
+		done_moving.emit(done_moving)
 
 
 ## Models use +Z as their front, matching ability presentation look_at calls.

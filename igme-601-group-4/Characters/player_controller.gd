@@ -49,6 +49,8 @@ var _attack_applied: bool = false
 
 var selected_ability: Ability = null
 var cursor_position: Vector2 = Vector2.ZERO
+var _last_preview_target: AbilityTarget
+var _last_preview_origin: Vector2i
 ## Remains true across the small gaps between queued abilities. current_mode
 ## alone cannot provide this lock because each individual action resets it.
 var _action_sequence_active: bool = false
@@ -71,7 +73,7 @@ var current_mode: PlayerMode = PlayerMode.NONE
 func _ready() -> void:
 	movement.set_pos(movement.spawn_position)
 	
-	cursor_position = get_viewport().get_mouse_position()
+	cursor_position = CRTOverlay.get_content_mouse_position(get_viewport())
 	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
@@ -88,6 +90,18 @@ func _ready() -> void:
 	## shortly after fixes this...
 	await get_tree().create_timer(0.1).timeout
 	movement.set_pos(movement.current_cell)
+
+func _process(_delta: float) -> void:
+	if current_mode != PlayerMode.TARGETING:
+		return
+	var viewport := get_viewport()
+	if viewport.gui_get_hovered_control() != null:
+		# The queue can show its own preview while the pointer is over the UI.
+		_last_preview_target = null
+		return
+	# Camera motion can change the hovered tile even with a stationary cursor.
+	cursor_position = CRTOverlay.get_content_mouse_position(viewport)
+	_update_targeting_preview()
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -121,6 +135,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+			cursor_position = mouse_event.position
 			_confirm_current_target()
 			get_viewport().set_input_as_handled()
 		elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
@@ -131,7 +146,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var motion_event: InputEventMouseMotion = event as InputEventMouseMotion
 		cursor_position = motion_event.position
 		if current_mode == PlayerMode.TARGETING:
-			update_ability_preview(estimate_future_position())
+			_update_targeting_preview()
 
 func get_ability(ability_name: String) -> Ability:
 	for ability in abilities:
@@ -154,7 +169,7 @@ func request_ability(ability: Ability) -> void:
 		
 	clear_preview()
 	selected_ability = ability
-	cursor_position = get_viewport().get_mouse_position()
+	cursor_position = CRTOverlay.get_content_mouse_position(get_viewport())
 
 	if ability.targeting_type == Global.TargetingType.NONE:
 		var immediate_target := AbilityTarget.new(Global.TargetingType.NONE)
@@ -175,7 +190,7 @@ func request_ability(ability: Ability) -> void:
 
 	current_mode = PlayerMode.TARGETING
 	targeting_started.emit(ability)
-	update_ability_preview(estimate_future_position())
+	_update_targeting_preview()
 
 func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
@@ -211,21 +226,36 @@ func _confirm_current_target() -> void:
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
 
-## Reuses one evaluation result for grid highlighting, indicator feedback, and
-## final confirmation so all three always agree about target legality.
-func update_ability_preview(origin:Vector2i = movement.current_cell, ability = selected_ability, 
-show_possible:bool = true, target:AbilityTarget  = null) -> void:
+func _update_targeting_preview() -> void:
+	update_ability_preview(estimate_future_position())
+
+## Grid highlighting and indicator feedback share the same targeting rules as confirmation.
+func update_ability_preview(
+	origin: Vector2i = movement.current_cell,
+	ability: Ability = selected_ability,
+	show_possible: bool = true,
+	target: AbilityTarget = null
+) -> void:
 	var possible_material: ShaderMaterial = _get_target_material(ability)
-	var target_material: ShaderMaterial = HexGrid.material_select
-	
-	if ability:
-		if not target:
-			target = evaluate_target(ability, cursor_position, origin)
-		else:
-			# use color to show ability type when previewing
-			target_material = possible_material
-	
+	var target_material: ShaderMaterial = possible_material
+	var is_cursor_preview: bool = target == null and ability == selected_ability and show_possible
+	if target == null:
+		target = evaluate_target(ability, cursor_position, origin)
+		target_material = HexGrid.material_select
+	# Rebuild the highlights only when the camera or cursor changes the target.
+	if (
+		is_cursor_preview and _last_preview_target != null and _last_preview_origin == origin
+		and _last_preview_target.is_valid == target.is_valid
+		and _last_preview_target.direction == target.direction
+		and _last_preview_target.target_cell == target.target_cell
+		and _last_preview_target.ring_radius == target.ring_radius
+	):
+		return
+
 	clear_preview()
+	if is_cursor_preview:
+		_last_preview_target = target
+		_last_preview_origin = origin
 	
 	# Display hologram
 	if origin != movement.current_cell:
@@ -573,6 +603,7 @@ func estimate_future_position(index:int = -1) -> Vector2i:
 	return estimated_position
 
 func clear_preview() -> void:
+	_last_preview_target = null
 	HexGrid.clear_highlights()
 	if movement.hologram:
 		movement.hologram.visible = false
