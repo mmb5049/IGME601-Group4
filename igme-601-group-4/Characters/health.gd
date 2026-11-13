@@ -46,4 +46,8 @@ func heal(amount: int) -> void:
 		return
 
 	current = mini(current + amount, max)
-	changed.emit(current, max)
+
+func copy(health_to_copy:Health):
+	current = health_to_copy.current
+	max = health_to_copy.max
+	is_dead = health_to_copy.is_dead

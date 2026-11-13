@@ -1,7 +1,7 @@
 shader_type spatial;
 
 uniform float emission_power = 20.0;
-uniform vec3 emission_color = vec3(0,1,1);
+uniform vec3 emission_color:source_color = vec3(0,1,1);
 uniform float alpha = 0.5;
 
 void vertex() {

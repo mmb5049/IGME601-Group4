@@ -6,5 +6,5 @@
 render_priority = 0
 shader = ExtResource("1_1o2p4")
 shader_parameter/emission_power = 4.0
-shader_parameter/emission_color = Vector3(0, 1, 1)
+shader_parameter/emission_color = Color(1, 0, 0, 1)
 shader_parameter/alpha = 0.5

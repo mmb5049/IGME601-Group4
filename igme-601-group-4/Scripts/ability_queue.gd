@@ -13,19 +13,15 @@ func add_ability(ability: Ability, target: AbilityTarget) -> void:
 	_next_entry_id += 1
 	queue_changed.emit()
 
-
 func clear_queue() -> void:
 	queued_entries.clear()
 	queue_changed.emit()
 
-
 func has_entries() -> bool:
 	return not queued_entries.is_empty()
 
-
 func peek_front_entry() -> QueuedAbility:
 	return queued_entries.front() if has_entries() else null
-
 
 func consume_entry(entry_id: int) -> bool:
 	for index in range(queued_entries.size()):

@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="10_x35ji"]
 [ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="11_action_number"]
 [ext_resource type="Material" uid="uid://csqdap7v7ufvi" path="res://Materials/hologram.tres" id="12_lli6r"]
+[ext_resource type="Script" uid="uid://bl22qcqt5bvd6" path="res://Characters/hologram.gd" id="13_r52jx"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0f3il"]
 
@@ -131,22 +132,27 @@ bind/27/name = &"mixamorig_RightHandIndex3"
 bind/27/bone = -1
 bind/27/pose = Transform3D(28.728098, 1.2462152, -1.6286288, -2.5939248, 6.6265182, -25.541498, -1.4543905, 12.797598, 13.383826, 0.3076788, 0.45622382, -0.31531394)
 
-[node name="Player" type="CharacterBody3D" unique_id=372403699 node_paths=PackedStringArray("movement", "animationManager", "presentation_visual")]
+[node name="Player" type="CharacterBody3D" unique_id=372403699 node_paths=PackedStringArray("mesh", "animationManager", "presentation_visual", "movement", "health", "hologram")]
 script = ExtResource("1_v6d5b")
-movement = NodePath("Movement")
+mesh = NodePath("VisualPivot/Animation/Skeleton3D/Cube")
 animationManager = NodePath("VisualPivot/Animation")
 presentation_visual = NodePath("VisualPivot")
+max_mana = null
+mana_per_turn = null
+current_mana = null
 abilities = Array[ExtResource("2_v6d5b")]([ExtResource("3_55lj8"), ExtResource("4_qhb0e"), ExtResource("5_c3bgu"), ExtResource("6_nwlvs"), ExtResource("3_55lj8")])
+movement = NodePath("Movement")
+health = NodePath("Health")
+hologram = NodePath("VisualPivotHologram")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=696857639]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_0f3il")
 
-[node name="Movement" type="Node" parent="." unique_id=1414287046 node_paths=PackedStringArray("character", "facing_visual", "hologram")]
+[node name="Movement" type="Node" parent="." unique_id=1414287046 node_paths=PackedStringArray("character", "facing_visual")]
 script = ExtResource("5_55lj8")
 character = NodePath("..")
 facing_visual = NodePath("../VisualPivot")
-hologram = NodePath("../VisualPivotHologram")
 
 [node name="Health" type="Node3D" parent="." unique_id=1084923388]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6700375, 0)
@@ -401,8 +407,22 @@ script = ExtResource("10_x35ji")
 libraries/Attack = ExtResource("6_55lj8")
 autoplay = &"Attack/FightingIdle"
 
-[node name="VisualPivotHologram" type="Node3D" parent="." unique_id=947166165]
+[node name="VisualPivotHologram" type="Node3D" parent="." unique_id=947166165 node_paths=PackedStringArray("movement", "health")]
 visible = false
+script = ExtResource("13_r52jx")
+movement = NodePath("Movement")
+health = NodePath("HoloHealth")
+
+[node name="HoloHealth" type="Node3D" parent="VisualPivotHologram" unique_id=415421706 node_paths=PackedStringArray("mesh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96226156, 0)
+script = ExtResource("8_7wf5q")
+mesh = NodePath("../Animation/Skeleton3D/Cube")
+max = 10
+
+[node name="Movement" type="Node" parent="VisualPivotHologram" unique_id=218445722 node_paths=PackedStringArray("character", "facing_visual")]
+script = ExtResource("5_55lj8")
+character = NodePath("..")
+facing_visual = NodePath("..")
 
 [node name="Animation" type="Node3D" parent="VisualPivotHologram" unique_id=110330085]
 

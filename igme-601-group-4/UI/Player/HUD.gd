@@ -1,7 +1,5 @@
 extends CanvasLayer
 
-@export var player: PlayerController
-
 @onready var health_bar: ProgressBar = $HealthBar
 @onready var mana_bar: ProgressBar = $ManaBar
 @onready var notification_panel: PanelContainer = $NotificationPanel
@@ -11,25 +9,25 @@ extends CanvasLayer
 var notification_id: int = 0
 
 func _ready() -> void:
-	player = get_tree().get_first_node_in_group("player") as PlayerController
+	Global.player = get_tree().get_first_node_in_group("player") as PlayerController
 	
 	notification_label.text = ""
 
 
-	if player == null:
+	if Global.player == null:
 		push_error("HealthBar: Could not find PlayerController!")
 		return
 
-	player.health.changed.connect(_on_health_changed)
-	player.mana_changed.connect(_on_mana_changed)
-	player.notification_requested.connect(_on_notification_requested)
+	Global.player.health.changed.connect(_on_health_changed)
+	Global.player.mana_changed.connect(_on_mana_changed)
+	Global.player.notification_requested.connect(_on_notification_requested)
 	
 	# Initialize the health bar
 	_on_health_changed(
-		player.health.current,
-		player.health.max
+		Global.player.health.current,
+		Global.player.health.max
 	)
-	_on_mana_changed(player.current_mana, player.max_mana)
+	_on_mana_changed(Global.player.current_mana, Global.player.max_mana)
 
 
 func _on_health_changed(
