@@ -20,14 +20,14 @@ func _ready() -> void:
 		push_error("HealthBar: Could not find PlayerController!")
 		return
 
-	player.health_changed.connect(_on_health_changed)
+	player.health.changed.connect(_on_health_changed)
 	player.mana_changed.connect(_on_mana_changed)
 	player.notification_requested.connect(_on_notification_requested)
 	
 	# Initialize the health bar
 	_on_health_changed(
-		player.current_health,
-		player.max_health
+		player.health.current,
+		player.health.max
 	)
 	_on_mana_changed(player.current_mana, player.max_mana)
 

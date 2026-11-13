@@ -43,7 +43,7 @@ func _ready() -> void:
 func begin_preparation() -> void:
 	if _is_executing or current_phase == TurnPhase.PREPARATION:
 		return
-	if not is_instance_valid(player_actor) or player_actor.is_dead:
+	if not is_instance_valid(player_actor) or player_actor.health.is_dead:
 		return
 	turn_number += 1
 	action_order.clear()
@@ -72,7 +72,7 @@ func _on_execute_requested() -> void:
 	if player_actor == null or player_queue == null:
 		push_error("ActionExecutionController needs a player and player queue.")
 		return
-	if player_actor.is_dead or player_actor.current_mode == PlayerController.PlayerMode.TARGETING:
+	if player_actor.health.is_dead or player_actor.current_mode == PlayerController.PlayerMode.TARGETING:
 		return
 
 	_execute_turn()
@@ -110,11 +110,7 @@ func _execute_turn() -> void:
 func _actor_can_act(actor: Variant) -> bool:
 	if not is_instance_valid(actor) or actor.is_queued_for_deletion():
 		return false
-	if actor is Enemy:
-		return actor.health > 0
-	if actor is PlayerController:
-		return not actor.is_dead
-	return false
+	return not actor.health.is_dead
 
 
 func _get_actor_queue(actor: Node) -> Object:

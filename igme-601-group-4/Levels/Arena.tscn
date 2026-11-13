@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://b0576k1jo61m6"]
 
 [ext_resource type="Script" uid="uid://dl8o2e2kjwvf0" path="res://Levels/arena_manager.gd" id="1_5o1c7"]
-[ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_grid.gd" id="2_f8rhi"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="4_kn3ki"]
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="5_8ml7l"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="5_dsr05"]
@@ -20,7 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="14_mo5sh"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="16_famn7"]
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="17_queue_visibility"]
-[ext_resource type="PackedScene" uid="uid://dqpbwdhgw28jb" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
+[ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
 
 [sub_resource type="Theme" id="Theme_tmhow"]
 
@@ -35,9 +34,6 @@ glow_hdr_luminance_cap = 46.67
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
 
-[node name="HexGrid" type="Node3D" parent="." unique_id=391055418]
-script = ExtResource("2_f8rhi")
-
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
 transform = Transform3D(1, 0, 0, 0, 0.6967433, 0.7173206, 0, -0.7173206, 0.6967433, 0, 6.956389, 9.274121)
 size = 6.607
@@ -49,6 +45,8 @@ transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41
 abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d"), ExtResource("10_d75p2"), ExtResource("14_exqbx")])
 self_enhance_effect_scene = ExtResource("11_exqbx")
 ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+
+[node name="Obstacles" type="Node3D" parent="." unique_id=478288077]
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 

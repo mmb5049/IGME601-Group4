@@ -1,9 +1,12 @@
 extends Node3D
 
 @onready var enemyParent = $Enemies
+@onready var obstacleParent = $Obstacles
 @onready var gameOverScreen:GameOver = $GameOver
 @export var onBoardMovement:bool;
-var enemyScene = preload("res://Characters/Enemy.tscn")
+var enemy_scene = preload("res://Characters/Enemy.tscn")
+var wall_scene = preload("res://Arena Features/wall.tscn")
+var wall_breakable_scene = preload("res://Arena Features/breakable_wall.tscn")
 var enemies:Array[Enemy]
 var total_enemies:int = 0
 
@@ -18,16 +21,28 @@ func _ready() -> void:
 		spawn_enemy(Vector2i(3,-1))
 		spawn_enemy(Vector2i(-2,-2))
 		spawn_enemy(Vector2i(-4,3))
+	if obstacleParent:
+		spawn_obstacle(Vector2i(-1,-1))
+		spawn_obstacle(Vector2i(0,-1))
+		spawn_obstacle(Vector2i(1,-1))
+		spawn_obstacle(Vector2i(-2,0),wall_breakable_scene)
+		spawn_obstacle(Vector2i(-3,1),wall_breakable_scene)
+		spawn_obstacle(Vector2i(-3,2),wall_breakable_scene)
 	
-	Global.player.player_died.connect(func():game_over(false))
+	Global.player.health.died.connect(func():game_over(false))
 
-func spawn_enemy(pos:Vector2i):
+func spawn_enemy(pos:Vector2i, type = enemy_scene):
 	total_enemies += 1
-	var new_enemy:Enemy = enemyScene.instantiate()
+	var new_enemy:Enemy = type.instantiate()
 	enemyParent.add_child(new_enemy)
 	new_enemy.movement.set_pos(pos)
-	new_enemy.died.connect(enemy_died)
+	new_enemy.health.died.connect(enemy_died)
 	enemies.push_back(new_enemy)
+
+func spawn_obstacle(pos:Vector2i, type = wall_scene):
+	var new_obstacle:Obstacle = type.instantiate()
+	obstacleParent.add_child(new_obstacle)
+	new_obstacle.set_hex_position(pos)
 
 func enemy_died():
 	total_enemies -= 1

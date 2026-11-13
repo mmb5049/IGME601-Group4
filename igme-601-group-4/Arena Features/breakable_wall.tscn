@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://cj57trri3dxkx"]
+
+[ext_resource type="CylinderMesh" uid="uid://dwdwv6krhjo7n" path="res://Meshes/wall.tres" id="1_5lbay"]
+[ext_resource type="Material" uid="uid://6vjg1qpk4ux" path="res://Materials/wall_breakable.tres" id="2_4tvr7"]
+[ext_resource type="Script" uid="uid://c4yy1p2mryrie" path="res://Arena Features/obstacle.gd" id="2_untj1"]
+[ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="3_untj1"]
+[ext_resource type="Script" uid="uid://diqv0bf2lruki" path="res://Characters/health.gd" id="4_l1ex7"]
+
+[node name="BreakableWall" type="Node3D" unique_id=2112548418 node_paths=PackedStringArray("health")]
+script = ExtResource("2_untj1")
+health = NodePath("Health")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1713778660]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+material_override = ExtResource("2_4tvr7")
+mesh = ExtResource("1_5lbay")
+script = ExtResource("3_untj1")
+
+[node name="Health" type="Node3D" parent="." unique_id=280850392 node_paths=PackedStringArray("mesh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1077163, 0)
+script = ExtResource("4_l1ex7")
+mesh = NodePath("../MeshInstance3D")
+max = 5

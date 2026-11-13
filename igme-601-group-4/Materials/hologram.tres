@@ -1,12 +1,10 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://csqdap7v7ufvi"]
 
 [ext_resource type="Shader" uid="uid://dro6pejj8lvd3" path="res://Materials/Shaders/hologram.gdshader" id="1_1o2p4"]
-[ext_resource type="Texture2D" uid="uid://2t0r70c6opof" path="res://Materials/code_image.jpg" id="2_6ldxt"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_1o2p4")
 shader_parameter/emission_power = 4.0
 shader_parameter/emission_color = Vector3(0, 1, 1)
-shader_parameter/code_texture = ExtResource("2_6ldxt")
 shader_parameter/alpha = 0.5

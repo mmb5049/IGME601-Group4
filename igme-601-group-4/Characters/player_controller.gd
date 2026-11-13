@@ -4,8 +4,6 @@ class_name PlayerController
 ## UI and gameplay systems observe these signals instead of duplicating target
 ## calculations. The Player remains the single authority for legal targets.
 
-signal health_changed(current_health: int, max_health: int)
-signal player_died
 signal targeting_started(ability: Ability)
 signal target_preview_changed(target: AbilityTarget)
 signal targeting_ended
@@ -27,16 +25,12 @@ const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 ## Outer pivot isolates procedural movement from AnimationPlayer root tracks.
 @export var presentation_visual: Node3D
 
-@export_category("Health")
-@export var max_health: int = 20
-var current_health: int = 20
-var is_dead: bool = false
+@onready var health:Health = $Health
 
 @export_category("Mana")
 @export var max_mana: int = 100
 @export var mana_per_turn: int = 100
 @export var current_mana: int = 100
-
 
 @export_category("Abilities")
 @export var abilities: Array[Ability] = []
@@ -79,14 +73,9 @@ func _ready() -> void:
 	
 	cursor_position = get_viewport().get_mouse_position()
 	
-	current_health = max_health
-	current_mana = max_mana
-	mana_changed.emit(current_mana, max_mana)
-	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
-		
-	health_changed.emit(current_health, max_health)
+	
 	mesh = animationManager.get_node("Skeleton3D/Cube")
 	ability_sequence_ui.ability_removed.connect(
 	func(ability: Ability):
@@ -123,8 +112,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				request_ability(get_ability("Slash"))
 			KEY_T:
 				request_ability(get_ability("Trap"))
-			KEY_H:
-				damage(20)
 			KEY_A:
 				request_ability(get_ability("Attack_Up"))
 
@@ -377,7 +364,6 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 	current_mode = PlayerMode.ACTING
 	var succeeded: bool = true
-	print("start acting")
 	# play animation
 	var has_animation:bool = false
 	if animationManager:
@@ -410,7 +396,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 			if ability.presentation != null:
 				var completed: bool = await ability.presentation.play(self, presentation_visual, target)
-				if completed and not is_dead:
+				if completed and not health.is_dead:
 					_apply_attack()
 				else:
 					succeeded = false
@@ -499,35 +485,6 @@ func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 	var local_position: Vector3 = HexGrid.to_local(hit_position)
 	return HexGrid.world_to_hex(local_position)
 	
-func damage(amount: int) -> void:
-	if is_dead or amount <= 0:
-		return
-		
-	var new_display:Node3D = number_display.instantiate()
-	get_parent().add_child(new_display)
-	
-	new_display.global_position = global_position + Vector3(0, 1.1, 0)
-	new_display.set_number(-amount)
-
-	mesh.flash()
-
-	current_health = current_health - amount
-	health_changed.emit(current_health, max_health)
-
-	print("Player HP: ", current_health, "/", max_health)
-
-	if current_health <= 0:
-		is_dead = true
-		player_died.emit()
-		print("Player died!")
-
-#Nothing can heal the player as of yet but still a useful function to have
-func heal(amount: int) -> void:
-	if is_dead or amount <= 0:
-		return
-
-	current_health = mini(current_health + amount, max_health)
-	health_changed.emit(current_health, max_health)
 
 func spend_mana(amount: int) -> bool:
 	if amount < 0 or current_mana < amount:
@@ -535,7 +492,6 @@ func spend_mana(amount: int) -> bool:
 
 	current_mana -= amount
 	mana_changed.emit(current_mana, max_mana)
-	print("Mana", current_mana)
 	return true
 
 func refill_mana() -> void:
@@ -544,7 +500,6 @@ func refill_mana() -> void:
 		max_mana
 	)
 	mana_changed.emit(current_mana, max_mana)
-	print("Mana", current_mana)
 
 func show_mana_message(message: String) -> void:
 	notification_requested.emit(message)
@@ -553,20 +508,26 @@ func can_afford_ability(ability: Ability) -> bool:
 	return ability != null and current_mana >= ability.cost
 
 ## Connected to AnimationManager.take_action, and also called directly as a fallback.
-func _apply_attack() -> void:
+func _apply_attack(_action_num:int = 0) -> void:
+	# action_num is for attacks triggered by anumations.
+	# if we want to deal damage multiple times in one ability,
+	# this number signifies the index of which attack it is
+	
 	if _attack_applied or _attack_ability == null or _attack_target == null:
 		return
 	_attack_applied = true
 
+	# Calculate damage
 	var final_damage: int = _attack_ability.damage
 	if self_enhance_stacks > 0:
 		var multiplier: float = pow(SELF_ENHANCE_MULTIPLIER, self_enhance_stacks)
 		final_damage = roundi(final_damage * multiplier)
-
+	
+	# Apply damage
 	for target_cell: Vector2i in _attack_target.resolve_cells(movement.current_cell):
 		var victim: Variant = HexGrid.occupied_cells.get(target_cell)
-		if is_instance_valid(victim) and victim is Enemy and not victim.is_queued_for_deletion():
-			victim.damage(final_damage)
+		if is_instance_valid(victim) and victim.health and not victim.is_queued_for_deletion():
+			victim.health.damage(final_damage)
 		else:
 			var new_display: Node3D = number_display.instantiate()
 			get_parent().add_child(new_display)
