@@ -20,6 +20,9 @@
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="16_famn7"]
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="17_queue_visibility"]
 [ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
+[ext_resource type="PackedScene" uid="uid://ct5d84slhdgyj" path="res://VFX/CRTOverlay.tscn" id="20_crt"]
+[ext_resource type="Script" uid="uid://dggbt3nhogfy7" path="res://Levels/gameplay_camera.gd" id="21_camera_motion"]
+[ext_resource type="Script" uid="uid://juqaw1ro2jx5" path="res://Levels/enemy_hover.gd" id="22_enemy_hover"]
 
 [sub_resource type="Theme" id="Theme_tmhow"]
 
@@ -35,8 +38,14 @@ glow_hdr_luminance_cap = 46.67
 script = ExtResource("1_5o1c7")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
-transform = Transform3D(1, 0, 0, 0, 0.6967433, 0.7173206, 0, -0.7173206, 0.6967433, 0, 6.956389, 9.274121)
-size = 6.607
+transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 19.566, 12.639)
+fov = 39.4
+size = 16.666
+far = 3986.1
+script = ExtResource("21_camera_motion")
+mouse_sway_amount = Vector2(-0.16, -0.11)
+mouse_follow_speed = 1.0
+idle_shake_speed = 0.4
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
@@ -50,18 +59,42 @@ ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
+[node name="EnemyHover" type="Node" parent="." unique_id=1424316955]
+script = ExtResource("22_enemy_hover")
+
 [node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
+layer = 4
 script = ExtResource("17_queue_visibility")
 
 [node name="HUD" parent="." unique_id=1543784001 instance=ExtResource("16_famn7")]
 
 [node name="HealthBar" parent="HUD" index="0" unique_id=51208162]
-offset_left = 240.0
-offset_right = 763.0
+offset_left = 25.0
+offset_top = 23.0
+offset_right = 548.0
+offset_bottom = 79.0
+scale = Vector2(0.8922286, 0.73076844)
+
+[node name="HealthLabel" parent="HUD/HealthBar" index="0" unique_id=1729260440]
+offset_left = 201.74202
+offset_top = 12.315803
+offset_right = 319.742
+offset_bottom = 36.3158
+scale = Vector2(2.1207945, 2.1494749)
 
 [node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
-offset_right = 763.0
-offset_bottom = 138.0
+offset_left = 25.0
+offset_top = 83.00001
+offset_right = 548.0
+offset_bottom = 139.0
+scale = Vector2(0.8922286, 0.49076843)
+
+[node name="ManaLabel" parent="HUD/ManaBar" index="0" unique_id=1477717854]
+offset_left = 202.86282
+offset_top = 8.150469
+offset_right = 320.8628
+offset_bottom = 32.150467
+scale = Vector2(1.5534978, 2.2225676)
 
 [node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
 theme = SubResource("Theme_tmhow")
@@ -119,7 +152,13 @@ environment = SubResource("Environment_pdfgs")
 camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
 compositor = SubResource("Compositor_fy3br")
 
-[node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("14_mo5sh")]
+[node name="CRTOverlay" parent="." unique_id=74049933 instance=ExtResource("20_crt")]
+
+[node name="GameOverLayer" type="CanvasLayer" parent="." unique_id=590947086]
+layer = 2
+
+[node name="GameOver" parent="GameOverLayer" unique_id=1785312048 instance=ExtResource("14_mo5sh")]
+unique_name_in_owner = true
 visible = false
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
@@ -127,5 +166,6 @@ visible = false
 [connection signal="targeting_ended" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="end_targeting"]
 [connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
+[connection signal="visibility_changed" from="GameOverLayer/GameOver" to="." method="_on_game_over_visibility_changed"]
 
 [editable path="HUD"]

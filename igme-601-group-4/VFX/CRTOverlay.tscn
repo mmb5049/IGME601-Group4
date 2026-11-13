@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://ct5d84slhdgyj"]
+
+[ext_resource type="Shader" uid="uid://bdl44odki56hq" path="res://Materials/Shaders/crt_overlay.gdshader" id="1_crt"]
+[ext_resource type="Script" uid="uid://dvklyy2yswg8e" path="res://VFX/crt_overlay.gd" id="2_crt_input"]
+[ext_resource type="Shader" uid="uid://ch56et5wgsteb" path="res://Materials/Shaders/crt_pixelation.gdshader" id="3_pixelation"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pixelation"]
+resource_local_to_scene = true
+shader = ExtResource("3_pixelation")
+shader_parameter/pixel_size = 2.0
+shader_parameter/chromatic_aberration_pixels = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
+resource_local_to_scene = true
+shader = ExtResource("1_crt")
+shader_parameter/scanline_strength = 0.30000001192093
+shader_parameter/scanline_spacing_pixels = 3.0
+shader_parameter/scanline_width_pixels = 1.0
+shader_parameter/scanline_softness_pixels = 0.0
+shader_parameter/vignette_strength = 0.1999999955296
+shader_parameter/brightness = 1.02
+shader_parameter/curvature_strength = 0.025
+
+[node name="CRTOverlay" type="CanvasLayer" unique_id=1019875901]
+layer = 1025
+script = ExtResource("2_crt_input")
+
+[node name="PixelationLayer" type="CanvasLayer" parent="." unique_id=1730637569]
+layer = 3
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="PixelationLayer" unique_id=487184428]
+copy_mode = 2
+
+[node name="Screen" type="ColorRect" parent="PixelationLayer" unique_id=1039241495]
+material = SubResource("ShaderMaterial_pixelation")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="." unique_id=938655324]
+copy_mode = 2
+
+[node name="Screen" type="ColorRect" parent="." unique_id=1097268709]
+material = SubResource("ShaderMaterial_crt")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

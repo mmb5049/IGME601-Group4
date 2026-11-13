@@ -65,6 +65,11 @@ func _apply_inner_green_artwork() -> void:
 		)
 
 
+func recolor_green_artwork_red() -> void:
+	for edge: DirectionSignUI in _direction_edges:
+		edge.recolor_green_artwork_red()
+
+
 func show_direction(direction_index: int, is_legal: bool, duration: float) -> void:
 	if direction_index < 0 or direction_index >= _direction_edges.size():
 		hide_directions(duration > 0.0, duration)

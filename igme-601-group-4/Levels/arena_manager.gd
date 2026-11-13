@@ -2,10 +2,10 @@ extends Node3D
 
 @onready var enemyParent = $Enemies
 @onready var obstacleParent = $Obstacles
-@onready var gameOverScreen:GameOver = $GameOver
+@onready var gameOverScreen:GameOver = %GameOver
 @export var onBoardMovement:bool;
 var enemy_scene = preload("res://Characters/Enemy.tscn")
-var wall_scene = preload("res://Arena Features/wall.tscn")
+var wall_scene = preload("res://Arena Features/Wall.tscn")
 var wall_breakable_scene = preload("res://Arena Features/breakable_wall.tscn")
 var enemies:Array[Enemy]
 var total_enemies:int = 0
@@ -36,7 +36,7 @@ func spawn_enemy(pos:Vector2i, type = enemy_scene):
 	var new_enemy:Enemy = type.instantiate()
 	enemyParent.add_child(new_enemy)
 	new_enemy.movement.set_pos(pos)
-	new_enemy.health.died.connect(enemy_died)
+	new_enemy.death_animation_finished.connect(enemy_died)
 	enemies.push_back(new_enemy)
 
 func spawn_obstacle(pos:Vector2i, type = wall_scene):
@@ -46,7 +46,7 @@ func spawn_obstacle(pos:Vector2i, type = wall_scene):
 
 func enemy_died():
 	total_enemies -= 1
-	if total_enemies <= 0:
+	if total_enemies == 0 and not gameOverScreen.visible:
 		game_over(true)
 
 func game_over(won:bool):
@@ -54,3 +54,8 @@ func game_over(won:bool):
 		gameOverScreen.visible = true	
 		gameOverScreen.win_screen.visible = won
 		gameOverScreen.lose_screen.visible = not won
+
+
+func _on_game_over_visibility_changed() -> void:
+	# The queue draws after pixelation. Hide it while the modal covers the arena.
+	$EnemyQueueVisibilityManager.visible = not %GameOver.visible

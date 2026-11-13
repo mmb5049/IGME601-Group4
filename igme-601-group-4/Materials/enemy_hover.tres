@@ -1,0 +1,24 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cf8chifbasjhj"]
+
+[ext_resource type="Shader" uid="uid://cf5tgqypsxfa7" path="res://Materials/Shaders/enemy_hover_mask.gdshader" id="1"]
+[ext_resource type="Shader" uid="uid://infd2uxccsf3" path="res://Materials/Shaders/enemy_hover_xray.gdshader" id="2"]
+[ext_resource type="Shader" uid="uid://k14kr8xpc1v6" path="res://Materials/Shaders/enemy_hover_outline.gdshader" id="3"]
+
+[sub_resource type="ShaderMaterial" id="Outline"]
+render_priority = 22
+shader = ExtResource("3")
+shader_parameter/glow_color = Color(1, 0.3, 0.38, 0.9)
+shader_parameter/width_pixels = 3.0
+shader_parameter/glow_strength = 2.4
+shader_parameter/glow_speed = 3.0
+
+[sub_resource type="ShaderMaterial" id="XRay"]
+render_priority = 21
+next_pass = SubResource("Outline")
+shader = ExtResource("2")
+shader_parameter/tint = Color(1, 0.27, 0.34, 0.53)
+
+[resource]
+render_priority = 20
+next_pass = SubResource("XRay")
+shader = ExtResource("1")

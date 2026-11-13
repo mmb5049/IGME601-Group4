@@ -21,6 +21,7 @@
 [ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="20_inylp"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="21_py3uu"]
 [ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="22_ypint"]
+[ext_resource type="Script" uid="uid://dggbt3nhogfy7" path="res://Levels/gameplay_camera.gd" id="23_camera_motion"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kvn1v"]
 shader = ExtResource("2_3j5mq")
@@ -61,6 +62,7 @@ script = ExtResource("2_ypint")
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
 transform = Transform3D(1, 0, 0, 0, 0.6967433, 0.7173206, 0, -0.7173206, 0.6967433, 0, 6.956389, 9.274121)
 size = 6.607
+script = ExtResource("23_camera_motion")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
@@ -145,6 +147,7 @@ camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
 compositor = SubResource("Compositor_fy3br")
 
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("21_py3uu")]
+unique_name_in_owner = true
 visible = false
 
 [node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("darkenUI")]
