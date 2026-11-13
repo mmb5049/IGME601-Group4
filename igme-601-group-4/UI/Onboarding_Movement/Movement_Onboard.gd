@@ -25,6 +25,7 @@ signal tutorial_complete(Vector2i)
 
 @onready var welcome_panel: PanelContainer = $Welcome
 @onready var tutorial_panel: PanelContainer = $TutorialPrompt
+@export var task_panel: PanelContainer
 @onready var prompt_label: Label = $TutorialPrompt/TutorialText
 
 var current_step: TutorialStep = TutorialStep.WELCOME
@@ -151,6 +152,7 @@ func complete_ability_tutorial() -> void:
 
 	print("Ability tutorial completed!")
 	tutorial_complete.emit(Vector2i(2,2))
+	task_panel.show()
 
 func _on_sequence_child_added(child: Node) -> void:
 
