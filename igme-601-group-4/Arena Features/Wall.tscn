@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="3_lb6w6"]
 
 [node name="Wall" type="Node3D" unique_id=345674792]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 script = ExtResource("1_soqan")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2048529158]

@@ -4,6 +4,7 @@ class_name AbilitySequenceUI
 ## Emitted whenever an entry is added, removed, or reordered.
 signal queue_changed
 signal ability_removed(ability: Ability)
+signal ability_confirmed
 
 @export var item_scene: PackedScene = preload("res://UI/AbilitySequenceItemUI.tscn")
 
@@ -30,7 +31,7 @@ var _interaction_enabled: bool = true
 func add_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
 	if ability == null or target == null or not target.is_valid:
 		return
-
+	
 	var added_entry_id: int = _next_entry_id
 	queued_entries.append(QueuedAbility.new(added_entry_id, ability, target))
 	_next_entry_id += 1
@@ -51,6 +52,8 @@ func add_confirmed_ability_pending(ability: Ability, target: AbilityTarget) -> i
 	_next_entry_id += 1
 	_rebuild_items()
 	queue_changed.emit()
+	print("select ability")
+	ability_confirmed.emit()
 	return added_entry_id
 
 
