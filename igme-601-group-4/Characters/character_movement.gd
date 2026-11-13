@@ -194,7 +194,6 @@ func set_pos(cell:Vector2i):
 		HexGrid.set_occupied(current_cell, false)
 	HexGrid.set_occupied(cell, character)
 	
-		
 	# Snap position
 	character.global_position = target_position
 	current_cell = cell

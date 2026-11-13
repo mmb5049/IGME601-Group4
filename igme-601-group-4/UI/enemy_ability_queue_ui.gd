@@ -22,14 +22,17 @@ var _target_opacity: float = 1.0
 
 func _ready() -> void:
 	_enemy = get_parent() as Enemy
-	if _enemy == null:
+	if not _enemy:
 		push_error("EnemyAbilityQueueUI must be a child of an Enemy.")
 		set_process(false)
 		return
+	
+	await _enemy.ready
+	
 	_queue = _enemy.ability_queue
 	add_to_group("enemy_queue_displays")
 	_queue.queue_changed.connect(_sync_queue)
-	_enemy.died.connect(_on_enemy_died)
+	_enemy.health.died.connect(_on_enemy_died)
 	_sync_queue()
 	_update_screen_position()
 
@@ -40,7 +43,7 @@ func _process(_delta: float) -> void:
 
 func _update_screen_position() -> void:
 	var camera := get_viewport().get_camera_3d()
-	if camera == null or not is_instance_valid(_enemy) or _enemy.health <= 0:
+	if camera == null or not is_instance_valid(_enemy) or _enemy.health.is_dead:
 		_screen_root.hide()
 		return
 	var screen_position: Vector2 = camera.unproject_position(global_position) + screen_offset
@@ -99,7 +102,7 @@ func _on_enemy_died() -> void:
 
 func get_display_polygons() -> Array[PackedVector2Array]:
 	var polygons: Array[PackedVector2Array] = []
-	if not _screen_root.visible or not is_instance_valid(_enemy) or _enemy.health <= 0:
+	if not _screen_root.visible or not is_instance_valid(_enemy) or _enemy.health.is_dead:
 		return polygons
 	# Include disappearing blocks until their exit animation completes.
 	for child in _items_root.get_children():
