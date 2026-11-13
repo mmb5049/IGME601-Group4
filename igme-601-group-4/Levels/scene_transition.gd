@@ -1,6 +1,5 @@
 extends Node
 
-@onready var animation_player: AnimationPlayer = $AnimationPlayer
 @export var glitch_tv : ColorRect
 var is_transitioning: bool = false
 

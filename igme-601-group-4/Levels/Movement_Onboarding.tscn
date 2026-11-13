@@ -15,7 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="14_7m2dc"]
 [ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="15_e6jtp"]
 [ext_resource type="PackedScene" uid="uid://bkw5j0bx88rjt" path="res://UI/AbilityBarUI.tscn" id="16_3wnhm"]
-[ext_resource type="PackedScene" path="res://UI/AbilitySequenceUI.tscn" id="17_srhjw"]
+[ext_resource type="PackedScene" uid="uid://cvr0mhxrtq6oq" path="res://UI/AbilitySequenceUI.tscn" id="17_srhjw"]
 [ext_resource type="Script" uid="uid://drm3kt46ojxw4" path="res://UI/Onboarding_Movement/Movement_Onboard.gd" id="17_x2wxu"]
 [ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="18_0v4xs"]
 [ext_resource type="Script" uid="uid://bf4vtvg2yf0tc" path="res://UI/Onboarding_Movement/PanelText.gd" id="19_3j5mq"]
