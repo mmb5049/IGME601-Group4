@@ -3,7 +3,12 @@ extends Node3D
 @onready var enemyParent = $Enemies
 @onready var obstacleParent = $Obstacles
 @onready var gameOverScreen:GameOver = $GameOver
+
 @export var onBoardMovement:bool;
+
+@export_group("Arena Configuration")
+@export var walls: Array[WallData] = []
+
 var enemy_scene = preload("res://Characters/Enemy.tscn")
 var wall_scene = preload("res://Arena Features/wall.tscn")
 var wall_breakable_scene = preload("res://Arena Features/breakable_wall.tscn")
@@ -21,13 +26,9 @@ func _ready() -> void:
 		spawn_enemy(Vector2i(3,-1))
 		spawn_enemy(Vector2i(-2,-2))
 		spawn_enemy(Vector2i(-4,3))
-	if obstacleParent:
-		spawn_obstacle(Vector2i(-1,-1))
-		spawn_obstacle(Vector2i(0,-1))
-		spawn_obstacle(Vector2i(1,-1))
-		spawn_obstacle(Vector2i(-2,0),wall_breakable_scene)
-		spawn_obstacle(Vector2i(-3,1),wall_breakable_scene)
-		spawn_obstacle(Vector2i(-3,2),wall_breakable_scene)
+		
+		
+	spawn_walls()
 	
 	Global.player.health.died.connect(func():game_over(false))
 
@@ -38,6 +39,23 @@ func spawn_enemy(pos:Vector2i, type = enemy_scene):
 	new_enemy.movement.set_pos(pos)
 	new_enemy.health.died.connect(enemy_died)
 	enemies.push_back(new_enemy)
+	
+func spawn_walls() -> void:
+	if not obstacleParent:
+		return
+
+	for wall_data in walls:
+		var wall_type = wall_scene
+
+		match wall_data.wall_type:
+			WallData.WallType.NORMAL:
+				wall_type = wall_scene
+
+			WallData.WallType.BREAKABLE:
+				wall_type = wall_breakable_scene
+
+		spawn_obstacle(wall_data.position, wall_type)
+
 
 func spawn_obstacle(pos:Vector2i, type = wall_scene):
 	var new_obstacle:Obstacle = type.instantiate()
