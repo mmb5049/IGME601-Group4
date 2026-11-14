@@ -1,10 +1,14 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://csqdap7v7ufvi"]
 
 [ext_resource type="Shader" uid="uid://dro6pejj8lvd3" path="res://Materials/Shaders/hologram.gdshader" id="1_1o2p4"]
+[ext_resource type="Texture2D" uid="uid://cmqbgiq1lu4dt" path="res://Materials/grunge_cracked_texture_background_1307.jpg" id="2_6ldxt"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_1o2p4")
-shader_parameter/emission_power = 4.0
-shader_parameter/emission_color = Color(1, 0, 0, 1)
+shader_parameter/emission_power = 6.0
+shader_parameter/emission_color = Color(0.2627451, 0.19607843, 0.08627451, 1)
 shader_parameter/alpha = 0.5
+shader_parameter/use_texture = true
+shader_parameter/base_texture = ExtResource("2_6ldxt")
+shader_parameter/texture_color = Color(0.2627451, 0.19607843, 0.08627451, 1)

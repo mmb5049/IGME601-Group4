@@ -22,9 +22,11 @@ _data = {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6vurl"]
 render_priority = 0
 shader = ExtResource("11_b5jcg")
-shader_parameter/emission_power = 4.0
-shader_parameter/emission_color = Color(0, 1, 1, 1)
+shader_parameter/emission_power = 6.0
+shader_parameter/emission_color = Color(1, 0, 0, 1)
 shader_parameter/alpha = 0.5
+shader_parameter/use_texture = false
+shader_parameter/texture_color = Color(1, 0, 0, 1)
 
 [node name="Enemy" type="Node3D" unique_id=1359998768 node_paths=PackedStringArray("movement", "health", "hologram")]
 script = ExtResource("1_1oqew")

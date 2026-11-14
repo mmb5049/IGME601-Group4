@@ -145,8 +145,7 @@ func request_ability(ability: Ability) -> void:
 	if not can_afford_ability(ability):
 		show_mana_message("Not enough mana!")
 		return
-		
-	clear_preview()
+	
 	selected_ability = ability
 	cursor_position = get_viewport().get_mouse_position()
 
@@ -177,7 +176,8 @@ func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
 		return
 
-	clear_preview()
+	#clear_preview()
+	HexGrid.clear_highlights()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
 	targeting_ended.emit()
@@ -188,11 +188,13 @@ func _confirm_current_target() -> void:
 	
 	action_execution_controller.preview_queue(ability_queue.size())
 	var target: AbilityTarget = evaluate_target(selected_ability, cursor_position, hologram.movement.current_cell)
+	#clear_preview()
+	HexGrid.clear_highlights()
+	
 	if not target.is_valid:
 		return
-
 	var confirmed_ability: Ability = selected_ability
-	clear_preview()
+	
 	selected_ability = null
 	current_mode = PlayerMode.NONE
 	if not can_afford_ability(confirmed_ability):
@@ -221,8 +223,6 @@ show_possible:bool = true, target:AbilityTarget  = null) -> void:
 		else:
 			# use color to show ability type when previewing
 			target_material = possible_material
-	
-	clear_preview()
 	
 	match ability.targeting_type:
 		Global.TargetingType.DIRECTION:
@@ -379,7 +379,6 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 
 		Global.AbilityType.ATTACK:
 			#_attack_applied = false
-
 			if ability.presentation != null:
 				var completed: bool = ability.presentation.play(self, presentation_visual, target)
 				if completed and not health.is_dead:
@@ -387,10 +386,11 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 				else:
 					succeeded = false
 			elif has_animation:
-				animationManager.take_action.connect(_apply_attack)
+				var attack = func(num):_apply_attack(ability,target,num)
+				animationManager.take_action.connect(attack)
 				await animationManager.animationPlayer.animation_finished
-				if animationManager.take_action.is_connected(_apply_attack):
-					animationManager.take_action.disconnect(_apply_attack)
+				if animationManager.take_action.is_connected(attack):
+					animationManager.take_action.disconnect(attack)
 				# Fallback: does nothing if the keyframe already fired.
 				#if not _attack_applied:
 					#push_warning("take_action never fired; applying attack as fallback")
@@ -513,3 +513,4 @@ func refund_mana(amount: int) -> void:
 
 func clear_preview() -> void:
 	HexGrid.clear_highlights()
+	action_execution_controller.clear_preview()

@@ -35,17 +35,20 @@ character_mask:Global.EntityMask = Global.EntityMask.ALL, use_preview = false) -
 		var multiplier: float = pow(SELF_ENHANCE_MULTIPLIER, self_enhance_stacks)
 		final_damage = roundi(final_damage * multiplier)
 	
-	# Apply damage
+	# Apply damage to all tiles
 	for target_cell: Vector2i in target.resolve_cells(movement.current_cell):
+		# Get victim from preview grid or normal grid
 		var victim: Variant = null
 		if not use_preview:
-			HexGrid.occupied_cells.get(target_cell)
+			victim = HexGrid.occupied_cells.get(target_cell)
 		else:
-			HexGrid.occupied_cells_preview.get(target_cell)
+			victim = HexGrid.occupied_cells_preview.get(target_cell)
+		
+		# Deal damage if it's a viable victim
 		if (is_instance_valid(victim) and victim.health and not victim.is_queued_for_deletion() 
 		and Global.contains_a_flag(character_mask,victim.entity_type)):
-			victim.health.damage(final_damage)
-		else:
+			victim.health.damage(final_damage, !use_preview)
+		elif not use_preview:
 			var new_display: Node3D = number_display.instantiate()
 			get_parent().add_child(new_display)
 			new_display.global_position = HexGrid.hex_to_world(target_cell) + Vector3(0, 0.5, 0)

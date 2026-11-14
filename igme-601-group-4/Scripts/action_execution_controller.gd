@@ -137,7 +137,10 @@ func execute_next(actor: Character, queue_source: AbilityQueue) -> bool:
 	# here until CharacterMovement emits done_moving; attacks and Wait complete
 	# synchronously and proceed directly to queue consumption.
 	var succeeded: bool = await actor.execute_queued_ability(entry)
-	queue_source.consume_entry(entry.id)
+	if(actor is PlayerController):
+		player_queue_UI.consume_entry(entry.id)
+	else:
+		queue_source.consume_entry(entry.id)
 	action_finished.emit(actor if is_instance_valid(actor) else null, entry, succeeded)
 	return succeeded
 

@@ -13,7 +13,6 @@ signal ability_removed(ability: Ability)
 @export_range(0.01, 0.5, 0.01, "suffix:s") var reorder_animation_duration: float = 0.14
 @export_range(0.01, 0.75, 0.01, "suffix:s") var layout_animation_duration: float = 0.20
 
-var _next_entry_id: int = 1
 var _active_drag_entry_id: int = -1
 var _preview_insertion_index: int = -1
 var _pending_reveal_entry_ids: Dictionary[int, bool] = {}
@@ -23,19 +22,17 @@ var _interaction_enabled: bool = true
 @onready var _scroll_container: ScrollContainer = %ScrollContainer
 @onready var _item_container: VBoxContainer = %SequenceContainer
 
-
 ## Connected to PlayerController after targeting is confirmed. Repeated Ability
 ## resources are allowed; each entry keeps its own target and stable ID.
 func add_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
 	if ability == null or target == null or not target.is_valid:
 		return
 
-	var added_entry_id: int = _next_entry_id
+	var added_entry_id: int = Global.player.ability_queue._next_entry_id
 	Global.player.queued_entries.append(QueuedAbility.new(added_entry_id, ability, target))
-	_next_entry_id += 1
+	Global.player.ability_queue._next_entry_id += 1
 	_rebuild_items(added_entry_id)
 	queue_changed.emit()
-
 
 ## Adds a confirmed targeted Ability without playing the Item's old pop-in
 ## animation. The returned stable ID lets ActionDockUI animate the large
@@ -44,14 +41,13 @@ func add_confirmed_ability_pending(ability: Ability, target: AbilityTarget) -> i
 	if ability == null or target == null or not target.is_valid:
 		return -1
 
-	var added_entry_id: int = _next_entry_id
+	var added_entry_id: int = Global.player.ability_queue._next_entry_id
 	Global.player.ability_queue.add_ability(ability, target)
 	_pending_reveal_entry_ids[added_entry_id] = true
-	_next_entry_id += 1
+	Global.player.ability_queue._next_entry_id += 1
 	_rebuild_items()
 	queue_changed.emit()
 	return added_entry_id
-
 
 ## Waits for both the VBoxContainer layout and any required scrolling before
 ## returning the destination used by the indicator-to-queue animation.
@@ -66,18 +62,15 @@ func wait_for_entry_visual_position(entry_id: int) -> Vector2:
 	item = _find_item(entry_id)
 	return item.get_hex_global_position() if item != null else Vector2(INF, INF)
 
-
 func get_entry_visual_scale(entry_id: int) -> Vector2:
 	var item: AbilitySequenceItemUI = _find_item(entry_id)
 	return item.get_hex_scale() if item != null else Vector2.ONE
-
 
 func reveal_pending_entry(entry_id: int) -> void:
 	_pending_reveal_entry_ids.erase(entry_id)
 	var item: AbilitySequenceItemUI = _find_item(entry_id)
 	if item != null:
 		item.reveal_pending_visual()
-
 
 ## Compatibility helper for non-targeted callers. The formal AbilityBar flow
 ## uses add_confirmed_ability so targeted commands never lose their selection.
@@ -94,13 +87,11 @@ func add_ability(ability: Ability) -> void:
 	target.is_valid = true
 	add_confirmed_ability(ability, target)
 
-
 func clear_queue() -> void:
 	Global.player.queued_entries.clear()
 	_pending_reveal_entry_ids.clear()
 	_rebuild_items()
 	queue_changed.emit()
-
 
 ## Minimal queue-source contract used by ActionExecutionController. Returning
 ## the entry rather than only its Ability preserves the confirmed target and
@@ -108,10 +99,8 @@ func clear_queue() -> void:
 func has_entries() -> bool:
 	return not Global.player.queued_entries.is_empty()
 
-
 func peek_front_entry() -> QueuedAbility:
 	return Global.player.queued_entries.front() if has_entries() else null
-
 
 ## Removes one resolved action by stable ID and reuses the existing layout
 ## animation. The executor may call this while player editing is locked.
@@ -125,13 +114,12 @@ func consume_entry(entry_id: int) -> bool:
 	if removed_item != null:
 		removed_item.reparent(self, true)
 		removed_item.play_removal_animation(layout_animation_duration)
-	Global.player.queued_entries.remove_at(index)
+	Global.player.ability_queue.queue.remove_at(index)
 	_pending_reveal_entry_ids.erase(entry_id)
 	_rebuild_items()
 	_animate_rebuilt_items(previous_positions)
 	queue_changed.emit()
 	return true
-
 
 ## Locks player-authored mutations during execution while leaving internal
 ## consumption available to the execution controller.
@@ -144,13 +132,11 @@ func set_interaction_enabled(enabled: bool) -> void:
 		if item != null:
 			item.set_interaction_enabled(enabled)
 
-
 func get_queued_abilities() -> Array[Ability]:
 	var result: Array[Ability] = []
 	for entry in Global.player.queued_entries:
 		result.append(entry.ability)
 	return result
-
 
 ## Rebuilding keeps alternating alignment correct after deleting an entry from
 ## the middle of the queue. Only animated_entry_id receives an entrance
@@ -189,7 +175,6 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 		item.reorder_preview_requested.connect(_on_item_reorder_preview_requested)
 		_item_container.add_child(item)
 
-
 func _on_item_removal_requested(entry_id: int) -> void:
 	if not _interaction_enabled:
 		return
@@ -198,14 +183,13 @@ func _on_item_removal_requested(entry_id: int) -> void:
 	if index < 0:
 		return
 
-	var ability: Ability = Global.player.queued_entries[index].ability
+	var ability: Ability = Global.player.ability_queue.queue[index].ability
 
 	# Refund mana before removing the entry.
 	ability_removed.emit(ability)
 
 	consume_entry(entry_id)
 	print("remove")
-
 
 ## Moves a unique queue entry relative to another entry. The target index is
 ## resolved again after removal because removing an earlier item shifts every
@@ -247,14 +231,12 @@ func _on_item_reorder_requested(
 	_animate_rebuilt_items(previous_positions)
 	queue_changed.emit()
 
-
 func _on_item_drag_started(entry_id: int) -> void:
 	if not _interaction_enabled:
 		return
 	_active_drag_entry_id = entry_id
 	_preview_insertion_index = -1
 	_update_drag_source_appearance(true)
-
 
 func _on_item_drag_finished(
 	entry_id: int,
@@ -270,7 +252,6 @@ func _on_item_drag_finished(
 		_clear_reorder_preview(true, entry_id, release_global_position)
 	else:
 		_clear_reorder_preview(false)
-
 
 ## Opens one visual row at the proposed insertion boundary. Item Controls stay
 ## in place as reliable drop targets; only their hexagon visuals move.
@@ -311,7 +292,7 @@ func _on_item_reorder_preview_requested(
 		if item == null:
 			continue
 
-		var entry_id: int = Global.player.queued_entries[index].id
+		var entry_id: int = Global.player.ability_queue.queue[index].id
 		if entry_id == _active_drag_entry_id:
 			item.clear_reorder_preview_layout(reorder_animation_duration)
 			continue
@@ -328,7 +309,6 @@ func _on_item_reorder_preview_requested(
 			float(row_offset) * reorder_gap_pixels,
 			reorder_animation_duration
 		)
-
 
 func _clear_reorder_preview(
 	animated: bool,
@@ -352,10 +332,9 @@ func _clear_reorder_preview(
 	_active_drag_entry_id = -1
 	_preview_insertion_index = -1
 
-
 func _update_drag_source_appearance(active: bool) -> void:
 	for index in range(_item_container.get_child_count()):
-		if (Global.player.ablity_queue.queued_abilities.queue[index].id 
+		if (Global.player.ability_queue.queue[index].id 
 		!= _active_drag_entry_id):
 			continue
 
@@ -363,7 +342,6 @@ func _update_drag_source_appearance(active: bool) -> void:
 		if item != null:
 			item.set_drag_source_active(active, reorder_animation_duration)
 		return
-
 
 func _capture_item_positions() -> Dictionary[int, Vector2]:
 	var positions: Dictionary[int, Vector2] = {}
@@ -373,7 +351,6 @@ func _capture_item_positions() -> Dictionary[int, Vector2]:
 			continue
 		positions[item.get_entry_id()] = item.get_hex_global_position()
 	return positions
-
 
 ## Containers assign the final layout after the rebuilt children enter the
 ## scene tree. Matching entries remain visible at their old global positions
@@ -412,13 +389,11 @@ func _animate_rebuilt_items(previous_positions: Dictionary[int, Vector2]) -> voi
 		var start_position: Vector2 = previous_positions[entry_id]
 		item.animate_from_global_position(start_position, layout_animation_duration)
 
-
 func _find_entry_index(entry_id: int) -> int:
-	for index in range(Global.player.queued_entries.size()):
-		if Global.player.queued_entries[index].id == entry_id:
+	for index in range(Global.player.ability_queue.queue.size()):
+		if Global.player.ability_queue.queue[index].id == entry_id:
 			return index
 	return -1
-
 
 func _find_item(entry_id: int) -> AbilitySequenceItemUI:
 	for child in _item_container.get_children():

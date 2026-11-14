@@ -6,6 +6,9 @@ class_name Hologram
 # with it's own nodes
 
 @export var parent:Character
+func _ready() -> void:
+	health.died.connect(died)
+	parent.health.died.connect(died)
 
 func reset() -> void:
 	entity_type = Global.EntityMask.HOLOGRAM | parent.entity_type
@@ -23,7 +26,7 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 			movement.set_pos(movement.get_destination(ability,target,movement.current_cell),true)
 
 		Global.AbilityType.ATTACK:
-			_apply_attack(entry.ability,entry.target,0,Global.EntityMask.HOLOGRAM)
+			_apply_attack(entry.ability,entry.target,0,Global.EntityMask.HOLOGRAM,true)
 		
 		Global.AbilityType.TRAP:
 			# TODO: Implement traps for preview
@@ -35,3 +38,7 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 		Global.AbilityType.STATUS:
 			activate_self_enhance()
 	return succeeded
+
+func died() -> void:
+	visible = false
+	HexGrid.set_occupied_preview(movement.current_cell,false)
