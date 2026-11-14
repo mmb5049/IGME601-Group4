@@ -137,9 +137,6 @@ script = ExtResource("1_v6d5b")
 mesh = NodePath("VisualPivot/Animation/Skeleton3D/Cube")
 animationManager = NodePath("VisualPivot/Animation")
 presentation_visual = NodePath("VisualPivot")
-max_mana = null
-mana_per_turn = null
-current_mana = null
 abilities = Array[ExtResource("2_v6d5b")]([ExtResource("3_55lj8"), ExtResource("4_qhb0e"), ExtResource("5_c3bgu"), ExtResource("6_nwlvs"), ExtResource("3_55lj8")])
 movement = NodePath("Movement")
 health = NodePath("Health")
@@ -407,9 +404,10 @@ script = ExtResource("10_x35ji")
 libraries/Attack = ExtResource("6_55lj8")
 autoplay = &"Attack/FightingIdle"
 
-[node name="VisualPivotHologram" type="Node3D" parent="." unique_id=947166165 node_paths=PackedStringArray("movement", "health")]
+[node name="VisualPivotHologram" type="Node3D" parent="." unique_id=947166165 node_paths=PackedStringArray("parent", "movement", "health")]
 visible = false
 script = ExtResource("13_r52jx")
+parent = NodePath("..")
 movement = NodePath("Movement")
 health = NodePath("HoloHealth")
 

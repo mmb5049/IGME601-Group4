@@ -115,8 +115,7 @@ func _refresh_display() -> void:
 	tooltip_text = _ability.ability_name if _ability else "Empty Queue Entry"
 
 func show_preview() -> void:
-	print("Showing preview")
-	Global.player.update_ability_preview(Global.player.estimate_future_position(_index),_ability,false,_target)
+	Global.player.action_execution_controller.preview_queue(_index)
 func stop_preview() -> void:
 	HexGrid.clear_highlights()
 

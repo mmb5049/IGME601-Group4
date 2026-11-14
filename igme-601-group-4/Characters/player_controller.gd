@@ -11,7 +11,7 @@ signal ability_confirmed(ability: Ability, target: AbilityTarget)
 signal mana_changed(current_mana: int, max_mana: int)
 signal notification_requested(message: String)
 
-@onready var action_execution_controller := $"../ActionExecutionController"
+@onready var action_execution_controller:ActionExecutionController = $"../ActionExecutionController"
 
 @export var mesh:MeshInstance3D
 
@@ -59,6 +59,8 @@ enum PlayerMode {
 var current_mode: PlayerMode = PlayerMode.NONE
 
 func _ready() -> void:
+	entity_type = Global.EntityMask.PLAYER
+	
 	movement.set_pos(movement.spawn_position)
 	
 	cursor_position = get_viewport().get_mouse_position()
@@ -121,7 +123,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		var motion_event: InputEventMouseMotion = event as InputEventMouseMotion
 		cursor_position = motion_event.position
 		if current_mode == PlayerMode.TARGETING:
-			#update_ability_preview(estimate_future_position())
+			action_execution_controller.preview_queue(ability_queue.size())
+			update_ability_preview(hologram.movement.current_cell)
 			pass
 
 func get_ability(ability_name: String) -> Ability:
@@ -166,7 +169,9 @@ func request_ability(ability: Ability) -> void:
 
 	current_mode = PlayerMode.TARGETING
 	targeting_started.emit(ability)
-	#update_ability_preview(estimate_future_position())
+	
+	action_execution_controller.preview_queue(ability_queue.size())
+	update_ability_preview(hologram.movement.current_cell)
 
 func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
@@ -181,7 +186,8 @@ func _confirm_current_target() -> void:
 	if selected_ability == null:
 		return
 	
-	var target: AbilityTarget = evaluate_target(selected_ability, cursor_position, estimate_future_position())
+	action_execution_controller.preview_queue(ability_queue.size())
+	var target: AbilityTarget = evaluate_target(selected_ability, cursor_position, hologram.movement.current_cell)
 	if not target.is_valid:
 		return
 
@@ -217,10 +223,6 @@ show_possible:bool = true, target:AbilityTarget  = null) -> void:
 			target_material = possible_material
 	
 	clear_preview()
-	
-	# Display hologram
-	if origin != movement.current_cell:
-		hologram.set_pos(origin)
 	
 	match ability.targeting_type:
 		Global.TargetingType.DIRECTION:
@@ -379,7 +381,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 			#_attack_applied = false
 
 			if ability.presentation != null:
-				var completed: bool = await ability.presentation.play(self, presentation_visual, target)
+				var completed: bool = ability.presentation.play(self, presentation_visual, target)
 				if completed and not health.is_dead:
 					_apply_attack(ability,target)
 				else:
@@ -466,7 +468,6 @@ func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 
 	var local_position: Vector3 = HexGrid.to_local(hit_position)
 	return HexGrid.world_to_hex(local_position)
-	
 
 func spend_mana(amount: int) -> bool:
 	if amount < 0 or current_mana < amount:
@@ -500,7 +501,6 @@ func activate_self_enhance() -> void:
 			add_child(self_enhance_effect)
 			# Position underneath the player.
 			self_enhance_effect.position = Vector3(0, 0, 0)
-			print("Self Enhance stacks: ", self_enhance_stacks)
 		
 func refund_mana(amount: int) -> void:
 	if amount <= 0:

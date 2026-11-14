@@ -8,8 +8,11 @@ class_name Hologram
 @export var parent:Character
 
 func reset() -> void:
+	entity_type = Global.EntityMask.HOLOGRAM | parent.entity_type
+	movement.copy(parent.movement)
 	health.copy(parent.health)
-	
+	ability_queue.copy(parent.ability_queue)
+
 func execute_queued_ability(entry: QueuedAbility) -> bool:
 	var ability:Ability = entry.ability
 	var target:AbilityTarget = entry.target
@@ -17,17 +20,13 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 	
 	match ability.type:
 		Global.AbilityType.MOVEMENT: 
-			movement.set_pos(movement.get_destination(ability,target,movement.current_cell),false)
+			movement.set_pos(movement.get_destination(ability,target,movement.current_cell),true)
 
 		Global.AbilityType.ATTACK:
-			_attack_ability = ability
-			_attack_target = target
-			_attack_applied = false
-			_apply_attack()
-			_attack_ability = null
-			_attack_target = null
+			_apply_attack(entry.ability,entry.target,0,Global.EntityMask.HOLOGRAM)
 		
 		Global.AbilityType.TRAP:
+			# TODO: Implement traps for preview
 			succeeded = false
 			for trap_cell: Vector2i in target.resolve_cells(movement.current_cell):
 				if not HexGrid.traps.has(trap_cell):
@@ -35,3 +34,4 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 						succeeded = true
 		Global.AbilityType.STATUS:
 			activate_self_enhance()
+	return succeeded

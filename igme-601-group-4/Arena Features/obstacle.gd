@@ -1,5 +1,4 @@
-extends Node3D
-
+extends Entity
 class_name Obstacle
 
 var current_cell:Vector2i

@@ -21,6 +21,7 @@ func _ready() -> void:
 	add_to_group("enemies")
 	# trigger this script's die when health script dies
 	health.died.connect(die)
+	entity_type = Global.EntityMask.ENEMY
 
 ## Override this method for enemy types with different planning rules.
 func prepare_turn(player: PlayerController) -> void:
@@ -100,7 +101,6 @@ func _direction_toward(start: Vector2i, player_cell: Vector2i) -> Vector2i:
 			direction = candidate
 	return direction if difference != Vector3.ZERO else Vector2i.ZERO
 
-
 func execute_queued_ability(entry: QueuedAbility) -> bool:
 	if health.is_dead or entry == null or entry.ability == null or entry.target == null:
 		return false
@@ -115,21 +115,7 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 					return false
 			if health.is_dead or is_queued_for_deletion():
 				return false
-			# Resolve around the actual execution position. Prepared plans do
-			# not track or retarget a player who moved out of the selected ring.
-			for cell in entry.target.resolve_cells(movement.current_cell):
-				# A target may have been freed while presentation was awaiting.
-				# Keep the raw Variant until validated: assigning a freed instance
-				# to a typed Node fails before is_instance_valid can run.
-				var victim: Variant = HexGrid.occupied_cells.get(cell)
-				if not is_instance_valid(victim):
-					continue
-				if victim == self or victim.is_queued_for_deletion():
-					continue
-				if victim is PlayerController:
-					victim.health.damage(entry.ability.damage)
-				else:
-					print(victim)
+			_apply_attack(entry.ability,entry.target,0,Global.EntityMask.PLAYER)
 			return true
 	return false
 

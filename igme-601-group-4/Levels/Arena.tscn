@@ -42,9 +42,6 @@ size = 6.607
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
 
 [node name="Player" parent="." unique_id=372403699 node_paths=PackedStringArray("ability_sequence_ui") groups=["player"] instance=ExtResource("5_dsr05")]
-max_mana = null
-mana_per_turn = null
-current_mana = null
 abilities = Array[ExtResource("4_kn3ki")]([ExtResource("5_8ml7l"), ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("8_f1bm4"), ExtResource("9_4yh7d"), ExtResource("10_d75p2"), ExtResource("14_exqbx")])
 self_enhance_effect_scene = ExtResource("11_exqbx")
 ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
@@ -109,9 +106,10 @@ layout_mode = 1
 [node name="AbilityInfoUi" parent="GlobalUIRoot/SwayLayer" unique_id=200573368 instance=ExtResource("19_sb1hv")]
 layout_mode = 1
 
-[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_ability_bar", "execute_button")]
+[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue_UI", "player_ability_bar", "execute_button")]
 script = ExtResource("13_action_executor")
 player_actor = NodePath("../Player")
+player_queue_UI = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
 execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
 between_actions_delay = 0.45

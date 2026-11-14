@@ -95,7 +95,7 @@ func _execute_turn() -> void:
 				continue
 			if actor.ability_queue == null or not actor.ability_queue.has_entries():
 				continue
-			await execute_next(actor, actor.ability_queue)
+			execute_next(actor, actor.ability_queue)
 			if _has_pending_actions() and between_actions_delay > 0.0:
 				await get_tree().create_timer(between_actions_delay).timeout
 
@@ -136,7 +136,7 @@ func execute_next(actor: Character, queue_source: AbilityQueue) -> bool:
 	# await also accepts an immediate return value. Movement abilities suspend
 	# here until CharacterMovement emits done_moving; attacks and Wait complete
 	# synchronously and proceed directly to queue consumption.
-	var succeeded: bool = bool(await actor.execute_queued_ability(entry))
+	var succeeded: bool = await actor.execute_queued_ability(entry)
 	queue_source.consume_entry(entry.id)
 	action_finished.emit(actor if is_instance_valid(actor) else null, entry, succeeded)
 	return succeeded
@@ -150,15 +150,29 @@ func _set_planning_interaction_enabled(enabled: bool) -> void:
 		player_queue_UI.set_interaction_enabled(enabled)
 
 # Runs a simulation of the queue to see a future state
-# Moves player and enemy holograms to show this future
-func preview_queue(index:int = -1) -> void:
+# Utilize hologram data to get preview information
+func preview_queue(index:int) -> void:
 	# Reset holograms
 	for character in action_order:
 		character.hologram.reset()
+		character.hologram.visible = true
 	
+	print(index)
 	# Execute queue of all holograms
 	var all_queues_empty:bool = false
-	while(all_queues_empty):
+	var queue_index:int = 0
+	while(not all_queues_empty and queue_index < index):
+		queue_index += 1
+		all_queues_empty = true
 		for character in action_order:
+			if(character.hologram.ability_queue.queue.size() == 0):
+				continue
+			all_queues_empty = false
 			execute_next(character.hologram, character.hologram.ability_queue)
-			pass
+	
+	# Display preview of abilities
+	
+
+func clear_preview() -> void:
+	for character in action_order:
+		character.hologram.visible = false

@@ -45,7 +45,7 @@ func add_confirmed_ability_pending(ability: Ability, target: AbilityTarget) -> i
 		return -1
 
 	var added_entry_id: int = _next_entry_id
-	Global.player.queued_entries.append(QueuedAbility.new(added_entry_id, ability, target))
+	Global.player.ability_queue.add_ability(ability, target)
 	_pending_reveal_entry_ids[added_entry_id] = true
 	_next_entry_id += 1
 	_rebuild_items()
@@ -164,13 +164,13 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 		push_warning("AbilitySequenceUI needs an Item Scene.")
 		return
 
-	for index in range(Global.player.queued_entries.size()):
+	for index in range(Global.player.ability_queue.queue.size()):
 		var item := item_scene.instantiate() as AbilitySequenceItemUI
 		if item == null:
 			push_error("Sequence Item Scene must have an AbilitySequenceItemUI root.")
 			return
 
-		var entry:Ability = Global.player.queued_entries[index]
+		var entry:QueuedAbility = Global.player.ability_queue.queue[index]
 		item.configure(
 			entry.id,
 			index,
@@ -355,7 +355,8 @@ func _clear_reorder_preview(
 
 func _update_drag_source_appearance(active: bool) -> void:
 	for index in range(_item_container.get_child_count()):
-		if Global.player.queued_entries[index].id != _active_drag_entry_id:
+		if (Global.player.ablity_queue.queued_abilities.queue[index].id 
+		!= _active_drag_entry_id):
 			continue
 
 		var item: AbilitySequenceItemUI = _item_container.get_child(index) as AbilitySequenceItemUI
