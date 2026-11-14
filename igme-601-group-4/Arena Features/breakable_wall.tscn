@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://diqv0bf2lruki" path="res://Characters/health.gd" id="4_l1ex7"]
 
 [node name="BreakableWall" type="Node3D" unique_id=2112548418 node_paths=PackedStringArray("health")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 script = ExtResource("2_untj1")
 health = NodePath("Health")
 
