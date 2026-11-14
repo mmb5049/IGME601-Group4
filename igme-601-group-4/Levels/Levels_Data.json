@@ -1,0 +1,27 @@
+{
+	"levels": [
+		{
+			"level_number": 1,
+			"enemies": [
+				{ "position": [1, 1] },
+				{ "position": [3, -1] },
+				{ "position": [-2, -2] }
+			],
+			"walls": [
+				{ "position": [0, 1], "type": "NORMAL" },
+				{ "position": [1, 2], "type": "BREAKABLE" }
+			]
+		},
+		{
+			"level_number": 2,
+			"enemies": [
+				{ "position": [2, 0] },
+				{ "position": [-2, 1] }
+			],
+			"walls": [
+				{ "position": [0, 1], "type": "NORMAL" },
+				{ "position": [-1, -1], "type": "BREAKABLE" }
+			]
+		}
+	]
+}

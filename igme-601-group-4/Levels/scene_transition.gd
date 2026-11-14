@@ -11,7 +11,11 @@ func _ready() -> void:
 
 
 func _on_tutorial_target_completed() -> void:
+	HexGrid.clear_tutorial_target()
+	move_scene()
+	
+
+func move_scene() -> void:
 	glitch_tv.show()
 	await get_tree().create_timer(3.0).timeout
-	HexGrid.clear_tutorial_target()
 	get_tree().change_scene_to_packed(NEXT_SCENE)
