@@ -2,9 +2,11 @@
 
 [ext_resource type="Script" uid="uid://dl8o2e2kjwvf0" path="res://Levels/arena_manager.gd" id="1_vc7xe"]
 [ext_resource type="Shader" uid="uid://ckx4elrx78lc3" path="res://UI/Onboarding_Movement/Darken_UI.gdshader" id="2_3j5mq"]
+[ext_resource type="Script" uid="uid://bx20wmawrkbto" path="res://Levels/scene_transition.gd" id="2_5wh74"]
 [ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_grid.gd" id="2_ypint"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="3_ix0gq"]
 [ext_resource type="Script" uid="uid://dw3gn3rw8c31k" path="res://UI/Onboarding_Movement/Darken_UI.gd" id="3_vc7xe"]
+[ext_resource type="PackedScene" uid="uid://b0576k1jo61m6" path="res://Levels/Arena.tscn" id="3_wg0dr"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="4_5wh74"]
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="5_wg0dr"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="6_nngry"]
@@ -13,13 +15,14 @@
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="14_7m2dc"]
 [ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="15_e6jtp"]
 [ext_resource type="PackedScene" uid="uid://bkw5j0bx88rjt" path="res://UI/AbilityBarUI.tscn" id="16_3wnhm"]
-[ext_resource type="PackedScene" uid="uid://cvr0mhxrtq6oq" path="res://UI/AbilitySequenceUI.tscn" id="17_srhjw"]
+[ext_resource type="PackedScene" path="res://UI/AbilitySequenceUI.tscn" id="17_srhjw"]
 [ext_resource type="Script" uid="uid://drm3kt46ojxw4" path="res://UI/Onboarding_Movement/Movement_Onboard.gd" id="17_x2wxu"]
 [ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="18_0v4xs"]
 [ext_resource type="Script" uid="uid://bf4vtvg2yf0tc" path="res://UI/Onboarding_Movement/PanelText.gd" id="19_3j5mq"]
 [ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_vp6my"]
 [ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="20_inylp"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="21_py3uu"]
+[ext_resource type="Shader" uid="uid://bsde1p6q4m62r" path="res://Levels/TVGlitch.gdshader" id="22_ix0gq"]
 [ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="22_ypint"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kvn1v"]
@@ -37,13 +40,24 @@ glow_hdr_luminance_cap = 46.67
 
 [sub_resource type="Compositor" id="Compositor_fy3br"]
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_42q7o"]
+shader = ExtResource("22_ix0gq")
+shader_parameter/glitch_intensity = 0.2
+shader_parameter/scanline_intensity = 0.3
+
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_vc7xe")
 onBoardMovement = true
 
+[node name="SceneTransition" type="Node" parent="." unique_id=1919496798 node_paths=PackedStringArray("glitch_tv")]
+script = ExtResource("2_5wh74")
+glitch_tv = NodePath("../TVGlitch/ColorRect")
+NEXT_SCENE = ExtResource("3_wg0dr")
+
 [node name="DarkenUI" type="CanvasLayer" parent="." unique_id=1948548575]
 
 [node name="ColorRect" type="ColorRect" parent="DarkenUI" unique_id=1098515360]
+visible = false
 material = SubResource("ShaderMaterial_kvn1v")
 custom_maximum_size = Vector2(20000, 20000)
 anchors_preset = 15
@@ -147,10 +161,15 @@ compositor = SubResource("Compositor_fy3br")
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("21_py3uu")]
 visible = false
 
-[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("darkenUI")]
+[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("ability_bar", "ability_sequence", "action_execute", "ability_info_ui", "darkenUI", "task_panel")]
 layer = 2
 script = ExtResource("17_x2wxu")
+ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+ability_sequence = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+action_execute = NodePath("../ActionExecutionController")
+ability_info_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilityInfoUi")
 darkenUI = NodePath("../DarkenUI/ColorRect")
+task_panel = NodePath("../TVGlitch/Task")
 
 [node name="Welcome" type="PanelContainer" parent="MovementOnboardUI" unique_id=1890896728]
 custom_maximum_size = Vector2(20000, 20000)
@@ -172,7 +191,8 @@ text = "Welcome To Combo Core"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SelectAbility" type="PanelContainer" parent="MovementOnboardUI" unique_id=1809753597]
+[node name="TutorialPrompt" type="PanelContainer" parent="MovementOnboardUI" unique_id=1809753597]
+visible = false
 custom_maximum_size = Vector2(20000, 20000)
 anchors_preset = -1
 anchor_left = 0.5
@@ -184,13 +204,43 @@ offset_bottom = 790.0
 grow_horizontal = 2
 script = ExtResource("19_3j5mq")
 
-[node name="Label" type="Label" parent="MovementOnboardUI/SelectAbility" unique_id=1012019933]
+[node name="TutorialText" type="Label" parent="MovementOnboardUI/TutorialPrompt" unique_id=1012019933]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("22_ypint")
 theme_override_font_sizes/font_size = 48
 text = "Hover to view the ability's detail"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TVGlitch" type="CanvasLayer" parent="." unique_id=490933593]
+
+[node name="ColorRect" type="ColorRect" parent="TVGlitch" unique_id=736041042]
+visible = false
+material = SubResource("ShaderMaterial_42q7o")
+offset_right = 1966.0
+offset_bottom = 1106.0
+
+[node name="Task" type="PanelContainer" parent="TVGlitch" unique_id=2062470217]
+visible = false
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 340.0
+offset_top = 929.0
+offset_right = 940.0
+offset_bottom = 1082.0
+grow_horizontal = 2
+script = ExtResource("19_3j5mq")
+
+[node name="Task Text" type="Label" parent="TVGlitch/Task" unique_id=1952783207]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_ypint")
+theme_override_font_sizes/font_size = 48
+text = "Task
+
+Reach the highlight tile"
+horizontal_alignment = 1
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
@@ -200,3 +250,10 @@ vertical_alignment = 1
 
 [editable path="Player"]
 [editable path="HUD"]
+[editable path="GlobalUIRoot/SwayLayer/AbilityBarUI"]
+[editable path="GlobalUIRoot/SwayLayer/AbilitySequenceUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI/OperationIndicatorUI"]
+[editable path="GlobalUIRoot/SwayLayer/AbilityInfoUi"]
+[editable path="GameOver"]

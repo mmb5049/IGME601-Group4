@@ -25,6 +25,7 @@ signal reorder_preview_requested(
 	target_entry_id: int,
 	insert_after: bool
 )
+signal preview_character
 
 const HEX_DISPLAY_SCENE := preload("res://UI/AbilityHexDisplayUI.tscn")
 const DIRECTION_EDGES_SCENE := preload("res://UI/AbilityDirectionEdgesUI.tscn")
@@ -117,6 +118,7 @@ func _refresh_display() -> void:
 func show_preview() -> void:
 	print("Showing preview")
 	Global.player.update_ability_preview(Global.player.estimate_future_position(_index),_ability,false,_target)
+	preview_character.emit()
 func stop_preview() -> void:
 	HexGrid.clear_highlights()
 
