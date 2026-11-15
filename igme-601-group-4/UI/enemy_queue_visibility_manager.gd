@@ -12,12 +12,13 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	update_visibility(get_viewport().get_mouse_position())
+	update_visibility(CRTOverlay.get_content_mouse_position(get_viewport()))
 
 
 func update_visibility(mouse_position: Vector2) -> void:
 	var queues: Array[EnemyAbilityQueueUI] = []
 	var polygons: Dictionary = {}
+	var model_hover_queue: EnemyAbilityQueueUI
 	for node in get_tree().get_nodes_in_group("enemy_queue_displays"):
 		var queue := node as EnemyAbilityQueueUI
 		if queue == null or not get_parent().is_ancestor_of(queue):
@@ -29,6 +30,8 @@ func update_visibility(mouse_position: Vector2) -> void:
 		if not shapes.is_empty():
 			queues.append(queue)
 			polygons[queue] = shapes
+			if queue._enemy.is_model_hovered:
+				model_hover_queue = queue
 	queues.sort_custom(_is_above)
 
 	# Keep the hovered (frontmost) queue stable while the pointer stays on it.
@@ -42,19 +45,20 @@ func update_visibility(mouse_position: Vector2) -> void:
 				_hovered_queue = queues[index]
 				break
 
+	var foreground := model_hover_queue if model_hover_queue != null else _hovered_queue
 	for index in range(queues.size()):
 		var queue: EnemyAbilityQueueUI = queues[index]
 		var faded: bool = false
-		if queue != _hovered_queue:
-			if _hovered_queue != null and _overlaps(polygons[queue], polygons[_hovered_queue]):
+		if queue != foreground:
+			if foreground != null and _overlaps(polygons[queue], polygons[foreground]):
 				faded = true
 			else:
 				for lower_index in range(index + 1, queues.size()):
-					if queues[lower_index] != _hovered_queue and _overlaps(polygons[queue], polygons[queues[lower_index]]):
+					if queues[lower_index] != foreground and _overlaps(polygons[queue], polygons[queues[lower_index]]):
 						faded = true
 						break
 		queue.set_display_opacity(faded_opacity if faded else 1.0, fade_duration)
-		queue._screen_root.z_index = queues.size() if queue == _hovered_queue else index
+		queue._screen_root.z_index = queues.size() if queue == foreground else index
 
 
 func _is_above(a: EnemyAbilityQueueUI, b: EnemyAbilityQueueUI) -> bool:
