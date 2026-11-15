@@ -215,8 +215,8 @@ func _on_item_reorder_requested(
 	if source_index < 0:
 		return
 
-	var moved_entry: QueuedAbility = Global.player.queued_entries[source_index]
-	Global.player.queued_entries.remove_at(source_index)
+	var moved_entry: QueuedAbility = Global.player.ability_queue.queue[source_index]
+	Global.player.ability_queue.queue.remove_at(source_index)
 
 	var target_index: int = _find_entry_index(target_entry_id)
 	if target_index < 0:
@@ -226,7 +226,7 @@ func _on_item_reorder_requested(
 		return
 
 	var insertion_index: int = target_index + 1 if insert_after else target_index
-	Global.player.queued_entries.insert(insertion_index, moved_entry)
+	Global.player.ability_queue.queue.insert(insertion_index, moved_entry)
 	_rebuild_items()
 	_animate_rebuilt_items(previous_positions)
 	queue_changed.emit()
@@ -281,7 +281,7 @@ func _on_item_reorder_preview_requested(
 		if target_index > source_index:
 			compact_target_index -= 1
 		insertion_index = compact_target_index + 1 if insert_after else compact_target_index
-		insertion_index = clampi(insertion_index, 0, Global.player.queued_entries.size() - 1)
+		insertion_index = clampi(insertion_index, 0, Global.player.ability_queue.size() - 1)
 
 	if insertion_index == _preview_insertion_index:
 		return

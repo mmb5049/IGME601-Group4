@@ -117,7 +117,7 @@ func _refresh_display() -> void:
 func show_preview() -> void:
 	Global.player.action_execution_controller.preview_queue(_index)
 func stop_preview() -> void:
-	HexGrid.clear_highlights()
+	Global.player.clear_preview()
 
 ## Queue entries preserve their confirmed AbilityTarget. Directional entries
 ## therefore show a fixed green edge matching the direction that will execute.
