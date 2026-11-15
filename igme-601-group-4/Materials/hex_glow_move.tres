@@ -3,7 +3,7 @@
 [ext_resource type="Shader" uid="uid://ki1kfwdpc5si" path="res://Materials/Shaders/hex_glow.gdshader" id="1_716bp"]
 
 [resource]
-render_priority = 0
+render_priority = 1
 shader = ExtResource("1_716bp")
 shader_parameter/base_color = Color(0.4862745, 0.4862745, 0.4862745, 1)
 shader_parameter/glow_color = Color(0.30196083, 0.7618256, 1, 1)

@@ -42,7 +42,7 @@ var trap_scene: PackedScene = preload("res://Abilities/Trap.tscn")
 signal tutorial_target_completed
 
 func _ready():
-	reset()
+	pass
 
 # needs to reset every round because this is an autoload script
 func reset():
@@ -254,13 +254,13 @@ func create_highlight(material:ShaderMaterial, coord:Vector2i):
 	if not cell_meshes.has(coord):
 		return
 	var cell: MeshInstance3D = cell_meshes[coord]
-	cell.material_override = material
+	cell.material_overlay = material
 	highlighted_cells[coord] = cell
 
 func clear_highlights():
 	for coord in highlighted_cells.keys():
 		if cell_meshes.has(coord):
-			cell_meshes[coord].material_override = null
+			cell_meshes[coord].material_overlay = null
 	highlighted_cells.clear()
 	
 	# Restore the tutorial highlight if it is active.
@@ -345,7 +345,7 @@ func update_tutorial_highlight() -> void:
 	else:
 		material = material_tutorial_target
 
-	cell_meshes[tutorial_target_cell].material_override = material
+	cell_meshes[tutorial_target_cell].material_overlay = material
 
 
 func reach_tutorial_target() -> void:

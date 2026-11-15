@@ -117,9 +117,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				request_ability(get_ability("Trap"))
 			KEY_A:
 				request_ability(get_ability("Attack_Up"))
-			KEY_P:
-				print("Pressed P")
-				HexGrid.create_highlight(HexGrid.material_select,Vector2i(0,0))
 
 	elif event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event as InputEventMouseButton
@@ -235,7 +232,6 @@ show_possible:bool = true, target:AbilityTarget  = null) -> void:
 		else:
 			# use color to show ability type when previewing
 			target_material = possible_material
-	print(str(origin) + " " + str(target.direction))
 	match ability.targeting_type:
 		Global.TargetingType.DIRECTION:
 			if show_possible:
