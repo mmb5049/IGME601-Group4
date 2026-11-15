@@ -104,7 +104,7 @@ func clear_queue() -> void:
 ## the entry rather than only its Ability preserves the confirmed target and
 ## stable ID required to consume the correct repeated Ability instance.
 func has_entries() -> bool:
-	return not Global.player.queued_entries.is_empty()
+	return not Global.player.ability_queue.queue.is_empty()
 
 func peek_front_entry() -> QueuedAbility:
 	return Global.player.queued_entries.front() if has_entries() else null
@@ -313,19 +313,19 @@ func _on_item_reorder_preview_requested(
 		return
 
 	_preview_insertion_index = insertion_index
-	for index in range(_item_container.get_child_count()):
-		var item: AbilitySequenceItemUI = _item_container.get_child(index) as AbilitySequenceItemUI
+	for child_index in range(_item_container.get_child_count()):
+		var item: AbilitySequenceItemUI = _item_container.get_child(child_index) as AbilitySequenceItemUI
 		if item == null:
 			continue
 
-		var entry_id: int = Global.player.ability_queue.queue[index].id
+		var entry_id: int = Global.player.ability_queue.queue[child_index].id
 		if entry_id == _active_drag_entry_id:
 			item.clear_reorder_preview_layout(reorder_animation_duration)
 			continue
 
 		# First close the source's empty row, then open one row at the proposed
 		# insertion point. The result can move an Item up, down, or not at all.
-		var index: int = queued_entries.size() - 1 - child_index
+		var index: int = Global.player.ability_queue.size() - 1 - child_index
 		var compact_index: int = index - 1 if index > source_index else index
 		var preview_index: int = compact_index
 		if compact_index >= insertion_index:

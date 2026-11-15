@@ -161,11 +161,12 @@ func preview_queue(index:int) -> void:
 		character.hologram.visible = true
 		character.mesh.visible = false
 	# Reset obstacle holograms
-	for obstacle in obstacles.get_children():
-		if obstacle is Obstacle and obstacle.hologram:
-			obstacle.hologram.reset() 
-			obstacle.hologram.visible = true
-			obstacle.mesh.visible = false
+	if obstacles:
+		for obstacle in obstacles.get_children():
+			if obstacle is Obstacle and obstacle.hologram:
+				obstacle.hologram.reset() 
+				obstacle.hologram.visible = true
+				obstacle.mesh.visible = false
 	
 	# Execute queue of all holograms
 	var all_queues_empty:bool = false
@@ -185,8 +186,9 @@ func preview_queue(index:int) -> void:
 func clear_preview() -> void:
 	for character in action_order:
 		character.hologram.visible = false
-		character.mesh.visible = true		
-	for obstacle in obstacles.get_children():
-		if obstacle is Obstacle and obstacle.hologram:
-			obstacle.hologram.visible = false
-			obstacle.mesh.visible = true
+		character.mesh.visible = true
+	if obstacles:
+		for obstacle in obstacles.get_children():
+			if obstacle is Obstacle and obstacle.hologram:
+				obstacle.hologram.visible = false
+				obstacle.mesh.visible = true

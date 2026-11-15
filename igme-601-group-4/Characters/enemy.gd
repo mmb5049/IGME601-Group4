@@ -28,14 +28,12 @@ var action_number: int = 0:
 		action_number = value
 		action_number_changed.emit(value)
 
-var number_display = preload("res://Misc/number_display.tscn")
 var _dying: bool = false
 var is_model_hovered: bool = false
 var hover_scale: float = 1.0
 var _hover_progress: float = 0.0
 var _normal_overlay: Material
 
-@onready var health:Health = $Health
 @onready var _health_bar: EnemyHealthBar = $HealthBar
 @onready var _ability_queue_ui: EnemyAbilityQueueUI = get_node_or_null("EnemyAbilityQueueUI")
 @onready var _action_number_label: Label = get_node_or_null("ActionNumberUI/CanvasLayer/Number")

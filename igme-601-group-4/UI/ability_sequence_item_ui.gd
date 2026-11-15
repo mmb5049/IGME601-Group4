@@ -122,6 +122,9 @@ func _refresh_display() -> void:
 func show_preview() -> void:
 	Global.player.action_execution_controller.preview_queue(_index)
 	preview_character.emit()
+	#Global.player.clear_preview()
+
+func stop_preview() -> void:
 	Global.player.clear_preview()
 
 ## Queue entries preserve their confirmed AbilityTarget. Directional entries

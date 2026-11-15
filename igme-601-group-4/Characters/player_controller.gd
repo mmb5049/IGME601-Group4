@@ -91,7 +91,6 @@ func _process(_delta: float) -> void:
 		return
 	# Camera motion can change the hovered tile even with a stationary cursor.
 	cursor_position = CRTOverlay.get_content_mouse_position(viewport)
-	_update_targeting_preview()
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -397,7 +396,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 		Global.AbilityType.ATTACK:
 			#_attack_applied = false
 			if ability.presentation != null:
-				var completed: bool = ability.presentation.play(self, presentation_visual, target)
+				var completed: bool = await ability.presentation.play(self, presentation_visual, target)
 				if completed and not health.is_dead:
 					_apply_attack(ability,target)
 				else:
