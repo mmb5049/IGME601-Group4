@@ -5,7 +5,7 @@ class_name AnimationManager
 @onready var animationPlayer:AnimationPlayer = $AnimationPlayer
 @export var idle_animation:Animation
 
-signal take_action(action_num)
+signal take_action()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -30,5 +30,5 @@ func play_animation(animation:Animation):
 				break
 
 # called when the animation has reached a keyframe where an action should be called
-func on_animation_action(argument):
-	take_action.emit(argument)
+func on_animation_action():
+	take_action.emit()

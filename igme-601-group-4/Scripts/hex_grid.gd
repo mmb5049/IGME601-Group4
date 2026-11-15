@@ -12,6 +12,7 @@ var highlighted_cells: Dictionary = {}
 
 var hex_mesh := preload("res://Meshes/cell.tres")
 
+
 # Materials
 var material_base := preload("res://Materials/hex_base.tres")
 var material_attack := preload("res://Materials/hex_glow_attack.tres")
@@ -25,10 +26,23 @@ const DIRECTIONS = [
 	Vector2i(-1, 0),
 	Vector2i(0, -1),
 	Vector2i(1, -1)
-	
 ]
 
+var traps: Dictionary = {}
+
+var trap_scene: PackedScene = preload("res://Abilities/Trap.tscn")
+
+
 func _ready():
+	reset()
+
+# needs to reset every round because this is an autoload script
+func reset():
+	# Clear traps
+	for coord in traps:
+		traps[coord].queue_free()
+	traps.clear()
+	occupied_cells.clear()
 	hex_height = hex_mesh.height
 	generate_grid()
 
@@ -121,7 +135,7 @@ func hex_distance(a: Vector2i, b: Vector2i) -> int:
 func is_occupied(coord: Vector2i) -> bool:
 	return occupied_cells.has(coord)
 
-func set_occupied(coord: Vector2i, value):
+func set_occupied(coord: Vector2i, value:Variant):
 	if value:
 		occupied_cells[coord] = value
 	else:
@@ -131,14 +145,25 @@ func set_occupied(coord: Vector2i, value):
 func is_valid_cell(coord: Vector2i) -> bool:
 	return valid_cells.has(coord)
 
-func raycast(start:Vector2i,direction:Vector2i,length:int, track_occupied:bool = false) -> Vector2i:
+func raycast(start:Vector2i, direction:Vector2i,length:int,
+check_flag: = Global.OccupiedType.NONE) -> Vector2i:
 	var cell
 	for i in range(1,length+1):
 		cell = start + direction*i
-		if not is_valid_cell(cell) or (track_occupied and is_occupied(cell)):
+		# check if cell is valid and if check_flag includes the cell
+		if not is_valid_cell(cell) or (get_flag_from_cell(cell) != Global.OccupiedType.NONE and 
+		Global.has_flag(check_flag,get_flag_from_cell(cell))):
 			cell = start + direction*(i-1)
 			break
 	return cell
+
+func get_flag_from_cell(cell:Vector2i) -> Global.OccupiedType:
+	if is_occupied(cell):
+		if (is_instance_valid(occupied_cells[cell]) and 
+		(occupied_cells[cell] is PlayerController or occupied_cells[cell] is Enemy)):
+			return Global.OccupiedType.DYNAMIC
+		return Global.OccupiedType.STATIC
+	return Global.OccupiedType.NONE
 
 func find_path(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 	var open_set: Array[Vector2i] = [start]
@@ -206,7 +231,6 @@ func reconstruct_path(
 func create_highlight(material:ShaderMaterial, coord:Vector2i):
 	if not cell_meshes.has(coord):
 		return
-	
 	var cell: MeshInstance3D = cell_meshes[coord]
 	cell.material_override = material
 	highlighted_cells[coord] = cell
@@ -237,3 +261,34 @@ func highlight_line(material:ShaderMaterial,start_cell:Vector2i, direction:Vecto
 	# Apply highlight to all cells in path
 	for cell in path:
 		create_highlight(material, cell)
+
+
+func place_trap(coord: Vector2i, trap_damage: int) -> bool:
+	if not is_valid_cell(coord):
+		return false
+
+	if traps.has(coord):
+		return false
+
+	var new_trap: Trap = trap_scene.instantiate()
+	new_trap.setup(self, coord, trap_damage)
+
+	add_child(new_trap)
+	new_trap.global_position = to_global(hex_to_world(coord))
+	traps[coord] = new_trap
+
+	# Animate the trap before checking for damage.
+	new_trap.play_spawn_animation()
+
+	return true
+
+
+func trigger_trap(coord: Vector2i, target: Node) -> void:
+	if not traps.has(coord):
+		return
+
+	var trap: Trap = traps[coord]
+	if is_instance_valid(trap):
+		trap.trigger(target)
+	else:
+		traps.erase(coord)

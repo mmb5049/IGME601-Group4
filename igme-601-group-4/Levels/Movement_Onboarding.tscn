@@ -1,0 +1,202 @@
+[gd_scene format=3 uid="uid://cqaqm6pjwq766"]
+
+[ext_resource type="Script" uid="uid://dl8o2e2kjwvf0" path="res://Levels/arena_manager.gd" id="1_vc7xe"]
+[ext_resource type="Shader" uid="uid://ckx4elrx78lc3" path="res://UI/Onboarding_Movement/Darken_UI.gdshader" id="2_3j5mq"]
+[ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_grid.gd" id="2_ypint"]
+[ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="3_ix0gq"]
+[ext_resource type="Script" uid="uid://dw3gn3rw8c31k" path="res://UI/Onboarding_Movement/Darken_UI.gd" id="3_vc7xe"]
+[ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="4_5wh74"]
+[ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="5_wg0dr"]
+[ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="6_nngry"]
+[ext_resource type="PackedScene" uid="uid://c35cgvpcvfvxk" path="res://VFX/Self_Enhancement.tscn" id="12_grdek"]
+[ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="13_vgm6p"]
+[ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="14_7m2dc"]
+[ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="15_e6jtp"]
+[ext_resource type="PackedScene" uid="uid://bkw5j0bx88rjt" path="res://UI/AbilityBarUI.tscn" id="16_3wnhm"]
+[ext_resource type="PackedScene" uid="uid://cvr0mhxrtq6oq" path="res://UI/AbilitySequenceUI.tscn" id="17_srhjw"]
+[ext_resource type="Script" uid="uid://drm3kt46ojxw4" path="res://UI/Onboarding_Movement/Movement_Onboard.gd" id="17_x2wxu"]
+[ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="18_0v4xs"]
+[ext_resource type="Script" uid="uid://bf4vtvg2yf0tc" path="res://UI/Onboarding_Movement/PanelText.gd" id="19_3j5mq"]
+[ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_vp6my"]
+[ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="20_inylp"]
+[ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="21_py3uu"]
+[ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="22_ypint"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kvn1v"]
+shader = ExtResource("2_3j5mq")
+shader_parameter/cutout_position = Vector2(950, 1000)
+shader_parameter/cutout_size = Vector2(800, 200)
+
+[sub_resource type="Theme" id="Theme_tmhow"]
+
+[sub_resource type="Environment" id="Environment_pdfgs"]
+glow_enabled = true
+glow_hdr_luminance_cap = 46.67
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_dfd4s"]
+
+[sub_resource type="Compositor" id="Compositor_fy3br"]
+
+[node name="Arena" type="Node3D" unique_id=1193273823]
+script = ExtResource("1_vc7xe")
+onBoardMovement = true
+
+[node name="DarkenUI" type="CanvasLayer" parent="." unique_id=1948548575]
+
+[node name="ColorRect" type="ColorRect" parent="DarkenUI" unique_id=1098515360]
+material = SubResource("ShaderMaterial_kvn1v")
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.5)
+script = ExtResource("3_vc7xe")
+
+[node name="HexGrid" type="Node3D" parent="." unique_id=391055418]
+script = ExtResource("2_ypint")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
+transform = Transform3D(1, 0, 0, 0, 0.6967433, 0.7173206, 0, -0.7173206, 0.6967433, 0, 6.956389, 9.274121)
+size = 6.607
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
+transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
+
+[node name="Player" parent="." unique_id=372403699 node_paths=PackedStringArray("ability_sequence_ui") groups=["player"] instance=ExtResource("3_ix0gq")]
+abilities = Array[ExtResource("4_5wh74")]([ExtResource("5_wg0dr"), ExtResource("6_nngry")])
+self_enhance_effect_scene = ExtResource("12_grdek")
+ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+
+[node name="Movement" parent="Player" index="1" unique_id=1414287046]
+spawn_position = Vector2i(-4, 0)
+
+[node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
+layer = 2
+script = ExtResource("13_vgm6p")
+
+[node name="HUD" parent="." unique_id=1543784001 instance=ExtResource("14_7m2dc")]
+layer = 2
+
+[node name="HealthBar" parent="HUD" index="0" unique_id=51208162]
+offset_left = 240.0
+offset_right = 763.0
+
+[node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
+offset_right = 763.0
+offset_bottom = 138.0
+
+[node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
+theme = SubResource("Theme_tmhow")
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("15_e6jtp")
+maximum_sway_pixels = Vector2(12, 8)
+
+[node name="SwayLayer" type="Control" parent="GlobalUIRoot" unique_id=368694180]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("16_3wnhm")]
+layout_mode = 1
+abilities = Array[ExtResource("4_5wh74")]([ExtResource("6_nngry"), ExtResource("5_wg0dr"), null, null])
+rotation_step_degrees = 3.0
+breathing_amplitude_pixels = 2.0
+breathing_speed_hz = 0.25
+hover_lift_pixels = 26.0
+
+[node name="AbilitySequenceUI" parent="GlobalUIRoot/SwayLayer" unique_id=1775434780 instance=ExtResource("17_srhjw")]
+layout_mode = 1
+
+[node name="ActionDockUI" parent="GlobalUIRoot/SwayLayer" unique_id=1286708918 instance=ExtResource("18_0v4xs")]
+layout_mode = 1
+
+[node name="AbilityInfoUi" parent="GlobalUIRoot/SwayLayer" unique_id=200573368 instance=ExtResource("19_vp6my")]
+layout_mode = 1
+
+[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue", "player_ability_bar", "execute_button")]
+script = ExtResource("20_inylp")
+player_actor = NodePath("../Player")
+player_queue = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
+between_actions_delay = 0.45
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136143873]
+environment = SubResource("Environment_pdfgs")
+camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
+compositor = SubResource("Compositor_fy3br")
+
+[node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("21_py3uu")]
+visible = false
+
+[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("darkenUI")]
+layer = 2
+script = ExtResource("17_x2wxu")
+darkenUI = NodePath("../DarkenUI/ColorRect")
+
+[node name="Welcome" type="PanelContainer" parent="MovementOnboardUI" unique_id=1890896728]
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -287.0
+offset_top = 305.0
+offset_right = 287.0
+offset_bottom = 367.0
+grow_horizontal = 2
+script = ExtResource("19_3j5mq")
+
+[node name="Label" type="Label" parent="MovementOnboardUI/Welcome" unique_id=434543339]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_ypint")
+theme_override_font_sizes/font_size = 48
+text = "Welcome To Combo Core"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SelectAbility" type="PanelContainer" parent="MovementOnboardUI" unique_id=1809753597]
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -320.0
+offset_top = 728.0
+offset_right = 254.0
+offset_bottom = 790.0
+grow_horizontal = 2
+script = ExtResource("19_3j5mq")
+
+[node name="Label" type="Label" parent="MovementOnboardUI/SelectAbility" unique_id=1012019933]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_ypint")
+theme_override_font_sizes/font_size = 48
+text = "Hover to view the ability's detail"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
+[connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
+[connection signal="targeting_ended" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="end_targeting"]
+[connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
+[connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
+
+[editable path="Player"]
+[editable path="HUD"]

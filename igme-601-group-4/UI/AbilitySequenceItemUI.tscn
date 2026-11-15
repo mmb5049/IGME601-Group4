@@ -1,6 +1,6 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://UI/ability_sequence_item_ui.gd" id="1_item_script"]
+[ext_resource type="Script" uid="uid://s4tbt116kmuh" path="res://UI/ability_sequence_item_ui.gd" id="1_item_script"]
 [ext_resource type="PackedScene" path="res://UI/AbilityHexDisplayUI.tscn" id="2_hex_display"]
 [ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="3_slash"]
 [ext_resource type="PackedScene" path="res://UI/AbilityDirectionEdgesUI.tscn" id="4_direction_edges"]

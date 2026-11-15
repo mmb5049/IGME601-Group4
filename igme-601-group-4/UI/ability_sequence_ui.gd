@@ -3,6 +3,7 @@ class_name AbilitySequenceUI
 
 ## Emitted whenever an entry is added, removed, or reordered.
 signal queue_changed
+signal ability_removed(ability: Ability)
 
 @export var item_scene: PackedScene = preload("res://UI/AbilitySequenceItemUI.tscn")
 
@@ -121,6 +122,10 @@ func consume_entry(entry_id: int) -> bool:
 		return false
 
 	var previous_positions: Dictionary[int, Vector2] = _capture_item_positions()
+	var removed_item: AbilitySequenceItemUI = _find_item(entry_id)
+	if removed_item != null:
+		removed_item.reparent(self, true)
+		removed_item.play_removal_animation(layout_animation_duration)
 	queued_entries.remove_at(index)
 	_pending_reveal_entry_ids.erase(entry_id)
 	_rebuild_items()
@@ -169,6 +174,7 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 		var entry := queued_entries[index]
 		item.configure(
 			entry.id,
+			index,
 			entry.ability,
 			entry.target,
 			index % 2 == 1,
@@ -186,8 +192,20 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 
 
 func _on_item_removal_requested(entry_id: int) -> void:
-	if _interaction_enabled:
-		consume_entry(entry_id)
+	if not _interaction_enabled:
+		return
+
+	var index: int = _find_entry_index(entry_id)
+	if index < 0:
+		return
+
+	var ability: Ability = queued_entries[index].ability
+
+	# Refund mana before removing the entry.
+	ability_removed.emit(ability)
+
+	consume_entry(entry_id)
+	print("remove")
 
 
 ## Moves a unique queue entry relative to another entry. The target index is

@@ -41,6 +41,7 @@ signal ability_selected(ability: Ability)
 @export_range(0.01, 1.0, 0.01) var hover_transition_seconds: float = 0.16
 
 @onready var _slot_container: HBoxContainer = %SlotContainer
+@onready var _ability_info_ui : AbilityInfoUI = $"../AbilityInfoUi"
 
 var _interaction_enabled: bool = true
 
@@ -77,6 +78,9 @@ func rebuild_slots() -> void:
 
 		slot.configure(abilities[index])
 		slot.set_interaction_enabled(_interaction_enabled)
+		slot.show_ability_info.connect(
+			func(ability):_ability_info_ui.set_image(ability);_ability_info_ui.show_image())
+		slot.hide_ability_info.connect(_ability_info_ui.hide_image)
 
 		var signed_distance: float = float(index) - center_index
 		var normalized_distance: float = 0.0

@@ -45,6 +45,7 @@ const RIGHT_HEX_POSITION := Vector2(92.0, 46.0)
 @export_range(0.01, 0.5, 0.01, "suffix:s") var removal_color_transition: float = 0.14
 
 var _entry_id: int = -1
+var _index:int = 0
 var _ability: Ability
 var _target: AbilityTarget
 var _align_right: bool = false
@@ -62,6 +63,7 @@ var _drag_preview_hex: AbilityHexDisplayUI
 var _drag_preview_is_removal: bool = false
 var _drag_preview_color_tween: Tween
 var _interaction_enabled: bool = true
+var _is_hovered: bool = false
 
 @onready var _hex_display: AbilityHexDisplayUI = $AbilityHexDisplayUI
 @onready var _direction_edges: AbilityDirectionEdgesUI = %DirectionEdges
@@ -77,12 +79,14 @@ func _ready() -> void:
 	_hex_display.visible = not _pending_reveal
 	if _animate_appearance:
 		_play_appearance_animation()
-
+	mouse_entered.connect(func(): _is_hovered=true; show_preview())
+	mouse_exited.connect(func(): _is_hovered=false; stop_preview())
 
 ## Configures one queue entry. Alternating alignment produces the linked
 ## hexagon pattern while the VBoxContainer still controls vertical ordering.
 func configure(
 	entry_id: int,
+	index: int,
 	ability: Ability,
 	target: AbilityTarget,
 	align_right: bool,
@@ -91,6 +95,7 @@ func configure(
 	pending_reveal: bool = false
 ) -> void:
 	_entry_id = entry_id
+	_index = index
 	_ability = ability
 	_target = target
 	_align_right = align_right
@@ -109,6 +114,11 @@ func _refresh_display() -> void:
 	_configure_direction_edges(_direction_edges)
 	tooltip_text = _ability.ability_name if _ability else "Empty Queue Entry"
 
+func show_preview() -> void:
+	print("Showing preview")
+	Global.player.update_ability_preview(Global.player.estimate_future_position(_index),_ability,false,_target)
+func stop_preview() -> void:
+	HexGrid.clear_highlights()
 
 ## Queue entries preserve their confirmed AbilityTarget. Directional entries
 ## therefore show a fixed green edge matching the direction that will execute.
@@ -371,8 +381,35 @@ func get_entry_id() -> int:
 	return _entry_id
 
 
+func set_frame_color(color: Color) -> void:
+	_hex_display.set_frame_color(color)
+
+
+## Shared exit effect for player and enemy queue entries. The owner detaches
+## the item from its layout before playing this non-interactive visual tail.
+func play_removal_animation(duration: float = 0.20) -> void:
+	set_interaction_enabled(false)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _reorder_tween != null and _reorder_tween.is_valid():
+		_reorder_tween.kill()
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_hex_display, "scale", Vector2.ZERO, duration)
+	tween.tween_property(_hex_display, "modulate:a", 0.0, duration)
+	tween.chain().tween_callback(queue_free)
+
+
 func get_hex_global_position() -> Vector2:
 	return _hex_display.global_position
+
+
+func get_hex_screen_polygon() -> PackedVector2Array:
+	# Same point-up hex geometry as hex_ui_mask.gdshader, including animations.
+	var polygon := PackedVector2Array([
+		Vector2(0, -64), Vector2(55.4256, -32), Vector2(55.4256, 32),
+		Vector2(0, 64), Vector2(-55.4256, 32), Vector2(-55.4256, -32),
+	])
+	return _hex_display.get_global_transform_with_canvas() * polygon
 
 
 func get_hex_scale() -> Vector2:
@@ -409,7 +446,7 @@ func hold_layout_transition_at_global_position(start_position: Vector2) -> void:
 ## Used after the data order changes. A newly rebuilt Item starts visually at
 ## its previous screen position, then travels to the position assigned by its
 ## new queue index and left/right alignment.
-func animate_from_global_position(start_position: Vector2, duration: float) -> void:
+func animate_from_global_position(start_position: Vector2, duration: float, delay: float = 0.0) -> void:
 	if not is_node_ready():
 		return
 
@@ -443,7 +480,7 @@ func animate_from_global_position(start_position: Vector2, duration: float) -> v
 		"position",
 		target_position,
 		duration
-	)
+	).set_delay(delay)
 
 
 ## Godot notifies the source Control when a drag finishes. The Item delegates
