@@ -18,7 +18,7 @@ var _blocked_origin: Vector3
 var _blocked_sideways: Vector3
 
 @export var spawn_position:Vector2i = Vector2i.ZERO
-var current_cell:Vector2i
+var current_cell:Vector2i = Vector2i.MIN
 var target_cell:Vector2i
 var path:Array[Vector2i]
 
@@ -192,11 +192,11 @@ func set_pos(cell:Vector2i, set_occupancy_preview = false):
 	
 	# Update occupancy
 	if not set_occupancy_preview:
-		if current_cell:
+		if current_cell != Vector2i.MIN:
 			HexGrid.set_occupied(current_cell, false)
 		HexGrid.set_occupied(cell, character)
 	else:
-		if current_cell:
+		if current_cell != Vector2i.MIN:
 			HexGrid.set_occupied_preview(current_cell, false)
 		HexGrid.set_occupied_preview(cell, character)
 	

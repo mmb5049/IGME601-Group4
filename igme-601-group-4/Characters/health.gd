@@ -25,7 +25,7 @@ func damage(amount: int, show_visual:bool = true) -> void:
 	# Display damage number
 	if show_visual:
 		var new_display:Node3D = number_display.instantiate()
-		get_parent().add_child(new_display)
+		get_parent().get_parent().add_child(new_display)
 		new_display.global_position = global_position
 		new_display.set_number(-amount)
 	

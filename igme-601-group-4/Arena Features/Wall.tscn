@@ -1,16 +1,57 @@
 [gd_scene format=3 uid="uid://2fjq2caqt5ok"]
 
 [ext_resource type="Script" uid="uid://c4yy1p2mryrie" path="res://Arena Features/obstacle.gd" id="1_soqan"]
+[ext_resource type="Script" uid="uid://c1a8bcrjruokn" path="res://Characters/character_movement.gd" id="2_420lp"]
 [ext_resource type="CylinderMesh" uid="uid://dwdwv6krhjo7n" path="res://Meshes/wall.tres" id="2_djirw"]
 [ext_resource type="Material" uid="uid://c1kmoskopenam" path="res://Materials/wall.tres" id="2_lb6w6"]
 [ext_resource type="Script" uid="uid://cknt87ddtmhe6" path="res://Characters/mesh_manager.gd" id="3_lb6w6"]
+[ext_resource type="Script" uid="uid://bl22qcqt5bvd6" path="res://Characters/hologram.gd" id="6_h40g8"]
+[ext_resource type="Material" uid="uid://csqdap7v7ufvi" path="res://Materials/hologram.tres" id="7_nc33i"]
+[ext_resource type="Shader" uid="uid://dro6pejj8lvd3" path="res://Materials/Shaders/hologram.gdshader" id="8_cncg8"]
+[ext_resource type="Texture2D" uid="uid://cmqbgiq1lu4dt" path="res://Materials/grunge_cracked_texture_background_1307.jpg" id="9_g06tl"]
 
-[node name="Wall" type="Node3D" unique_id=345674792 node_paths=PackedStringArray("mesh")]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_v1hem"]
+render_priority = 0
+shader = ExtResource("8_cncg8")
+shader_parameter/emission_power = 6.0
+shader_parameter/emission_color = Color(0.2627451, 0.19607843, 0.08627451, 1)
+shader_parameter/alpha = 0.5
+shader_parameter/use_texture = true
+shader_parameter/base_texture = ExtResource("9_g06tl")
+shader_parameter/texture_color = Color(0.2627451, 0.19607843, 0.08627451, 1)
+
+[node name="Wall" type="Node3D" unique_id=345674792 node_paths=PackedStringArray("movement", "mesh", "hologram")]
 script = ExtResource("1_soqan")
+movement = NodePath("CharacterMovement")
 mesh = NodePath("MeshInstance3D")
+hologram = NodePath("Hologram")
+
+[node name="CharacterMovement" type="Node" parent="." unique_id=2037941498 node_paths=PackedStringArray("character")]
+script = ExtResource("2_420lp")
+character = NodePath("..")
+metadata/_custom_type_script = "uid://c1a8bcrjruokn"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2048529158]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 material_override = ExtResource("2_lb6w6")
 mesh = ExtResource("2_djirw")
 script = ExtResource("3_lb6w6")
+
+[node name="Hologram" type="Node3D" parent="." unique_id=1816176071 node_paths=PackedStringArray("parent", "movement", "health")]
+visible = false
+script = ExtResource("6_h40g8")
+parent = NodePath("..")
+movement = NodePath("CharacterMovement")
+health = NodePath("")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hologram" unique_id=447953808]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+material_override = ExtResource("7_nc33i")
+mesh = ExtResource("2_djirw")
+surface_material_override/0 = SubResource("ShaderMaterial_v1hem")
+script = ExtResource("3_lb6w6")
+
+[node name="CharacterMovement" type="Node" parent="Hologram" unique_id=1179860934 node_paths=PackedStringArray("character")]
+script = ExtResource("2_420lp")
+character = NodePath("..")
+metadata/_custom_type_script = "uid://c1a8bcrjruokn"

@@ -310,7 +310,9 @@ func evaluate_target(ability: Ability, mouse_position: Vector2, origin:Vector2i)
 				var destination: Vector2i = HexGrid.raycast(
 					origin,
 					best_direction,
-					ability.range
+					ability.range,
+					Global.EntityMask.ALL,
+					true
 				)
 				result.is_valid = destination != origin
 

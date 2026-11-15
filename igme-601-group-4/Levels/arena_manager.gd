@@ -42,7 +42,7 @@ func spawn_enemy(pos:Vector2i, type = enemy_scene):
 func spawn_obstacle(pos:Vector2i, type = wall_scene):
 	var new_obstacle:Obstacle = type.instantiate()
 	obstacleParent.add_child(new_obstacle)
-	new_obstacle.set_hex_position(pos)
+	new_obstacle.movement.set_pos(pos)
 
 func enemy_died():
 	total_enemies -= 1

@@ -53,7 +53,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
 [node name="Pivot" parent="." unique_id=790799423 instance=ExtResource("3_16c55")]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
 
-[node name="Skeleton3D" parent="Pivot" index="0" unique_id=1240676367]
+[node name="Skeleton3D" parent="Pivot" index="0" unique_id=1981908507]
 bones/0/position = Vector3(3.6954814e-06, 0.0037289695, -9.156007e-06)
 bones/0/rotation = Quaternion(-0.0022096976, 1.9929488e-05, -0.010155457, 0.999946)
 bones/1/rotation = Quaternion(0.13959458, 0.0017724395, 0.004262328, 0.9901981)
@@ -108,11 +108,11 @@ bones/61/rotation = Quaternion(-0.45352215, -0.070923895, 0.038608838, 0.8875792
 bones/62/rotation = Quaternion(0.6043026, -0.0038150665, 0.1098681, 0.7891344)
 bones/63/rotation = Quaternion(0.3431002, 0.10457877, 0.0916434, 0.9289494)
 
-[node name="Cube" parent="Pivot/Skeleton3D" index="0" unique_id=1700799061]
+[node name="Cube" parent="Pivot/Skeleton3D" index="0" unique_id=1922800396]
 surface_material_override/0 = ExtResource("3_mfhi6")
 script = ExtResource("4_oie3p")
 
-[node name="AnimationPlayer" parent="Pivot" index="1" unique_id=2006512231]
+[node name="AnimationPlayer" parent="Pivot" index="1" unique_id=1383296118]
 libraries/Enemy = SubResource("AnimationLibrary_r4647")
 autoplay = &"Enemy/Idle"
 
@@ -124,7 +124,7 @@ parent = NodePath("..")
 movement = NodePath("Movement")
 health = NodePath("HoloHealth")
 
-[node name="Skeleton3D" parent="PivotHolo" index="0" unique_id=1240676367]
+[node name="Skeleton3D" parent="PivotHolo" index="0" unique_id=1981908507]
 bones/0/position = Vector3(3.6954814e-06, 0.0037289695, -9.156007e-06)
 bones/0/rotation = Quaternion(-0.0022096976, 1.9929488e-05, -0.010155457, 0.999946)
 bones/1/rotation = Quaternion(0.13959458, 0.0017724395, 0.004262328, 0.9901981)
@@ -179,11 +179,11 @@ bones/61/rotation = Quaternion(-0.45352215, -0.070923895, 0.038608838, 0.8875792
 bones/62/rotation = Quaternion(0.6043026, -0.0038150665, 0.1098681, 0.7891344)
 bones/63/rotation = Quaternion(0.3431002, 0.10457877, 0.0916434, 0.9289494)
 
-[node name="Cube" parent="PivotHolo/Skeleton3D" index="0" unique_id=1700799061]
+[node name="Cube" parent="PivotHolo/Skeleton3D" index="0" unique_id=1922800396]
 surface_material_override/0 = SubResource("ShaderMaterial_6vurl")
 script = ExtResource("4_oie3p")
 
-[node name="AnimationPlayer" parent="PivotHolo" index="1" unique_id=2006512231]
+[node name="AnimationPlayer" parent="PivotHolo" index="1" unique_id=1383296118]
 libraries/Enemy = SubResource("AnimationLibrary_r4647")
 autoplay = &"Enemy/Idle"
 

@@ -108,11 +108,11 @@ layout_mode = 1
 
 [node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue_UI", "player_ability_bar", "execute_button", "obstacles")]
 script = ExtResource("13_action_executor")
-between_actions_delay = 0.45
 player_actor = NodePath("../Player")
 player_queue_UI = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
 execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
+between_actions_delay = 0.45
 obstacles = NodePath("../Obstacles")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136143873]
