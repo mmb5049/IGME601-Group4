@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dglvbdp48uiqk"
-path="res://.godot/imported/TrapHex.png-f23a62954ba1afdd7796008b6e3094f1.ctex"
+uid="uid://7ktvdylnqu61"
+path="res://.godot/imported/Move.png-49db8f3cdae2d4bdcd1be345e84632d8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Abilities/TrapHex.png"
-dest_files=["res://.godot/imported/TrapHex.png-f23a62954ba1afdd7796008b6e3094f1.ctex"]
+source_file="res://Arts/Textures/Abilities/Move.png"
+dest_files=["res://.godot/imported/Move.png-49db8f3cdae2d4bdcd1be345e84632d8.ctex"]
 
 [params]
 

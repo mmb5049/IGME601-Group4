@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://v0cnc3jrj86s"
-path="res://.godot/imported/WaitHex.png-da661472ba05c7cb27dd9b0c816379ea.ctex"
+uid="uid://beunq7a37h0n2"
+path="res://.godot/imported/AttackUp.png-87dffbfcfce6db400b2fc3f8625469a4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Abilities/WaitHex.png"
-dest_files=["res://.godot/imported/WaitHex.png-da661472ba05c7cb27dd9b0c816379ea.ctex"]
+source_file="res://Arts/Textures/Abilities/AttackUp.png"
+dest_files=["res://.godot/imported/AttackUp.png-87dffbfcfce6db400b2fc3f8625469a4.ctex"]
 
 [params]
 

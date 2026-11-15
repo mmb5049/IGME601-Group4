@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://rbkwym3dve2j"
-path="res://.godot/imported/AtkUpHex.png-1aee402dcb252e46a3a77e04d987b90c.ctex"
+uid="uid://bq1lnmgvia6ji"
+path="res://.godot/imported/Slash.png-70bee0d6d3adc186321ade2308326b8d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Abilities/AtkUpHex.png"
-dest_files=["res://.godot/imported/AtkUpHex.png-1aee402dcb252e46a3a77e04d987b90c.ctex"]
+source_file="res://Arts/Textures/Abilities/Slash.png"
+dest_files=["res://.godot/imported/Slash.png-70bee0d6d3adc186321ade2308326b8d.ctex"]
 
 [params]
 
