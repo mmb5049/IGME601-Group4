@@ -13,56 +13,65 @@ blend_mode = 1
 [sub_resource type="FontVariation" id="FontVariation_ity2r"]
 base_font = ExtResource("2_minvw")
 
+[sub_resource type="Theme" id="Theme_tmhow"]
+
 [sub_resource type="FontVariation" id="FontVariation_cv32t"]
 base_font = ExtResource("2_h6622")
 
-[node name="HUD" type="CanvasLayer" unique_id=1543784001]
+[node name="HUD" type="CanvasLayer" unique_id=1670573114]
 script = ExtResource("1_vwvg8")
 
-[node name="HealthBar" type="ProgressBar" parent="." unique_id=51208162]
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=861420710]
 modulate = Color(1, 0, 0, 1)
-offset_left = 237.0
-offset_top = 1.0
-offset_right = 760.0
-offset_bottom = 57.0
+offset_left = 25.0
+offset_top = 23.0
+offset_right = 548.0
+offset_bottom = 79.0
+scale = Vector2(0.8922286, 0.73076844)
 value = 100.0
 show_percentage = false
 
-[node name="HealthLabel" type="Label" parent="HealthBar" unique_id=1729260440]
+[node name="HealthLabel" type="Label" parent="HealthBar" unique_id=164554152]
 layout_mode = 0
-offset_left = 217.0
-offset_top = 16.0
-offset_right = 335.0
-offset_bottom = 40.0
+offset_left = 201.74202
+offset_top = 12.315803
+offset_right = 319.742
+offset_bottom = 36.3158
+scale = Vector2(2.1207945, 2.1494749)
 theme_override_fonts/font = SubResource("FontVariation_minvw")
 
-[node name="ManaBar" type="ProgressBar" parent="." unique_id=589409471]
+[node name="ManaBar" type="ProgressBar" parent="." unique_id=38245691]
 self_modulate = Color(0.7129441, 0.7188152, 1, 1)
 material = SubResource("CanvasItemMaterial_i3jvf")
-offset_left = 240.0
-offset_top = 82.0
-offset_right = 758.0
-offset_bottom = 135.0
+offset_left = 25.0
+offset_top = 83.00001
+offset_right = 548.0
+offset_bottom = 139.0
+scale = Vector2(0.8922286, 0.49076843)
 value = 100.0
 show_percentage = false
 
-[node name="ManaLabel" type="Label" parent="ManaBar" unique_id=1477717854]
+[node name="ManaLabel" type="Label" parent="ManaBar" unique_id=411236276]
 layout_mode = 0
-offset_left = 217.0
-offset_top = 15.0
-offset_right = 335.0
-offset_bottom = 39.0
+offset_left = 202.86282
+offset_top = 8.150469
+offset_right = 320.8628
+offset_bottom = 32.150467
+scale = Vector2(1.5534978, 2.2225676)
 theme_override_fonts/font = SubResource("FontVariation_ity2r")
 
-[node name="NotificationPanel" type="PanelContainer" parent="." unique_id=1362225]
+[node name="NotificationPanel" type="PanelContainer" parent="." unique_id=1435650588]
 visible = false
 offset_left = 528.0
 offset_top = 827.0
 offset_right = 1402.0
 offset_bottom = 912.0
 
-[node name="NotificationLabel" type="Label" parent="NotificationPanel" unique_id=2057399562]
+[node name="NotificationLabel" type="Label" parent="NotificationPanel" unique_id=1486672858]
 layout_mode = 2
+theme = SubResource("Theme_tmhow")
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = SubResource("FontVariation_cv32t")
 theme_override_font_sizes/font_size = 48
 text = "Test"

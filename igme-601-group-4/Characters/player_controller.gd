@@ -38,6 +38,8 @@ var self_enhance_effect: Node3D = null
 
 var selected_ability: Ability = null
 var cursor_position: Vector2 = Vector2.ZERO
+var _last_preview_target: AbilityTarget
+var _last_preview_origin: Vector2i
 ## Remains true across the small gaps between queued abilities. current_mode
 ## alone cannot provide this lock because each individual action resets it.
 var _action_sequence_active: bool = false
@@ -61,7 +63,7 @@ func _ready() -> void:
 	
 	movement.set_pos(movement.spawn_position)
 	
-	cursor_position = get_viewport().get_mouse_position()
+	cursor_position = CRTOverlay.get_content_mouse_position(get_viewport())
 	
 	if animationManager:
 		animationManager.play_animation(animationManager.idle_animation)
@@ -78,6 +80,18 @@ func _ready() -> void:
 	## shortly after fixes this...
 	await get_tree().create_timer(0.1).timeout
 	movement.set_pos(movement.current_cell)
+
+func _process(_delta: float) -> void:
+	if current_mode != PlayerMode.TARGETING:
+		return
+	var viewport := get_viewport()
+	if viewport.gui_get_hovered_control() != null:
+		# The queue can show its own preview while the pointer is over the UI.
+		_last_preview_target = null
+		return
+	# Camera motion can change the hovered tile even with a stationary cursor.
+	cursor_position = CRTOverlay.get_content_mouse_position(viewport)
+	_update_targeting_preview()
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard selection remains available for the group's temporary testing,
@@ -114,6 +128,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+			cursor_position = mouse_event.position
 			_confirm_current_target()
 			get_viewport().set_input_as_handled()
 		elif mouse_event.button_index == MOUSE_BUTTON_RIGHT:
@@ -126,7 +141,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		if current_mode == PlayerMode.TARGETING:
 			action_execution_controller.preview_queue(ability_queue.size())
 			update_ability_preview(hologram.movement.current_cell)
-			pass
 
 func get_ability(ability_name: String) -> Ability:
 	for ability in abilities:
@@ -148,7 +162,7 @@ func request_ability(ability: Ability) -> void:
 		return
 	
 	selected_ability = ability
-	cursor_position = get_viewport().get_mouse_position()
+	cursor_position = CRTOverlay.get_content_mouse_position(get_viewport())
 
 	if ability.targeting_type == Global.TargetingType.NONE:
 		var immediate_target := AbilityTarget.new(Global.TargetingType.NONE)
@@ -369,6 +383,8 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 				succeeded = false
 			elif ability.targeting_type == Global.TargetingType.DIRECTION:
 				succeeded = await movement.execute_directional_move(target.direction, ability.range)
+				if succeeded:
+					check_tutorial_destination()
 			else:
 				var destination: Vector2i = target.target_cell
 				if destination == movement.current_cell or not HexGrid.is_valid_cell(destination):
@@ -511,5 +527,16 @@ func refund_mana(amount: int) -> void:
 	mana_changed.emit(current_mana, max_mana)
 
 func clear_preview() -> void:
+	_last_preview_target = null
 	HexGrid.clear_highlights()
 	action_execution_controller.clear_preview()
+
+func check_tutorial_destination() -> void:
+	if not HexGrid.tutorial_target_active:
+		return
+
+	if HexGrid.tutorial_target_reached:
+		return
+
+	if movement.current_cell == HexGrid.tutorial_target_cell:
+		HexGrid.reach_tutorial_target()

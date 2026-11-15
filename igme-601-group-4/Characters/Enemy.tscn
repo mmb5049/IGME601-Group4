@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="7_action_number"]
 [ext_resource type="Script" uid="uid://bl22qcqt5bvd6" path="res://Characters/hologram.gd" id="11_6vurl"]
 [ext_resource type="Shader" uid="uid://dro6pejj8lvd3" path="res://Materials/Shaders/hologram.gdshader" id="11_b5jcg"]
+[ext_resource type="Script" uid="uid://c80f8o057pkjn" path="res://Characters/enemy_health_bar.gd" id="8_health_bar"]
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_r4647"]
 _data = {
@@ -43,6 +44,11 @@ character = NodePath("..")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9622617, 0)
 script = ExtResource("3_r4647")
 max = 10
+
+[node name="HealthBar" type="Node3D" parent="." unique_id=422325657]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.07, 0.5)
+script = ExtResource("8_health_bar")
+outline_width = 0.046
 
 [node name="EnemyAbilityQueueUI" parent="." unique_id=949041406 instance=ExtResource("6_queue_ui")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)

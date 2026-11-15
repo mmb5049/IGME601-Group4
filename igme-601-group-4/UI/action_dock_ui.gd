@@ -21,7 +21,10 @@ const DIRECTION_EDGES_SCENE := preload("res://UI/AbilityDirectionEdgesUI.tscn")
 var _sequence: AbilitySequenceUI
 var _dock_position: Vector2
 var _indicator_offscreen_position: Vector2
-var _execute_offscreen_position: Vector2
+var _execute_dock_top: float
+var _execute_can_return: bool = true
+var _execute_should_show: bool = false
+var _execute_tween: Tween
 var _targeting_active: bool = false
 var _committing_target: bool = false
 var _active_transfer_entry_id: int = -1
@@ -38,22 +41,24 @@ func _ready() -> void:
 	if _sequence == null:
 		push_error("ActionDockUI needs a valid AbilitySequenceUI path.")
 
-	_execute_button.set_interaction_enabled(false)
+	_execute_button.set_dock_available(false)
+	_execute_button.hide()
 	# Anchored Controls receive their final positions after the first layout
 	# pass. Recording them here guarantees both visuals share the exact dock.
 	await get_tree().process_frame
 	_dock_position = _execute_button.position
+	_execute_dock_top = _execute_button.offset_top
 	_indicator_offscreen_position = Vector2(
 		-_indicator.size.x - offscreen_margin,
 		_dock_position.y
 	)
-	_execute_offscreen_position = Vector2(
-		_dock_position.x,
-		get_viewport_rect().size.y + offscreen_margin
-	)
+	_set_execute_button_top(offscreen_margin)
+	_execute_button.show()
 	_indicator.position = _indicator_offscreen_position
 	_indicator.hide_indicator()
-	_execute_button.set_interaction_enabled(true)
+	if _sequence != null:
+		_sequence.queue_changed.connect(_sync_execute_button)
+	_sync_execute_button()
 
 
 ## Connected to PlayerController.targeting_started by the Arena scene.
@@ -66,9 +71,10 @@ func begin_targeting(ability: Ability) -> void:
 	# shared dock for the new Ability.
 	_complete_active_transfer_immediately()
 	_kill_transition()
-	_execute_button.set_interaction_enabled(false)
 	_targeting_active = true
 	_committing_target = false
+	_execute_can_return = false
+	_sync_execute_button()
 	_indicator.position = _indicator_offscreen_position
 	_indicator.scale = Vector2.ONE
 	_indicator.show_targeting(ability)
@@ -77,9 +83,6 @@ func begin_targeting(ability: Ability) -> void:
 	_transition_tween.set_parallel(true)
 	_transition_tween.set_trans(Tween.TRANS_CUBIC)
 	_transition_tween.set_ease(Tween.EASE_OUT)
-	_transition_tween.tween_property(
-		_execute_button, "position", _execute_offscreen_position, enter_duration
-	)
 	_transition_tween.tween_property(
 		_indicator, "position", _dock_position, enter_duration
 	)
@@ -116,10 +119,13 @@ func commit_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
 	if entry_id < 0:
 		_finish_commit_state()
 		return
+	_active_transfer_entry_id = entry_id
 
 	var start_position: Vector2 = _indicator.get_display_global_position()
 	var start_scale: Vector2 = _indicator.get_display_global_scale()
 	var target_position: Vector2 = await _sequence.wait_for_entry_visual_position(entry_id)
+	if _active_transfer_entry_id != entry_id:
+		return
 	if not target_position.is_finite():
 		_sequence.reveal_pending_entry(entry_id)
 		_finish_commit_state()
@@ -158,7 +164,6 @@ func commit_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
 			flying_inner_edges.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	flying_display.global_position = start_position
 	flying_display.global_scale = start_scale
-	_active_transfer_entry_id = entry_id
 	_active_flying_display = flying_display
 
 	# Keep the source visible until the fully configured flying copy has taken
@@ -171,6 +176,8 @@ func commit_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
 	):
 		return
 	_indicator.hide_indicator()
+	_execute_can_return = true
+	_sync_execute_button()
 
 	_kill_transition()
 	_transition_tween = create_tween()
@@ -185,9 +192,6 @@ func commit_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
 		"scale",
 		_sequence.get_entry_visual_scale(entry_id),
 		queue_transfer_duration
-	)
-	_transition_tween.tween_property(
-		_execute_button, "position", _dock_position, exit_duration
 	)
 	if is_instance_valid(flying_outer_edges) and is_instance_valid(flying_inner_edges):
 		var glow_transition_duration: float = (
@@ -225,6 +229,8 @@ func end_targeting() -> void:
 		return
 
 	_kill_transition()
+	_execute_can_return = true
+	_sync_execute_button()
 	_transition_tween = create_tween()
 	_transition_tween.set_parallel(true)
 	_transition_tween.set_trans(Tween.TRANS_CUBIC)
@@ -238,26 +244,56 @@ func end_targeting() -> void:
 		Vector2.ONE * cancelled_indicator_scale,
 		exit_duration
 	)
-	_transition_tween.tween_property(
-		_execute_button, "position", _dock_position, exit_duration
-	)
 	await _transition_tween.finished
 	_indicator.hide_indicator()
 	_indicator.scale = Vector2.ONE
 	_targeting_active = false
-	_execute_button.set_interaction_enabled(true)
+	_sync_execute_button()
 
 
 func _finish_commit_state() -> void:
 	_indicator.hide_indicator()
 	_indicator.position = _indicator_offscreen_position
 	_indicator.scale = Vector2.ONE
-	_execute_button.position = _dock_position
 	_targeting_active = false
 	_committing_target = false
 	_active_transfer_entry_id = -1
 	_active_flying_display = null
-	_execute_button.set_interaction_enabled(true)
+	_execute_can_return = true
+	_sync_execute_button()
+
+
+func _sync_execute_button() -> void:
+	var should_show: bool = _execute_can_return and _sequence != null and _sequence.has_entries()
+	if should_show != _execute_should_show:
+		_execute_should_show = should_show
+		if _execute_tween != null:
+			_execute_tween.kill()
+		var target_top: float = _execute_dock_top if should_show else offscreen_margin
+		var duration: float = exit_duration if should_show else enter_duration
+		_execute_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		_execute_tween.tween_method(
+			_set_execute_button_top, _execute_button.offset_top, target_top, duration
+		)
+		_execute_tween.finished.connect(_on_execute_slide_finished)
+	_update_execute_button_input()
+
+
+func _set_execute_button_top(top: float) -> void:
+	# Keep both offsets moving together so the button stays bottom-anchored
+	# when the viewport changes size, including while it is offscreen.
+	_execute_button.position.y += top - _execute_button.offset_top
+
+
+func _on_execute_slide_finished() -> void:
+	_execute_tween = null
+	_update_execute_button_input()
+
+
+func _update_execute_button_input() -> void:
+	_execute_button.set_dock_available(
+		_execute_should_show and not _targeting_active and _execute_tween == null
+	)
 
 
 func _complete_active_transfer_immediately() -> void:

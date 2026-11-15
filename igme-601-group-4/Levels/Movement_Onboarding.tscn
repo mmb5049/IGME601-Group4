@@ -2,12 +2,15 @@
 
 [ext_resource type="Script" uid="uid://dl8o2e2kjwvf0" path="res://Levels/arena_manager.gd" id="1_vc7xe"]
 [ext_resource type="Shader" uid="uid://ckx4elrx78lc3" path="res://UI/Onboarding_Movement/Darken_UI.gdshader" id="2_3j5mq"]
+[ext_resource type="Script" uid="uid://bx20wmawrkbto" path="res://Levels/scene_transition.gd" id="2_5wh74"]
 [ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_grid.gd" id="2_ypint"]
+[ext_resource type="PackedScene" uid="uid://i65lwsdvht24" path="res://Levels/Attack_Onboarding.tscn" id="3_5wh74"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="3_ix0gq"]
 [ext_resource type="Script" uid="uid://dw3gn3rw8c31k" path="res://UI/Onboarding_Movement/Darken_UI.gd" id="3_vc7xe"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="4_5wh74"]
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="5_wg0dr"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="6_nngry"]
+[ext_resource type="PackedScene" uid="uid://c7oel5paqcgs5" path="res://Arena Features/camera_3d.tscn" id="7_nngry"]
 [ext_resource type="PackedScene" uid="uid://c35cgvpcvfvxk" path="res://VFX/Self_Enhancement.tscn" id="12_grdek"]
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="13_vgm6p"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="14_7m2dc"]
@@ -20,14 +23,14 @@
 [ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_vp6my"]
 [ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="20_inylp"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="21_py3uu"]
+[ext_resource type="Shader" uid="uid://bsde1p6q4m62r" path="res://Levels/TVGlitch.gdshader" id="22_ix0gq"]
 [ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="22_ypint"]
+[ext_resource type="PackedScene" uid="uid://ct5d84slhdgyj" path="res://VFX/CRTOverlay.tscn" id="26_nngry"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kvn1v"]
 shader = ExtResource("2_3j5mq")
 shader_parameter/cutout_position = Vector2(950, 1000)
 shader_parameter/cutout_size = Vector2(800, 200)
-
-[sub_resource type="Theme" id="Theme_tmhow"]
 
 [sub_resource type="Environment" id="Environment_pdfgs"]
 glow_enabled = true
@@ -37,13 +40,24 @@ glow_hdr_luminance_cap = 46.67
 
 [sub_resource type="Compositor" id="Compositor_fy3br"]
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_42q7o"]
+shader = ExtResource("22_ix0gq")
+shader_parameter/glitch_intensity = 0.2
+shader_parameter/scanline_intensity = 0.3
+
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_vc7xe")
 onBoardMovement = true
 
+[node name="SceneTransition" type="Node" parent="." unique_id=1919496798 node_paths=PackedStringArray("glitch_tv")]
+script = ExtResource("2_5wh74")
+glitch_tv = NodePath("../TVGlitch/ColorRect")
+NEXT_SCENE = ExtResource("3_5wh74")
+
 [node name="DarkenUI" type="CanvasLayer" parent="." unique_id=1948548575]
 
 [node name="ColorRect" type="ColorRect" parent="DarkenUI" unique_id=1098515360]
+visible = false
 material = SubResource("ShaderMaterial_kvn1v")
 custom_maximum_size = Vector2(20000, 20000)
 anchors_preset = 15
@@ -58,9 +72,7 @@ script = ExtResource("3_vc7xe")
 [node name="HexGrid" type="Node3D" parent="." unique_id=391055418]
 script = ExtResource("2_ypint")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
-transform = Transform3D(1, 0, 0, 0, 0.6967433, 0.7173206, 0, -0.7173206, 0.6967433, 0, 6.956389, 9.274121)
-size = 6.607
+[node name="Camera3D" parent="." unique_id=870503545 instance=ExtResource("7_nngry")]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
@@ -76,22 +88,6 @@ spawn_position = Vector2i(-4, 0)
 [node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
 layer = 2
 script = ExtResource("13_vgm6p")
-
-[node name="HUD" parent="." unique_id=1543784001 instance=ExtResource("14_7m2dc")]
-layer = 2
-
-[node name="HealthBar" parent="HUD" index="0" unique_id=51208162]
-offset_left = 240.0
-offset_right = 763.0
-
-[node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
-offset_right = 763.0
-offset_bottom = 138.0
-
-[node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
-theme = SubResource("Theme_tmhow")
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
 layout_mode = 3
@@ -145,12 +141,18 @@ camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
 compositor = SubResource("Compositor_fy3br")
 
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("21_py3uu")]
+unique_name_in_owner = true
 visible = false
 
-[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("darkenUI")]
+[node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("ability_bar", "ability_sequence", "action_execute", "ability_info_ui", "darkenUI", "task_panel")]
 layer = 2
 script = ExtResource("17_x2wxu")
+ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+ability_sequence = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+action_execute = NodePath("../ActionExecutionController")
+ability_info_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilityInfoUi")
 darkenUI = NodePath("../DarkenUI/ColorRect")
+task_panel = NodePath("../TVGlitch/Task")
 
 [node name="Welcome" type="PanelContainer" parent="MovementOnboardUI" unique_id=1890896728]
 custom_maximum_size = Vector2(20000, 20000)
@@ -172,7 +174,8 @@ text = "Welcome To Combo Core"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SelectAbility" type="PanelContainer" parent="MovementOnboardUI" unique_id=1809753597]
+[node name="TutorialPrompt" type="PanelContainer" parent="MovementOnboardUI" unique_id=1809753597]
+visible = false
 custom_maximum_size = Vector2(20000, 20000)
 anchors_preset = -1
 anchor_left = 0.5
@@ -184,13 +187,47 @@ offset_bottom = 790.0
 grow_horizontal = 2
 script = ExtResource("19_3j5mq")
 
-[node name="Label" type="Label" parent="MovementOnboardUI/SelectAbility" unique_id=1012019933]
+[node name="TutorialText" type="Label" parent="MovementOnboardUI/TutorialPrompt" unique_id=1012019933]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("22_ypint")
 theme_override_font_sizes/font_size = 48
 text = "Hover to view the ability's detail"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TVGlitch" type="CanvasLayer" parent="." unique_id=490933593]
+
+[node name="ColorRect" type="ColorRect" parent="TVGlitch" unique_id=736041042]
+visible = false
+material = SubResource("ShaderMaterial_42q7o")
+offset_right = 1966.0
+offset_bottom = 1106.0
+
+[node name="Task" type="PanelContainer" parent="TVGlitch" unique_id=2062470217]
+visible = false
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 340.0
+offset_top = 929.0
+offset_right = 940.0
+offset_bottom = 1082.0
+grow_horizontal = 2
+script = ExtResource("19_3j5mq")
+
+[node name="Task Text" type="Label" parent="TVGlitch/Task" unique_id=1952783207]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_ypint")
+theme_override_font_sizes/font_size = 48
+text = "Task
+
+Reach the highlight tile"
+horizontal_alignment = 1
+
+[node name="HUD" parent="." unique_id=1670573114 instance=ExtResource("14_7m2dc")]
+
+[node name="CRTOverlay" parent="." unique_id=1019875901 instance=ExtResource("26_nngry")]
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
@@ -199,4 +236,10 @@ vertical_alignment = 1
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
 
 [editable path="Player"]
-[editable path="HUD"]
+[editable path="GlobalUIRoot/SwayLayer/AbilityBarUI"]
+[editable path="GlobalUIRoot/SwayLayer/AbilitySequenceUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI/OperationIndicatorUI"]
+[editable path="GlobalUIRoot/SwayLayer/AbilityInfoUi"]
+[editable path="GameOver"]
