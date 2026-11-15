@@ -2,11 +2,10 @@ extends Node3D
 
 ## The CanvasLayer keeps action numbers upright and independent of camera distance.
 @onready var _label: Label = $CanvasLayer/Number
-var _actor: Node3D
+@export var _actor: Character
 
 
 func _ready() -> void:
-	_actor = get_parent() as Node3D
 	_actor.connect("action_number_changed", _refresh_number)
 	# The actor initializes its model and health after its children enter the tree.
 	await _actor.ready

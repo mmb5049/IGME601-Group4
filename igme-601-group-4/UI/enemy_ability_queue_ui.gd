@@ -10,7 +10,7 @@ class_name EnemyAbilityQueueUI
 @export var screen_offset: Vector2 = Vector2(-48.0, -8.0)
 @export var frame_color: Color = Color(1.0, 0.20, 0.20, 0.85)
 
-var _enemy: Enemy
+@export var _enemy: Enemy
 var _queue: AbilityQueue
 var _items: Dictionary[int, AbilitySequenceItemUI] = {}
 var _visibility_tween: Tween
@@ -21,7 +21,6 @@ var _target_opacity: float = 1.0
 
 
 func _ready() -> void:
-	_enemy = get_parent() as Enemy
 	if not _enemy:
 		push_error("EnemyAbilityQueueUI must be a child of an Enemy.")
 		set_process(false)

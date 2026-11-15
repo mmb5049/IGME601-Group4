@@ -40,6 +40,7 @@ var selected_ability: Ability = null
 var cursor_position: Vector2 = Vector2.ZERO
 var _last_preview_target: AbilityTarget
 var _last_preview_origin: Vector2i
+
 ## Remains true across the small gaps between queued abilities. current_mode
 ## alone cannot provide this lock because each individual action resets it.
 var _action_sequence_active: bool = false

@@ -160,6 +160,7 @@ func preview_queue(index:int) -> void:
 		character.hologram.reset()
 		character.hologram.visible = true
 		character.mesh.visible = false
+		
 	# Reset obstacle holograms
 	if obstacles:
 		for obstacle in obstacles.get_children():
@@ -179,14 +180,16 @@ func preview_queue(index:int) -> void:
 				continue
 			all_queues_empty = false
 			execute_next(character.hologram, character.hologram.ability_queue)
+			character.user_interface.global_position = character.hologram.global_position
 	
-	# Display preview of abilities
+	# Display preview of enemy abilities
 	
 
 func clear_preview() -> void:
 	for character in action_order:
 		character.hologram.visible = false
 		character.mesh.visible = true
+		character.user_interface.global_position = character.global_position
 	if obstacles:
 		for obstacle in obstacles.get_children():
 			if obstacle is Obstacle and obstacle.hologram:

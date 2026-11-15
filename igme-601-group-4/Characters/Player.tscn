@@ -143,7 +143,7 @@ shader_parameter/use_texture = true
 shader_parameter/base_texture = ExtResource("15_wbcqo")
 shader_parameter/texture_color = Color(0.2627451, 0.19607843, 0.08627451, 1)
 
-[node name="Player" type="CharacterBody3D" unique_id=372403699 node_paths=PackedStringArray("animationManager", "presentation_visual", "movement", "health", "mesh", "hologram")]
+[node name="Player" type="CharacterBody3D" unique_id=372403699 node_paths=PackedStringArray("animationManager", "presentation_visual", "movement", "health", "mesh", "hologram", "user_interface")]
 script = ExtResource("1_v6d5b")
 animationManager = NodePath("VisualPivot/Animation")
 presentation_visual = NodePath("VisualPivot")
@@ -152,6 +152,7 @@ movement = NodePath("Movement")
 health = NodePath("Health")
 mesh = NodePath("VisualPivot/Animation/Skeleton3D/Cube")
 hologram = NodePath("VisualPivotHologram")
+user_interface = NodePath("UI")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=696857639]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -679,5 +680,8 @@ script = ExtResource("10_x35ji")
 libraries/Attack = ExtResource("6_55lj8")
 autoplay = &"Attack/FightingIdle"
 
-[node name="ActionNumberUI" parent="." unique_id=162314650 instance=ExtResource("11_action_number")]
+[node name="UI" type="Node3D" parent="." unique_id=1353826049]
+
+[node name="ActionNumberUI" parent="UI" unique_id=162314650 node_paths=PackedStringArray("_actor") instance=ExtResource("11_action_number")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
+_actor = NodePath("../..")

@@ -34,9 +34,9 @@ var hover_scale: float = 1.0
 var _hover_progress: float = 0.0
 var _normal_overlay: Material
 
-@onready var _health_bar: EnemyHealthBar = $HealthBar
-@onready var _ability_queue_ui: EnemyAbilityQueueUI = get_node_or_null("EnemyAbilityQueueUI")
-@onready var _action_number_label: Label = get_node_or_null("ActionNumberUI/CanvasLayer/Number")
+@onready var _health_bar: EnemyHealthBar = $UI/HealthBar
+@onready var _ability_queue_ui: EnemyAbilityQueueUI = get_node_or_null("UI/EnemyAbilityQueueUI")
+@onready var _action_number_label: Label = get_node_or_null("UI/ActionNumberUI/CanvasLayer/Number")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -98,8 +98,8 @@ func scale_overhead_position(camera: Camera3D, anchor: Vector2, offset: Vector2 
 	# Keep the shared bottom edge fixed while retaining the model as the horizontal pivot.
 	var pivot := anchor
 	pivot.y += bottom if is_finite(bottom) else 0.0
-	if not camera.is_position_behind(mesh.global_position):
-		pivot.x = camera.unproject_position(mesh.global_position).x
+	if not camera.is_position_behind(user_interface.global_position):
+		pivot.x = camera.unproject_position(user_interface.global_position).x
 	return pivot.lerp(point, hover_scale)
 
 
@@ -107,7 +107,7 @@ func get_overhead_screen_position(camera: Camera3D) -> Vector2:
 	if not is_instance_valid(mesh) or mesh.mesh == null:
 		return Vector2.INF
 	# The mesh transform includes import scale and any movement from ability effects.
-	var center := mesh.to_global(mesh.get_aabb().get_center())
+	var center := mesh.to_global(mesh.get_aabb().get_center())+user_interface.position
 	if camera.is_position_behind(center):
 		return Vector2.INF
 	var overhead_position := camera.unproject_position(center) - Vector2(0.0, OVERHEAD_UI_RISE)

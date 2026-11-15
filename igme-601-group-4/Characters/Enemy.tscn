@@ -10,9 +10,9 @@
 [ext_resource type="Animation" uid="uid://xwbmssnqjq4o" path="res://Animations/Enemy/Punch.res" id="6_15fs6"]
 [ext_resource type="PackedScene" path="res://UI/EnemyAbilityQueueUI.tscn" id="6_queue_ui"]
 [ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="7_action_number"]
+[ext_resource type="Script" uid="uid://c80f8o057pkjn" path="res://Characters/enemy_health_bar.gd" id="8_health_bar"]
 [ext_resource type="Script" uid="uid://bl22qcqt5bvd6" path="res://Characters/hologram.gd" id="11_6vurl"]
 [ext_resource type="Shader" uid="uid://dro6pejj8lvd3" path="res://Materials/Shaders/hologram.gdshader" id="11_b5jcg"]
-[ext_resource type="Script" uid="uid://c80f8o057pkjn" path="res://Characters/enemy_health_bar.gd" id="8_health_bar"]
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_r4647"]
 _data = {
@@ -29,12 +29,13 @@ shader_parameter/alpha = 0.5
 shader_parameter/use_texture = false
 shader_parameter/texture_color = Color(1, 0, 0, 1)
 
-[node name="Enemy" type="Node3D" unique_id=1359998768 node_paths=PackedStringArray("movement", "health", "mesh", "hologram")]
+[node name="Enemy" type="Node3D" unique_id=1359998768 node_paths=PackedStringArray("movement", "health", "mesh", "hologram", "user_interface")]
 script = ExtResource("1_1oqew")
 movement = NodePath("Movement")
 health = NodePath("Health")
 mesh = NodePath("Pivot/Skeleton3D/Cube")
 hologram = NodePath("PivotHolo")
+user_interface = NodePath("UI")
 
 [node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character")]
 script = ExtResource("2_mig5a")
@@ -44,17 +45,6 @@ character = NodePath("..")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9622617, 0)
 script = ExtResource("3_r4647")
 max = 10
-
-[node name="HealthBar" type="Node3D" parent="." unique_id=422325657]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.07, 0.5)
-script = ExtResource("8_health_bar")
-outline_width = 0.046
-
-[node name="EnemyAbilityQueueUI" parent="." unique_id=949041406 instance=ExtResource("6_queue_ui")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
-
-[node name="ActionNumberUI" parent="." unique_id=414957313 instance=ExtResource("7_action_number")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
 
 [node name="Pivot" parent="." unique_id=790799423 instance=ExtResource("3_16c55")]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
@@ -202,6 +192,21 @@ max = 10
 script = ExtResource("2_mig5a")
 character = NodePath("..")
 facing_visual = NodePath("..")
+
+[node name="UI" type="Node3D" parent="." unique_id=318254800]
+
+[node name="ActionNumberUI" parent="UI" unique_id=414957313 node_paths=PackedStringArray("_actor") instance=ExtResource("7_action_number")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+_actor = NodePath("../..")
+
+[node name="HealthBar" type="Node3D" parent="UI" unique_id=422325657]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.07, 0.5)
+script = ExtResource("8_health_bar")
+outline_width = 0.046
+
+[node name="EnemyAbilityQueueUI" parent="UI" unique_id=949041406 node_paths=PackedStringArray("_enemy") instance=ExtResource("6_queue_ui")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+_enemy = NodePath("../..")
 
 [editable path="Pivot"]
 [editable path="PivotHolo"]
