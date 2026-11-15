@@ -189,7 +189,14 @@ func clear_preview() -> void:
 	for character in action_order:
 		character.hologram.visible = false
 		character.mesh.visible = true
+		character.user_interface.visible = character.visible
 		character.user_interface.global_position = character.global_position
+		
+		# Update health bar to use real data (not hologram)
+		if character is Enemy:
+			(character as Enemy)._health_bar._update_health(
+				character.health.current,
+				character.health.max)
 	if obstacles:
 		for obstacle in obstacles.get_children():
 			if obstacle is Obstacle and obstacle.hologram:

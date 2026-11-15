@@ -56,7 +56,7 @@ func is_animating_damage() -> bool:
 	return not _damage_materials.is_empty()
 
 
-func _update_health(current_health: int, max_health: int) -> void:
+func _update_health(current_health: int, max_health: int, play_animation:bool = true) -> void:
 	var capacity := maxi(0, max_health)
 	var filled := clampi(current_health, 0, capacity)
 	if _cells.size() != capacity:
@@ -67,7 +67,11 @@ func _update_health(current_health: int, max_health: int) -> void:
 		return
 
 	if filled < _filled:
-		_play_damage(filled, _filled)
+		if play_animation:
+			_play_damage(filled, _filled)
+		else:
+			for index in range(filled, _filled):
+				_cells[index].hide()
 	elif filled > _filled:
 		for index in range(_filled, filled):
 			_cells[index].show()

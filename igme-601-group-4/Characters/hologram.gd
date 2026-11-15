@@ -10,6 +10,14 @@ func _ready() -> void:
 	if(health):
 		health.died.connect(died)
 		parent.health.died.connect(died)
+		
+		# Update health bar during preview
+		if parent is Enemy:
+			await parent.ready
+			health.changed.connect(
+				func(current,max):
+					(parent as Enemy)._health_bar._update_health(current,max,false)
+			)
 
 func reset() -> void:
 	entity_type = Global.EntityMask.HOLOGRAM | parent.entity_type
@@ -45,4 +53,6 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 
 func died() -> void:
 	visible = false
+	if parent is Enemy:
+		(parent as Enemy).user_interface.visible = false
 	HexGrid.set_occupied_preview(movement.current_cell,false)
