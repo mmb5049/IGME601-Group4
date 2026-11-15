@@ -5,6 +5,7 @@ var hex_size: float = 1.0
 var hex_height: float 
 
 var occupied_cells: Dictionary = {}
+var occupied_cells_preview: Dictionary = {}
 var valid_cells: Dictionary = {}
 
 var cell_meshes: Dictionary[Vector2i,MeshInstance3D] = {}
@@ -41,7 +42,7 @@ var trap_scene: PackedScene = preload("res://Abilities/Trap.tscn")
 signal tutorial_target_completed
 
 func _ready():
-	reset()
+	pass
 
 # needs to reset every round because this is an autoload script
 func reset():
@@ -147,30 +148,44 @@ func set_occupied(coord: Vector2i, value:Variant):
 		occupied_cells[coord] = value
 	else:
 		occupied_cells.erase(coord)
-		
+
+func set_occupied_preview(coord: Vector2i, value:Variant):
+	if value:
+		occupied_cells_preview[coord] = value
+	else:
+		occupied_cells_preview.erase(coord)
 
 func is_valid_cell(coord: Vector2i) -> bool:
 	return valid_cells.has(coord)
 
 func raycast(start:Vector2i, direction:Vector2i,length:int,
-check_flag: = Global.OccupiedType.NONE) -> Vector2i:
+entity_mask: = Global.EntityMask.ALL, use_preview = false) -> Vector2i:
 	var cell
 	for i in range(1,length+1):
 		cell = start + direction*i
-		# check if cell is valid and if check_flag includes the cell
-		if not is_valid_cell(cell) or (get_flag_from_cell(cell) != Global.OccupiedType.NONE and 
-		Global.has_flag(check_flag,get_flag_from_cell(cell))):
+		
+		if not is_valid_cell(cell):
+			cell = start + direction*(i-1)
+			break
+		
+		# get the entity
+		var entity:Entity = null
+		if not use_preview and occupied_cells.has(cell):
+			entity = occupied_cells[cell]
+		elif use_preview and occupied_cells_preview.has(cell):
+			entity = occupied_cells_preview[cell]
+		
+		# get the entity type
+		var type:Global.EntityMask = Global.EntityMask.NONE
+		if (entity != null and is_instance_valid(entity) and entity is Entity):
+			type = entity.entity_type
+		
+		# check if entity matches the entity mask
+		if (type != Global.EntityMask.NONE and 
+		Global.contains_a_flag(entity_mask,type)):
 			cell = start + direction*(i-1)
 			break
 	return cell
-
-func get_flag_from_cell(cell:Vector2i) -> Global.OccupiedType:
-	if is_occupied(cell):
-		if (is_instance_valid(occupied_cells[cell]) and 
-		(occupied_cells[cell] is PlayerController or occupied_cells[cell] is Enemy)):
-			return Global.OccupiedType.DYNAMIC
-		return Global.OccupiedType.STATIC
-	return Global.OccupiedType.NONE
 
 func find_path(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 	var open_set: Array[Vector2i] = [start]
@@ -239,13 +254,13 @@ func create_highlight(material:ShaderMaterial, coord:Vector2i):
 	if not cell_meshes.has(coord):
 		return
 	var cell: MeshInstance3D = cell_meshes[coord]
-	cell.material_override = material
+	cell.material_overlay = material
 	highlighted_cells[coord] = cell
 
 func clear_highlights():
 	for coord in highlighted_cells.keys():
 		if cell_meshes.has(coord):
-			cell_meshes[coord].material_override = null
+			cell_meshes[coord].material_overlay = null
 	highlighted_cells.clear()
 	
 	# Restore the tutorial highlight if it is active.
@@ -330,7 +345,7 @@ func update_tutorial_highlight() -> void:
 	else:
 		material = material_tutorial_target
 
-	cell_meshes[tutorial_target_cell].material_override = material
+	cell_meshes[tutorial_target_cell].material_overlay = material
 
 
 func reach_tutorial_target() -> void:

@@ -14,7 +14,7 @@ signal action_finished(actor: Node, entry: QueuedAbility, succeeded: bool)
 
 @export_category("Current Player Plan")
 @export var player_actor: PlayerController
-@export var player_queue: AbilitySequenceUI
+@export var player_queue_UI: AbilitySequenceUI
 @export var player_ability_bar: AbilityBarUI
 @export var execute_button: ExecuteButtonUI
 
@@ -28,8 +28,8 @@ enum TurnPhase { INITIALIZING, PREPARATION, EXECUTION }
 var current_phase: TurnPhase = TurnPhase.INITIALIZING
 var turn_number: int = 0
 ## Player first, followed by this turn's shuffled enemies. Readable by future UI.
-var action_order: Array[Node] = []
-
+var action_order: Array[Character] = []
+@export var obstacles:Node3D 
 
 func _ready() -> void:
 	if execute_button == null:
@@ -69,7 +69,7 @@ func _on_execute_requested() -> void:
 	# A second click must never start another coroutine over the same queue.
 	if _is_executing or current_phase != TurnPhase.PREPARATION:
 		return
-	if player_actor == null or player_queue == null:
+	if player_actor == null or player_queue_UI == null:
 		push_error("ActionExecutionController needs a player and player queue.")
 		return
 	if player_actor.health.is_dead or player_actor.current_mode == PlayerController.PlayerMode.TARGETING:
@@ -93,10 +93,9 @@ func _execute_turn() -> void:
 				break
 			if not _actor_can_act(actor):
 				continue
-			var queue: Object = _get_actor_queue(actor)
-			if queue == null or not queue.has_entries():
+			if actor.ability_queue == null or not actor.ability_queue.has_entries():
 				continue
-			await execute_next(actor, queue)
+			execute_next(actor, actor.ability_queue)
 			if _has_pending_actions() and between_actions_delay > 0.0:
 				await get_tree().create_timer(between_actions_delay).timeout
 
@@ -112,43 +111,24 @@ func _actor_can_act(actor: Variant) -> bool:
 		return false
 	return not actor.health.is_dead
 
-
-func _get_actor_queue(actor: Node) -> Object:
-	if actor == player_actor:
-		return player_queue
-	if actor is Enemy:
-		return actor.ability_queue
-	return null
-
-
 func _has_pending_actions() -> bool:
 	if not _actor_can_act(player_actor):
 		return false
 	for actor in action_order:
 		if _actor_can_act(actor):
-			var queue: Object = _get_actor_queue(actor)
-			if queue != null and queue.has_entries():
+			if actor.ability_queue != null and actor.ability_queue.has_entries():
 				return true
 	return false
 
-
 ## Executes exactly one queue entry. The queue_source contract is deliberately
 ## small: has_entries(), peek_front_entry(), and consume_entry(id).
-func execute_next(actor: Node, queue_source: Object) -> bool:
+func execute_next(actor: Character, queue_source: AbilityQueue) -> bool:
 	if not _actor_can_act(actor) or not is_instance_valid(queue_source):
-		return false
-	if (
-		not queue_source.has_method("has_entries")
-		or not queue_source.has_method("peek_front_entry")
-		or not queue_source.has_method("consume_entry")
-		or not actor.has_method("execute_queued_ability")
-	):
-		push_error("Actor or queue source does not implement the action execution contract.")
 		return false
 	if not bool(queue_source.call("has_entries")):
 		return false
 
-	var entry: QueuedAbility = queue_source.call("peek_front_entry") as QueuedAbility
+	var entry: QueuedAbility = queue_source.peek_front_entry()
 	if entry == null:
 		return false
 
@@ -156,16 +136,62 @@ func execute_next(actor: Node, queue_source: Object) -> bool:
 	# await also accepts an immediate return value. Movement abilities suspend
 	# here until CharacterMovement emits done_moving; attacks and Wait complete
 	# synchronously and proceed directly to queue consumption.
-	var succeeded: bool = bool(await actor.call("execute_queued_ability", entry))
-	queue_source.call("consume_entry", entry.id)
+	var succeeded: bool = await actor.execute_queued_ability(entry)
+	if(actor is PlayerController):
+		player_queue_UI.consume_entry(entry.id)
+	else:
+		queue_source.consume_entry(entry.id)
 	action_finished.emit(actor if is_instance_valid(actor) else null, entry, succeeded)
 	return succeeded
-
 
 func _set_planning_interaction_enabled(enabled: bool) -> void:
 	if execute_button != null:
 		execute_button.set_interaction_enabled(enabled)
 	if player_ability_bar != null:
 		player_ability_bar.set_interaction_enabled(enabled)
-	if player_queue != null:
-		player_queue.set_interaction_enabled(enabled)
+	if player_queue_UI != null:
+		player_queue_UI.set_interaction_enabled(enabled)
+
+# Runs a simulation of the queue to see a future state
+# Utilize hologram data to get preview information
+func preview_queue(index:int) -> void:
+	# Reset character holograms
+	for character in action_order:
+		character.hologram.reset()
+		character.hologram.visible = true
+		character.mesh.visible = false
+		
+	# Reset obstacle holograms
+	if obstacles:
+		for obstacle in obstacles.get_children():
+			if obstacle is Obstacle and obstacle.hologram:
+				obstacle.hologram.reset() 
+				obstacle.hologram.visible = true
+				obstacle.mesh.visible = false
+	
+	# Execute queue of all holograms
+	var all_queues_empty:bool = false
+	var queue_index:int = 0
+	while(not all_queues_empty and queue_index < index):
+		queue_index += 1
+		all_queues_empty = true
+		for character in action_order:
+			if(character.hologram.ability_queue.queue.size() == 0):
+				continue
+			all_queues_empty = false
+			execute_next(character.hologram, character.hologram.ability_queue)
+			character.user_interface.global_position = character.hologram.global_position
+	
+	# Display preview of enemy abilities
+	
+
+func clear_preview() -> void:
+	for character in action_order:
+		character.hologram.visible = false
+		character.mesh.visible = true
+		character.user_interface.global_position = character.global_position
+	if obstacles:
+		for obstacle in obstacles.get_children():
+			if obstacle is Obstacle and obstacle.hologram:
+				obstacle.hologram.visible = false
+				obstacle.mesh.visible = true

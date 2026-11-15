@@ -10,7 +10,7 @@ class_name EnemyAbilityQueueUI
 @export var screen_offset: Vector2 = Vector2(-48.0, -8.0)
 @export var frame_color: Color = Color(1.0, 0.20, 0.20, 0.85)
 
-var _enemy: Enemy
+@export var _enemy: Enemy
 var _queue: AbilityQueue
 var _items: Dictionary[int, AbilitySequenceItemUI] = {}
 var _visibility_tween: Tween
@@ -21,7 +21,6 @@ var _target_opacity: float = 1.0
 
 
 func _ready() -> void:
-	_enemy = get_parent() as Enemy
 	if not _enemy:
 		push_error("EnemyAbilityQueueUI must be a child of an Enemy.")
 		set_process(false)
@@ -67,7 +66,7 @@ func get_rest_bottom_offset() -> float:
 func _sync_queue() -> void:
 	var removed_any: bool = false
 	var remaining_ids: Array[int] = []
-	for entry in _queue.queued_entries:
+	for entry in _queue.queue:
 		remaining_ids.append(entry.id)
 	for entry_id in _items.keys():
 		if not remaining_ids.has(entry_id):
@@ -76,8 +75,8 @@ func _sync_queue() -> void:
 			removed.play_removal_animation(animation_duration)
 			removed_any = true
 
-	for index in range(_queue.queued_entries.size()):
-		var entry: QueuedAbility = _queue.queued_entries[index]
+	for index in range(_queue.queue.size()):
+		var entry: QueuedAbility = _queue.queue[index]
 		# Queue front executes first and occupies the fixed bottom slot.
 		# After consumption the remaining entries slide down into that slot.
 		var depth: int = index

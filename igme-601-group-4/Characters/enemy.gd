@@ -1,9 +1,7 @@
-extends Node3D
+extends Character
 
 class_name Enemy
 
-@export var movement:CharacterMovement
-@onready var mesh:MeshInstance3D = $Pivot/Skeleton3D/Cube
 @export_category("Turn Planning")
 @export var move_ability: Ability = preload("res://Abilities/Move.tres")
 @export var attack_ability: Ability = preload("res://Abilities/Whirlwind.tres")
@@ -29,24 +27,23 @@ var action_number: int = 0:
 	set(value):
 		action_number = value
 		action_number_changed.emit(value)
-var ability_queue: AbilityQueue = AbilityQueue.new()
-var number_display = preload("res://Misc/number_display.tscn")
+
 var _dying: bool = false
 var is_model_hovered: bool = false
 var hover_scale: float = 1.0
 var _hover_progress: float = 0.0
 var _normal_overlay: Material
 
-@onready var health:Health = $Health
-@onready var _health_bar: EnemyHealthBar = $HealthBar
-@onready var _ability_queue_ui: EnemyAbilityQueueUI = get_node_or_null("EnemyAbilityQueueUI")
-@onready var _action_number_label: Label = get_node_or_null("ActionNumberUI/CanvasLayer/Number")
+@onready var _health_bar: EnemyHealthBar = $UI/HealthBar
+@onready var _ability_queue_ui: EnemyAbilityQueueUI = get_node_or_null("UI/EnemyAbilityQueueUI")
+@onready var _action_number_label: Label = get_node_or_null("UI/ActionNumberUI/CanvasLayer/Number")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	add_to_group("enemies")
 	_health_bar.bind_health(health)
 	health.died.connect(die)
+	entity_type = Global.EntityMask.ENEMY
 	process_priority = -4
 	set_process(false)
 
@@ -101,8 +98,8 @@ func scale_overhead_position(camera: Camera3D, anchor: Vector2, offset: Vector2 
 	# Keep the shared bottom edge fixed while retaining the model as the horizontal pivot.
 	var pivot := anchor
 	pivot.y += bottom if is_finite(bottom) else 0.0
-	if not camera.is_position_behind(mesh.global_position):
-		pivot.x = camera.unproject_position(mesh.global_position).x
+	if not camera.is_position_behind(user_interface.global_position):
+		pivot.x = camera.unproject_position(user_interface.global_position).x
 	return pivot.lerp(point, hover_scale)
 
 
@@ -110,7 +107,7 @@ func get_overhead_screen_position(camera: Camera3D) -> Vector2:
 	if not is_instance_valid(mesh) or mesh.mesh == null:
 		return Vector2.INF
 	# The mesh transform includes import scale and any movement from ability effects.
-	var center := mesh.to_global(mesh.get_aabb().get_center())
+	var center := mesh.to_global(mesh.get_aabb().get_center())+user_interface.position
 	if camera.is_position_behind(center):
 		return Vector2.INF
 	var overhead_position := camera.unproject_position(center) - Vector2(0.0, OVERHEAD_UI_RISE)
@@ -198,7 +195,6 @@ func _direction_toward(start: Vector2i, player_cell: Vector2i) -> Vector2i:
 			direction = candidate
 	return direction if difference != Vector3.ZERO else Vector2i.ZERO
 
-
 func execute_queued_ability(entry: QueuedAbility) -> bool:
 	if health.is_dead or entry == null or entry.ability == null or entry.target == null:
 		return false
@@ -213,24 +209,70 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 					return false
 			if health.is_dead or is_queued_for_deletion():
 				return false
-			# Resolve around the actual execution position. Prepared plans do
-			# not track or retarget a player who moved out of the selected ring.
-			for cell in entry.target.resolve_cells(movement.current_cell):
-				# A target may have been freed while presentation was awaiting.
-				# Keep the raw Variant until validated: assigning a freed instance
-				# to a typed Node fails before is_instance_valid can run.
-				var victim: Variant = HexGrid.occupied_cells.get(cell)
-				if not is_instance_valid(victim):
-					continue
-				if victim == self or victim.is_queued_for_deletion():
-					continue
-				if victim is PlayerController:
-					victim.health.damage(entry.ability.damage)
-				else:
-					print(victim)
+			_apply_attack(entry.ability,entry.target,0,Global.EntityMask.PLAYER)
 			return true
 	return false
 
+func update_ability_preview(origin:Vector2i = movement.current_cell, ability = move_ability,
+show_possible:bool = true, target:AbilityTarget  = null) -> void:
+	var possible_material: ShaderMaterial = Global.get_target_material(ability)
+	var target_material: ShaderMaterial = HexGrid.material_select
+	
+	if ability:
+		if not target:
+			#target = evaluate_target(ability, cursor_position, origin)
+			pass
+		else:
+			# use color to show ability type when previewing
+			target_material = possible_material
+	
+	# Display hologram
+	if origin != movement.current_cell:
+		hologram.set_pos(origin)
+	
+	match ability.targeting_type:
+		Global.TargetingType.DIRECTION:
+			if show_possible:
+				for direction: Vector2i in HexGrid.DIRECTIONS:
+					HexGrid.highlight_line(
+						possible_material,
+						origin,
+						direction,
+						ability.range
+					)
+			if target and target.is_valid:
+				HexGrid.highlight_line(
+					target_material,
+					origin,
+					target.direction,
+					ability.range
+				)
+
+		Global.TargetingType.SINGLE_TILE:
+			if show_possible:
+				var cells: Array[Vector2i] = []
+				for radius in range(1, ability.range + 1):
+					cells.append_array(HexGrid.get_ring(origin, radius))
+				HexGrid.highlight_cells(possible_material, cells)
+			if target and target.is_valid:
+				HexGrid.create_highlight(target_material,
+					target.target_cell + origin)
+
+		Global.TargetingType.ANNULAR:
+			if show_possible:
+				var cells: Array[Vector2i] = []
+				for radius in range(1, ability.range + 1):
+					cells.append_array(HexGrid.get_ring(origin, radius))
+				HexGrid.highlight_cells(possible_material, cells)
+			if target and target.is_valid:
+				HexGrid.highlight_cells(target_material, target.resolve_cells(origin))
+
+		Global.TargetingType.SHAPE:
+			pass
+
+		Global.TargetingType.NONE:
+			pass
+	
 func die() -> void:
 	if _dying:
 		return

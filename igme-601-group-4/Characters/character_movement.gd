@@ -18,7 +18,7 @@ var _blocked_origin: Vector3
 var _blocked_sideways: Vector3
 
 @export var spawn_position:Vector2i = Vector2i.ZERO
-var current_cell:Vector2i
+var current_cell:Vector2i = Vector2i.MIN
 var target_cell:Vector2i
 var path:Array[Vector2i]
 
@@ -26,8 +26,6 @@ var floorHeight:float
 
 signal done_moving(sender:Signal)
 var is_moving:bool
-
-@export var hologram:Node3D
 
 func _ready():
 	target_cell = current_cell
@@ -61,8 +59,7 @@ func execute_directional_move(direction: Vector2i, distance: int) -> bool:
 		HexGrid.to_global(HexGrid.hex_to_world(current_cell + direction))
 		- HexGrid.to_global(HexGrid.hex_to_world(current_cell))
 	)
-	var destination: Vector2i = HexGrid.raycast(current_cell, direction, distance, 
-	Global.OccupiedType.STATIC | Global.OccupiedType.DYNAMIC)
+	var destination: Vector2i = HexGrid.raycast(current_cell, direction, distance)
 	if destination == current_cell or not HexGrid.is_valid_cell(destination):
 		await _play_blocked_move(direction)
 		return false
@@ -153,15 +150,19 @@ func pathfind(end_cell:Vector2i):
 	HexGrid.set_occupied(current_cell, false)
 	target_cell = path.pop_front()
 
-## returns the end position when using a movement ability. Does not consider dynamic blockers (enemies)
-func get_destination(ability: Ability, target: AbilityTarget, start:Vector2i) -> Vector2i:
+## returns the end position when using a movement ability.
+func get_destination(ability: Ability, target: AbilityTarget, start:Vector2i, 
+use_preview = true) -> Vector2i:
 	if ability.type != Global.AbilityType.MOVEMENT:
 		return start
 	match ability.targeting_type:
 		Global.TargetingType.DIRECTION:
-			return HexGrid.raycast(start, target.direction, ability.range, Global.OccupiedType.STATIC)
+			return HexGrid.raycast(start, target.direction, ability.range,
+			Global.EntityMask.ALL,use_preview)
 		Global.TargetingType.SINGLE_TILE:
-			return target.target_cell
+			if ((HexGrid.occupied_cells.has(target.target_cell) and not use_preview) or
+			(HexGrid.occupied_cells_preview.has(target.target_cell) and use_preview)):
+				return target.target_cell
 	return start
 
 # Move character towards target hex. Returns true if the target has been reached
@@ -193,7 +194,7 @@ func move_to(cell:Vector2i, delta) -> bool:
 		return true
 	return false
 
-func set_pos(cell:Vector2i):
+func set_pos(cell:Vector2i, set_occupancy_preview = false):
 	_finish_blocked_move()
 	var target_position = HexGrid.to_global(HexGrid.hex_to_world(cell))
 	
@@ -201,22 +202,21 @@ func set_pos(cell:Vector2i):
 	target_position.y = floorHeight
 	
 	# Update occupancy
-	if current_cell:
-		HexGrid.set_occupied(current_cell, false)
-	HexGrid.set_occupied(cell, character)
+	if not set_occupancy_preview:
+		if current_cell != Vector2i.MIN:
+			HexGrid.set_occupied(current_cell, false)
+		HexGrid.set_occupied(cell, character)
+	else:
+		if current_cell != Vector2i.MIN:
+			HexGrid.set_occupied_preview(current_cell, false)
+		HexGrid.set_occupied_preview(cell, character)
 	
 	# Snap position
 	character.global_position = target_position
 	current_cell = cell
 	target_cell = current_cell
 
-func set_hologram_pos(cell:Vector2i):
-	if hologram:
-		hologram.visible = true
-		
-		var target_position = HexGrid.to_global(HexGrid.hex_to_world(cell))
-		# Adjust target height
-		target_position.y = floorHeight
-		hologram.global_position = target_position
-	else:
-		push_error("No hologram pivot set")
+# this function is only for holograms/preview functionality
+func copy(movement_to_copy:CharacterMovement):
+	set_pos(movement_to_copy.current_cell,true)
+	target_cell = movement_to_copy.target_cell

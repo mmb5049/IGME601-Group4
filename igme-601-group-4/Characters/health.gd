@@ -18,18 +18,19 @@ func _ready() -> void:
 	current = max
 	changed.emit(current, max)
 
-func damage(amount: int) -> void:
+func damage(amount: int, show_visual:bool = true) -> void:
 	if is_dead or amount <= 0:
 		return
 	
 	# Display damage number
-	var new_display:Node3D = number_display.instantiate()
-	get_parent().add_child(new_display)
-	new_display.global_position = global_position
-	new_display.set_number(-amount)
+	if show_visual:
+		var new_display:Node3D = number_display.instantiate()
+		get_parent().get_parent().add_child(new_display)
+		new_display.global_position = global_position
+		new_display.set_number(-amount)
 	
 	# Flash the mesh white
-	if mesh:
+	if mesh and show_visual:
 		mesh.flash()
 
 	# Change Health
@@ -44,6 +45,9 @@ func damage(amount: int) -> void:
 func heal(amount: int) -> void:
 	if is_dead or amount <= 0:
 		return
-
 	current = mini(current + amount, max)
-	changed.emit(current, max)
+
+func copy(health_to_copy:Health):
+	current = health_to_copy.current
+	max = health_to_copy.max
+	is_dead = health_to_copy.is_dead

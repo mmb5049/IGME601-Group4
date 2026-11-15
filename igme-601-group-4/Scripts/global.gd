@@ -19,6 +19,15 @@ enum TargetingType {
 	ANNULAR
 }
 
+enum EntityMask{
+	NONE = 0,
+	PLAYER = 1 << 0,
+	ENEMY = 1 << 1,
+	OBSTACLE = 1 << 2,
+	HOLOGRAM = 1 << 3,
+	ALL = 2 ** 4 - 1
+}
+
 # Bitshift is used to enable logical operators
 enum OccupiedType {
 	NONE = 0,
@@ -26,5 +35,15 @@ enum OccupiedType {
 	DYNAMIC = 1 << 1
 }
 
-func has_flag(value, flag) -> bool:
-	return (value & flag) == flag
+# returns true if _value has all flags in _flag
+func contains_all_flags(_value, _flag) -> bool:
+	return (_value & _flag) == _flag
+
+# returns true if _value has any flag in _flag
+func contains_a_flag(_value, _flag) -> bool:
+	return (_value & _flag) != 0
+
+func get_target_material(ability: Ability) -> ShaderMaterial:
+	if ability.type == Global.AbilityType.MOVEMENT:
+		return HexGrid.material_move
+	return HexGrid.material_attack
