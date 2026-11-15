@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b0576k1jo61m6"]
 
 [ext_resource type="Script" uid="uid://dl8o2e2kjwvf0" path="res://Levels/arena_manager.gd" id="1_5o1c7"]
+[ext_resource type="PackedScene" uid="uid://c7oel5paqcgs5" path="res://Arena Features/camera_3d.tscn" id="2_q8r1i"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="4_kn3ki"]
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="5_8ml7l"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="5_dsr05"]
@@ -21,10 +22,7 @@
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="17_queue_visibility"]
 [ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="19_sb1hv"]
 [ext_resource type="PackedScene" uid="uid://ct5d84slhdgyj" path="res://VFX/CRTOverlay.tscn" id="20_crt"]
-[ext_resource type="Script" uid="uid://dggbt3nhogfy7" path="res://Levels/gameplay_camera.gd" id="21_camera_motion"]
 [ext_resource type="Script" uid="uid://juqaw1ro2jx5" path="res://Levels/enemy_hover.gd" id="22_enemy_hover"]
-
-[sub_resource type="Theme" id="Theme_tmhow"]
 
 [sub_resource type="Environment" id="Environment_pdfgs"]
 glow_enabled = true
@@ -37,15 +35,7 @@ glow_hdr_luminance_cap = 46.67
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
-transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 19.566, 12.639)
-fov = 39.4
-size = 16.666
-far = 3986.1
-script = ExtResource("21_camera_motion")
-mouse_sway_amount = Vector2(-0.16, -0.11)
-mouse_follow_speed = 1.0
-idle_shake_speed = 0.4
+[node name="Camera3D" parent="." unique_id=870503545 instance=ExtResource("2_q8r1i")]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
@@ -66,40 +56,7 @@ script = ExtResource("22_enemy_hover")
 layer = 4
 script = ExtResource("17_queue_visibility")
 
-[node name="HUD" parent="." unique_id=1543784001 instance=ExtResource("16_famn7")]
-
-[node name="HealthBar" parent="HUD" index="0" unique_id=51208162]
-offset_left = 25.0
-offset_top = 23.0
-offset_right = 548.0
-offset_bottom = 79.0
-scale = Vector2(0.8922286, 0.73076844)
-
-[node name="HealthLabel" parent="HUD/HealthBar" index="0" unique_id=1729260440]
-offset_left = 201.74202
-offset_top = 12.315803
-offset_right = 319.742
-offset_bottom = 36.3158
-scale = Vector2(2.1207945, 2.1494749)
-
-[node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
-offset_left = 25.0
-offset_top = 83.00001
-offset_right = 548.0
-offset_bottom = 139.0
-scale = Vector2(0.8922286, 0.49076843)
-
-[node name="ManaLabel" parent="HUD/ManaBar" index="0" unique_id=1477717854]
-offset_left = 202.86282
-offset_top = 8.150469
-offset_right = 320.8628
-offset_bottom = 32.150467
-scale = Vector2(1.5534978, 2.2225676)
-
-[node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
-theme = SubResource("Theme_tmhow")
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+[node name="HUD" parent="." unique_id=1670573114 instance=ExtResource("16_famn7")]
 
 [node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
 layout_mode = 3
@@ -167,5 +124,3 @@ visible = false
 [connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
 [connection signal="visibility_changed" from="GameOverLayer/GameOver" to="." method="_on_game_over_visibility_changed"]
-
-[editable path="HUD"]
