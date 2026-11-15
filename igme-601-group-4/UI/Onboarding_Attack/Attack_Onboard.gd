@@ -19,7 +19,7 @@ func _ready() -> void:
 
 func start_attack_tutorial() -> void:
 	darkenUI.show()
-	darkenUI.ChangeSize(Vector2 (200,300), Vector2 (925,700))
+	darkenUI.ChangeSize(Vector2 (200,200), Vector2 (950,775))
 	prompt_panel.show()
 	prompt_text.text = "These pillars can be broken using an attack ability"
 	await get_tree().create_timer(3.0).timeout

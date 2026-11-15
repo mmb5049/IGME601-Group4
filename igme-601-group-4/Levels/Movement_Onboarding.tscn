@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="4_5wh74"]
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="5_wg0dr"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="6_nngry"]
+[ext_resource type="PackedScene" uid="uid://c7oel5paqcgs5" path="res://Arena Features/camera_3d.tscn" id="7_nngry"]
 [ext_resource type="PackedScene" uid="uid://c35cgvpcvfvxk" path="res://VFX/Self_Enhancement.tscn" id="12_grdek"]
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="13_vgm6p"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="14_7m2dc"]
@@ -24,13 +25,12 @@
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="21_py3uu"]
 [ext_resource type="Shader" uid="uid://bsde1p6q4m62r" path="res://Levels/TVGlitch.gdshader" id="22_ix0gq"]
 [ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="22_ypint"]
+[ext_resource type="PackedScene" uid="uid://ct5d84slhdgyj" path="res://VFX/CRTOverlay.tscn" id="26_nngry"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kvn1v"]
 shader = ExtResource("2_3j5mq")
 shader_parameter/cutout_position = Vector2(950, 1000)
 shader_parameter/cutout_size = Vector2(800, 200)
-
-[sub_resource type="Theme" id="Theme_tmhow"]
 
 [sub_resource type="Environment" id="Environment_pdfgs"]
 glow_enabled = true
@@ -72,9 +72,7 @@ script = ExtResource("3_vc7xe")
 [node name="HexGrid" type="Node3D" parent="." unique_id=391055418]
 script = ExtResource("2_ypint")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1743601750]
-transform = Transform3D(1, 0, 0, 0, 0.6967433, 0.7173206, 0, -0.7173206, 0.6967433, 0, 6.956389, 9.274121)
-size = 6.607
+[node name="Camera3D" parent="." unique_id=870503545 instance=ExtResource("7_nngry")]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
@@ -90,22 +88,6 @@ spawn_position = Vector2i(-4, 0)
 [node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
 layer = 2
 script = ExtResource("13_vgm6p")
-
-[node name="HUD" parent="." unique_id=1543784001 instance=ExtResource("14_7m2dc")]
-layer = 2
-
-[node name="HealthBar" parent="HUD" index="0" unique_id=51208162]
-offset_left = 240.0
-offset_right = 763.0
-
-[node name="ManaBar" parent="HUD" index="1" unique_id=589409471]
-offset_right = 763.0
-offset_bottom = 138.0
-
-[node name="NotificationLabel" parent="HUD/NotificationPanel" parent_id_path=PackedInt32Array(1543784001, 1362225) index="0" unique_id=2057399562]
-theme = SubResource("Theme_tmhow")
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 
 [node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
 layout_mode = 3
@@ -159,6 +141,7 @@ camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
 compositor = SubResource("Compositor_fy3br")
 
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("21_py3uu")]
+unique_name_in_owner = true
 visible = false
 
 [node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("ability_bar", "ability_sequence", "action_execute", "ability_info_ui", "darkenUI", "task_panel")]
@@ -242,6 +225,10 @@ text = "Task
 Reach the highlight tile"
 horizontal_alignment = 1
 
+[node name="HUD" parent="." unique_id=1670573114 instance=ExtResource("14_7m2dc")]
+
+[node name="CRTOverlay" parent="." unique_id=1019875901 instance=ExtResource("26_nngry")]
+
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
 [connection signal="targeting_ended" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="end_targeting"]
@@ -249,7 +236,6 @@ horizontal_alignment = 1
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
 
 [editable path="Player"]
-[editable path="HUD"]
 [editable path="GlobalUIRoot/SwayLayer/AbilityBarUI"]
 [editable path="GlobalUIRoot/SwayLayer/AbilitySequenceUI"]
 [editable path="GlobalUIRoot/SwayLayer/ActionDockUI"]

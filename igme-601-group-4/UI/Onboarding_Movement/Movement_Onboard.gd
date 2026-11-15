@@ -109,7 +109,7 @@ func show_queue () -> void:
 	if current_step != TutorialStep.CHOOSE_DIRECTION:
 		return
 	current_step = TutorialStep.SHOW_QUEUE
-	darkenUI.ChangeSize(Vector2 (200,1250), Vector2 (40,10))
+	darkenUI.ChangeSize(Vector2 (100,100), Vector2 (110,810))
 	prompt_label.text = "Ability got added to queue"
 	await get_tree().create_timer(4.0).timeout
 	prompt_hover_queue()
