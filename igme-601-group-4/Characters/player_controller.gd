@@ -13,8 +13,6 @@ signal notification_requested(message: String)
 
 @onready var action_execution_controller:ActionExecutionController = $"../ActionExecutionController"
 
-@export var mesh:MeshInstance3D
-
 const INVALID_CELL := Vector2i(2147483647, 2147483647)
 const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 
@@ -176,7 +174,7 @@ func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
 		return
 
-	#clear_preview()
+	clear_preview()
 	HexGrid.clear_highlights()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
@@ -188,7 +186,7 @@ func _confirm_current_target() -> void:
 	
 	action_execution_controller.preview_queue(ability_queue.size())
 	var target: AbilityTarget = evaluate_target(selected_ability, cursor_position, hologram.movement.current_cell)
-	#clear_preview()
+	clear_preview()
 	HexGrid.clear_highlights()
 	
 	if not target.is_valid:

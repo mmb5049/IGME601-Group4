@@ -5,16 +5,20 @@ class_name Hologram
 # Hologram keeps track of health and movement during queue preview
 # with it's own nodes
 
-@export var parent:Character
+@export var parent:Entity
 func _ready() -> void:
-	health.died.connect(died)
-	parent.health.died.connect(died)
+	if(health):
+		health.died.connect(died)
+		parent.health.died.connect(died)
 
 func reset() -> void:
 	entity_type = Global.EntityMask.HOLOGRAM | parent.entity_type
-	movement.copy(parent.movement)
-	health.copy(parent.health)
-	ability_queue.copy(parent.ability_queue)
+	if(movement):
+		movement.copy(parent.movement)
+	if(health):
+		health.copy(parent.health)
+	if(parent is Character):
+		ability_queue.copy(parent.ability_queue)
 
 func execute_queued_ability(entry: QueuedAbility) -> bool:
 	var ability:Ability = entry.ability

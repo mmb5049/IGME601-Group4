@@ -5,6 +5,8 @@ var current_cell:Vector2i
 
 # Only assign if the wall is destructable
 @export var health:Health
+@export var mesh:MeshInstance3D
+@export var hologram:Hologram
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

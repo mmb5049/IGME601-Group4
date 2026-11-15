@@ -4,6 +4,7 @@ class_name Character
 
 @export var movement:CharacterMovement
 @export var health:Health
+@export var mesh:MeshInstance3D
 @export var hologram:Hologram
 
 var number_display = preload("res://Misc/number_display.tscn")

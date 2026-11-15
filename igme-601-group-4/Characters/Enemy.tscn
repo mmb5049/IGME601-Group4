@@ -28,10 +28,11 @@ shader_parameter/alpha = 0.5
 shader_parameter/use_texture = false
 shader_parameter/texture_color = Color(1, 0, 0, 1)
 
-[node name="Enemy" type="Node3D" unique_id=1359998768 node_paths=PackedStringArray("movement", "health", "hologram")]
+[node name="Enemy" type="Node3D" unique_id=1359998768 node_paths=PackedStringArray("movement", "health", "mesh", "hologram")]
 script = ExtResource("1_1oqew")
 movement = NodePath("Movement")
 health = NodePath("Health")
+mesh = NodePath("Pivot/Skeleton3D/Cube")
 hologram = NodePath("PivotHolo")
 
 [node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character")]
@@ -123,17 +124,7 @@ parent = NodePath("..")
 movement = NodePath("Movement")
 health = NodePath("HoloHealth")
 
-[node name="HoloHealth" type="Node3D" parent="PivotHolo" unique_id=1100009731]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96226156, 0)
-script = ExtResource("3_r4647")
-max = 10
-
-[node name="Movement" type="Node" parent="PivotHolo" unique_id=1778777757 node_paths=PackedStringArray("character", "facing_visual")]
-script = ExtResource("2_mig5a")
-character = NodePath("..")
-facing_visual = NodePath("..")
-
-[node name="Skeleton3D" parent="PivotHolo" index="2" unique_id=1240676367]
+[node name="Skeleton3D" parent="PivotHolo" index="0" unique_id=1240676367]
 bones/0/position = Vector3(3.6954814e-06, 0.0037289695, -9.156007e-06)
 bones/0/rotation = Quaternion(-0.0022096976, 1.9929488e-05, -0.010155457, 0.999946)
 bones/1/rotation = Quaternion(0.13959458, 0.0017724395, 0.004262328, 0.9901981)
@@ -192,9 +183,19 @@ bones/63/rotation = Quaternion(0.3431002, 0.10457877, 0.0916434, 0.9289494)
 surface_material_override/0 = SubResource("ShaderMaterial_6vurl")
 script = ExtResource("4_oie3p")
 
-[node name="AnimationPlayer" parent="PivotHolo" index="3" unique_id=2006512231]
+[node name="AnimationPlayer" parent="PivotHolo" index="1" unique_id=2006512231]
 libraries/Enemy = SubResource("AnimationLibrary_r4647")
 autoplay = &"Enemy/Idle"
+
+[node name="HoloHealth" type="Node3D" parent="PivotHolo" unique_id=1100009731]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96226156, 0)
+script = ExtResource("3_r4647")
+max = 10
+
+[node name="Movement" type="Node" parent="PivotHolo" unique_id=1778777757 node_paths=PackedStringArray("character", "facing_visual")]
+script = ExtResource("2_mig5a")
+character = NodePath("..")
+facing_visual = NodePath("..")
 
 [editable path="Pivot"]
 [editable path="PivotHolo"]

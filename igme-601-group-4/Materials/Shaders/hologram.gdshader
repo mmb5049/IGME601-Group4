@@ -21,7 +21,8 @@ void fragment() {
 	else
 		ALBEDO = texture_color;
 	ALPHA = alpha;
-	EMISSION = emission_color * emission_power * normal_power;
+	EMISSION = emission_color * emission_power * normal_power * 
+		clamp(ALBEDO / texture_color,vec3(0,0,0),vec3(1,1,1));
 }
 
 //void light() {

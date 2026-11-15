@@ -2,7 +2,6 @@ extends Character
 
 class_name Enemy
 
-@onready var mesh:MeshInstance3D = $Pivot/Skeleton3D/Cube
 @export_category("Turn Planning")
 @export var move_ability: Ability = preload("res://Abilities/Move.tres")
 @export var attack_ability: Ability = preload("res://Abilities/Whirlwind.tres")

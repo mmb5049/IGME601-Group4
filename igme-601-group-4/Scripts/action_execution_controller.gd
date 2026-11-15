@@ -29,7 +29,7 @@ var current_phase: TurnPhase = TurnPhase.INITIALIZING
 var turn_number: int = 0
 ## Player first, followed by this turn's shuffled enemies. Readable by future UI.
 var action_order: Array[Character] = []
-
+@export var obstacles:Node3D 
 
 func _ready() -> void:
 	if execute_button == null:
@@ -155,12 +155,18 @@ func _set_planning_interaction_enabled(enabled: bool) -> void:
 # Runs a simulation of the queue to see a future state
 # Utilize hologram data to get preview information
 func preview_queue(index:int) -> void:
-	# Reset holograms
+	# Reset character holograms
 	for character in action_order:
 		character.hologram.reset()
 		character.hologram.visible = true
+		character.mesh.visible = false
+	# Reset obstacle holograms
+	for obstacle in obstacles.get_children():
+		if obstacle is Obstacle and obstacle.hologram:
+			obstacle.hologram.reset() 
+			obstacle.hologram.visible = true
+			obstacle.mesh.visible = false
 	
-	print(index)
 	# Execute queue of all holograms
 	var all_queues_empty:bool = false
 	var queue_index:int = 0
@@ -179,3 +185,8 @@ func preview_queue(index:int) -> void:
 func clear_preview() -> void:
 	for character in action_order:
 		character.hologram.visible = false
+		character.mesh.visible = true		
+	for obstacle in obstacles.get_children():
+		if obstacle is Obstacle and obstacle.hologram:
+			obstacle.hologram.visible = false
+			obstacle.mesh.visible = true
