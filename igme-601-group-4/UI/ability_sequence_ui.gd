@@ -31,7 +31,7 @@ func add_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
 		return
 
 	var added_entry_id: int = Global.player.ability_queue._next_entry_id
-	Global.player.queued_entries.append(QueuedAbility.new(added_entry_id, ability, target))
+	Global.player.ability_queue.queue.append(QueuedAbility.new(added_entry_id, ability, target))
 	Global.player.ability_queue._next_entry_id += 1
 	_rebuild_items(added_entry_id)
 	queue_changed.emit()

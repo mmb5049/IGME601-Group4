@@ -135,6 +135,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		var motion_event: InputEventMouseMotion = event as InputEventMouseMotion
 		cursor_position = motion_event.position
 		if current_mode == PlayerMode.TARGETING:
+			clear_preview()
 			action_execution_controller.preview_queue(ability_queue.size())
 			update_ability_preview(hologram.movement.current_cell)
 
@@ -180,13 +181,15 @@ func request_ability(ability: Ability) -> void:
 	current_mode = PlayerMode.TARGETING
 	targeting_started.emit(ability)
 	
+	clear_preview()
 	action_execution_controller.preview_queue(ability_queue.size())
 	update_ability_preview(hologram.movement.current_cell)
 
 func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
 		return
-
+	
+	print("cancel")
 	clear_preview()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
@@ -195,10 +198,8 @@ func cancel_targeting() -> void:
 func _confirm_current_target() -> void:
 	if selected_ability == null:
 		return
-	
 	action_execution_controller.preview_queue(ability_queue.size())
 	var target: AbilityTarget = evaluate_target(selected_ability, cursor_position, hologram.movement.current_cell)
-	clear_preview()
 	
 	if not target.is_valid:
 		return
@@ -218,6 +219,7 @@ func _confirm_current_target() -> void:
 		
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
+	clear_preview()
 
 ## Reuses one evaluation result for grid highlighting, indicator feedback, and
 ## final confirmation so all three always agree about target legality.
@@ -236,18 +238,26 @@ show_possible:bool = true, target:AbilityTarget  = null) -> void:
 		Global.TargetingType.DIRECTION:
 			if show_possible:
 				for direction: Vector2i in HexGrid.DIRECTIONS:
+					var length:int = HexGrid.hex_distance(
+						origin,
+						HexGrid.raycast(origin,direction,ability.range,Global.EntityMask.ALL,true)
+						)
 					HexGrid.highlight_line(
 						possible_material,
 						origin,
 						direction,
-						ability.range
+						length
 					)
 			if target and target.is_valid:
+				var length:int = HexGrid.hex_distance(
+						origin,
+						HexGrid.raycast(origin,target.direction,ability.range,Global.EntityMask.ALL,true)
+						)
 				HexGrid.highlight_line(
 					target_material,
 					origin,
 					target.direction,
-					ability.range
+					length
 				)
 
 		Global.TargetingType.SINGLE_TILE:
