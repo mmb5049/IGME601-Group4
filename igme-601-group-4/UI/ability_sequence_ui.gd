@@ -318,8 +318,7 @@ func _on_item_reorder_preview_requested(
 		if item == null:
 			continue
 
-		var entry_id: int = Global.player.ability_queue.queue[child_index].id
-		if entry_id == _active_drag_entry_id:
+		if item.get_entry_id() == _active_drag_entry_id:
 			item.clear_reorder_preview_layout(reorder_animation_duration)
 			continue
 
@@ -360,15 +359,9 @@ func _clear_reorder_preview(
 	_preview_insertion_index = -1
 
 func _update_drag_source_appearance(active: bool) -> void:
-	for index in range(_item_container.get_child_count()):
-		if (Global.player.ability_queue.queue[index].id 
-		!= _active_drag_entry_id):
-			continue
-
-		var item: AbilitySequenceItemUI = _item_container.get_child(index) as AbilitySequenceItemUI
-		if item != null:
-			item.set_drag_source_active(active, reorder_animation_duration)
-		return
+	var item: AbilitySequenceItemUI = _find_item(_active_drag_entry_id)
+	if item != null:
+		item.set_drag_source_active(active, reorder_animation_duration)
 
 func _capture_item_positions() -> Dictionary[int, Vector2]:
 	var positions: Dictionary[int, Vector2] = {}
