@@ -189,7 +189,7 @@ func clear_preview() -> void:
 	for character in action_order:
 		character.hologram.visible = false
 		character.mesh.visible = true
-		character.user_interface.visible = character.visible
+		character.user_interface.show_ui()
 		character.user_interface.global_position = character.global_position
 		
 		# Update health bar to use real data (not hologram)

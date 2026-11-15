@@ -1,15 +1,16 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://h6s843qltya5"]
 
-[ext_resource type="Script" path="res://UI/enemy_ability_queue_ui.gd" id="1"]
+[ext_resource type="Script" uid="uid://bb4iivea38vqo" path="res://UI/enemy_ability_queue_ui.gd" id="1"]
 
-[node name="EnemyAbilityQueueUI" type="Node3D"]
+[node name="EnemyAbilityQueueUI" type="Node3D" unique_id=1036633614]
 script = ExtResource("1")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-layer = 1
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1719739736]
 
-[node name="ScreenRoot" type="Control" parent="CanvasLayer"]
+[node name="ScreenRoot" type="Control" parent="CanvasLayer" unique_id=395699571]
+layout_mode = 3
+anchors_preset = 0
 mouse_filter = 2
 
-[node name="Items" type="Node2D" parent="CanvasLayer/ScreenRoot"]
+[node name="Items" type="Node2D" parent="CanvasLayer/ScreenRoot" unique_id=936636298]
 scale = Vector2(0.5, 0.5)

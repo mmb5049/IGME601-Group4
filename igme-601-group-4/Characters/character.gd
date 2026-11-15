@@ -6,7 +6,7 @@ class_name Character
 @export var health:Health
 @export var mesh:MeshInstance3D
 @export var hologram:Hologram
-@export var user_interface:Node3D
+@export var user_interface:CharacterUI
 
 var number_display = preload("res://Misc/number_display.tscn")
 

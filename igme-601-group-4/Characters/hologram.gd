@@ -54,5 +54,5 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 func died() -> void:
 	visible = false
 	if parent is Enemy:
-		(parent as Enemy).user_interface.visible = false
+		(parent as Enemy).user_interface.hide_ui()
 	HexGrid.set_occupied_preview(movement.current_cell,false)

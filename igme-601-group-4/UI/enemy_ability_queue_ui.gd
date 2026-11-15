@@ -138,3 +138,11 @@ func _exit_tree() -> void:
 	# Visibility manager reparents the screen UI into a shared CanvasLayer.
 	if is_instance_valid(_screen_root) and not is_ancestor_of(_screen_root):
 		_screen_root.queue_free()
+
+func _show_ui() -> void:
+	_screen_root.visible = true
+	_items_root.visible = true
+	
+func _hide_ui() -> void:
+	_screen_root.visible = false
+	_items_root.visible = false
