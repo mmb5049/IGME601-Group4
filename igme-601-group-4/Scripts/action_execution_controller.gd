@@ -95,7 +95,7 @@ func _execute_turn() -> void:
 				continue
 			if actor.ability_queue == null or not actor.ability_queue.has_entries():
 				continue
-			execute_next(actor, actor.ability_queue)
+			await execute_next(actor, actor.ability_queue)
 			if _has_pending_actions() and between_actions_delay > 0.0:
 				await get_tree().create_timer(between_actions_delay).timeout
 
