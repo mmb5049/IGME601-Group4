@@ -182,8 +182,19 @@ func preview_queue(index:int) -> void:
 			execute_next(character.hologram, character.hologram.ability_queue)
 			character.user_interface.global_position = character.hologram.global_position
 	
-	# Display preview of enemy abilities
-	
+	# Display targeting choice when previewing mid-queue
+	for character in action_order:
+		
+		## TODO: Implement some way for the player to select which character to preview
+		if not character is PlayerController:
+			break
+		
+		if index < character.ability_queue.size():
+			# Get ability data
+			var queued_ability:QueuedAbility = character.ability_queue.queue.get(index)
+			if queued_ability:
+				character.update_ability_preview(character.hologram.movement.current_cell,
+				queued_ability.ability,false,queued_ability.target)
 
 func clear_preview() -> void:
 	for character in action_order:

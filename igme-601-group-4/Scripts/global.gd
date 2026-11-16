@@ -35,11 +35,11 @@ enum OccupiedType {
 	DYNAMIC = 1 << 1
 }
 
-# returns true if _value has all flags in _flag
+## returns true if _value has all flags in _flag
 func contains_all_flags(_value, _flag) -> bool:
 	return (_value & _flag) == _flag
 
-# returns true if _value has any flag in _flag
+## returns true if _value has any flag in _flag
 func contains_a_flag(_value, _flag) -> bool:
 	return (_value & _flag) != 0
 

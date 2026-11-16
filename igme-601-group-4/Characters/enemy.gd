@@ -40,6 +40,7 @@ var _normal_overlay: Material
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	attack_mask = Global.EntityMask.PLAYER
 	add_to_group("enemies")
 	_health_bar.bind_health(health)
 	health.died.connect(die)
@@ -209,69 +210,9 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 					return false
 			if health.is_dead or is_queued_for_deletion():
 				return false
-			_apply_attack(entry.ability,entry.target,0,Global.EntityMask.PLAYER)
+			_apply_attack(entry.ability,entry.target)
 			return true
 	return false
-
-func update_ability_preview(origin:Vector2i = movement.current_cell, ability = move_ability,
-show_possible:bool = true, target:AbilityTarget  = null) -> void:
-	var possible_material: ShaderMaterial = Global.get_target_material(ability)
-	var target_material: ShaderMaterial = HexGrid.material_select
-	
-	if ability:
-		if not target:
-			#target = evaluate_target(ability, cursor_position, origin)
-			pass
-		else:
-			# use color to show ability type when previewing
-			target_material = possible_material
-	
-	# Display hologram
-	if origin != movement.current_cell:
-		hologram.set_pos(origin)
-	
-	match ability.targeting_type:
-		Global.TargetingType.DIRECTION:
-			if show_possible:
-				for direction: Vector2i in HexGrid.DIRECTIONS:
-					HexGrid.highlight_line(
-						possible_material,
-						origin,
-						direction,
-						ability.range
-					)
-			if target and target.is_valid:
-				HexGrid.highlight_line(
-					target_material,
-					origin,
-					target.direction,
-					ability.range
-				)
-
-		Global.TargetingType.SINGLE_TILE:
-			if show_possible:
-				var cells: Array[Vector2i] = []
-				for radius in range(1, ability.range + 1):
-					cells.append_array(HexGrid.get_ring(origin, radius))
-				HexGrid.highlight_cells(possible_material, cells)
-			if target and target.is_valid:
-				HexGrid.create_highlight(target_material,
-					target.target_cell + origin)
-
-		Global.TargetingType.ANNULAR:
-			if show_possible:
-				var cells: Array[Vector2i] = []
-				for radius in range(1, ability.range + 1):
-					cells.append_array(HexGrid.get_ring(origin, radius))
-				HexGrid.highlight_cells(possible_material, cells)
-			if target and target.is_valid:
-				HexGrid.highlight_cells(target_material, target.resolve_cells(origin))
-
-		Global.TargetingType.SHAPE:
-			pass
-
-		Global.TargetingType.NONE:
-			pass
 	
 func die() -> void:
 	if _dying:

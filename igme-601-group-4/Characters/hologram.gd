@@ -27,6 +27,7 @@ func reset() -> void:
 		health.copy(parent.health)
 	if(parent is Character):
 		ability_queue.copy(parent.ability_queue)
+		attack_mask = parent.attack_mask | Global.EntityMask.HOLOGRAM
 
 func execute_queued_ability(entry: QueuedAbility) -> bool:
 	var ability:Ability = entry.ability
@@ -38,7 +39,7 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 			movement.set_pos(movement.get_destination(ability,target,movement.current_cell),true)
 
 		Global.AbilityType.ATTACK:
-			_apply_attack(entry.ability,entry.target,0,Global.EntityMask.HOLOGRAM,true)
+			_apply_attack(entry.ability,entry.target,0,attack_mask,true)
 		
 		Global.AbilityType.TRAP:
 			# TODO: Implement traps for preview

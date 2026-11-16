@@ -196,6 +196,14 @@ func cancel_targeting() -> void:
 	current_mode = PlayerMode.NONE
 	targeting_ended.emit()
 
+func update_ability_preview(origin:Vector2i = movement.current_cell, ability = selected_ability, 
+show_possible:bool = true, target:AbilityTarget  = null) -> void:
+	if ability and not target:
+		target = evaluate_target(ability, cursor_position, origin)
+		print("test")
+	super(origin, ability, show_possible, target)
+	target_preview_changed.emit(target)
+
 func _confirm_current_target() -> void:
 	if selected_ability == null:
 		return
@@ -221,72 +229,6 @@ func _confirm_current_target() -> void:
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
 	clear_preview()
-
-## Reuses one evaluation result for grid highlighting, indicator feedback, and
-## final confirmation so all three always agree about target legality.
-func update_ability_preview(origin:Vector2i = movement.current_cell, ability = selected_ability, 
-show_possible:bool = true, target:AbilityTarget  = null) -> void:
-	var possible_material: ShaderMaterial = Global.get_target_material(ability)
-	var target_material: ShaderMaterial = HexGrid.material_select
-	
-	if ability:
-		if not target:
-			target = evaluate_target(ability, cursor_position, origin)
-		else:
-			# use color to show ability type when previewing
-			target_material = possible_material
-	match ability.targeting_type:
-		Global.TargetingType.DIRECTION:
-			if show_possible:
-				for direction: Vector2i in HexGrid.DIRECTIONS:
-					var length:int = HexGrid.hex_distance(
-						origin,
-						HexGrid.raycast(origin,direction,ability.range,Global.EntityMask.ALL,true)
-						)
-					HexGrid.highlight_line(
-						possible_material,
-						origin,
-						direction,
-						length
-					)
-			if target and target.is_valid:
-				var length:int = HexGrid.hex_distance(
-						origin,
-						HexGrid.raycast(origin,target.direction,ability.range,Global.EntityMask.ALL,true)
-						)
-				HexGrid.highlight_line(
-					target_material,
-					origin,
-					target.direction,
-					length
-				)
-
-		Global.TargetingType.SINGLE_TILE:
-			if show_possible:
-				var cells: Array[Vector2i] = []
-				for radius in range(1, ability.range + 1):
-					cells.append_array(HexGrid.get_ring(origin, radius))
-				HexGrid.highlight_cells(possible_material, cells)
-			if target and target.is_valid:
-				HexGrid.create_highlight(target_material,
-					target.target_cell + origin)
-
-		Global.TargetingType.ANNULAR:
-			if show_possible:
-				var cells: Array[Vector2i] = []
-				for radius in range(1, ability.range + 1):
-					cells.append_array(HexGrid.get_ring(origin, radius))
-				HexGrid.highlight_cells(possible_material, cells)
-			if target and target.is_valid:
-				HexGrid.highlight_cells(target_material, target.resolve_cells(origin))
-
-		Global.TargetingType.SHAPE:
-			pass
-
-		Global.TargetingType.NONE:
-			pass
-
-	target_preview_changed.emit(target)
 
 ## Produces a typed target without changing UI or grid state.
 func evaluate_target(ability: Ability, mouse_position: Vector2, origin:Vector2i) -> AbilityTarget:
