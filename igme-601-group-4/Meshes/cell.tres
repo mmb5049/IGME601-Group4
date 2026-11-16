@@ -1,6 +1,6 @@
 [gd_resource type="CylinderMesh" format=3 uid="uid://cl4ij08f0j15e"]
 
-[ext_resource type="Material" uid="uid://dy77xl57hh74m" path="res://Materials/hex_base.tres" id="1_67iev"]
+[ext_resource type="Material" uid="uid://dy77xl57hh74m" path="res://Materials/Hex/hex_base.tres" id="1_67iev"]
 
 [resource]
 material = ExtResource("1_67iev")

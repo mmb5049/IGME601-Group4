@@ -6,6 +6,7 @@ class_name Health
 @onready var number_display = preload("res://Misc/number_display.tscn")
 
 @export_category("Health")
+@warning_ignore("shadowed_global_identifier")
 @export var max: int = 20
 var current: int = 20
 var is_dead: bool = false

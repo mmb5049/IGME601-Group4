@@ -38,7 +38,8 @@ func _ready() -> void:
 	execute_button.execute_requested.connect(_on_execute_requested)
 	# Arena._ready() spawns enemies after this child becomes ready.
 	begin_preparation.call_deferred()
-
+	if not obstacles:
+		push_warning("Obstacle parent not set")
 
 func begin_preparation() -> void:
 	if _is_executing or current_phase == TurnPhase.PREPARATION:
@@ -136,6 +137,7 @@ func execute_next(actor: Character, queue_source: AbilityQueue) -> bool:
 	# await also accepts an immediate return value. Movement abilities suspend
 	# here until CharacterMovement emits done_moving; attacks and Wait complete
 	# synchronously and proceed directly to queue consumption.
+	@warning_ignore("redundant_await")
 	var succeeded: bool = await actor.execute_queued_ability(entry)
 	if(actor is PlayerController):
 		player_queue_UI.consume_entry(entry.id)

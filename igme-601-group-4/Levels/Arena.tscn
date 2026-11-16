@@ -32,7 +32,7 @@ glow_hdr_luminance_cap = 46.67
 
 [sub_resource type="Compositor" id="Compositor_fy3br"]
 
-[node name="Arena" type="Node3D" unique_id=1193273823]
+[node name="Arena2" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
 
 [node name="Camera3D" parent="." unique_id=870503545 instance=ExtResource("2_q8r1i")]
@@ -80,7 +80,6 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("8_ability_bar")]
-layout_mode = 1
 abilities = Array[ExtResource("4_kn3ki")]([ExtResource("6_k3an4"), ExtResource("7_ifjt6"), ExtResource("9_4yh7d"), ExtResource("5_8ml7l"), ExtResource("8_f1bm4"), ExtResource("14_exqbx"), ExtResource("10_d75p2"), null, null])
 rotation_step_degrees = 3.0
 breathing_amplitude_pixels = 2.0
@@ -88,13 +87,10 @@ breathing_speed_hz = 0.25
 hover_lift_pixels = 26.0
 
 [node name="AbilitySequenceUI" parent="GlobalUIRoot/SwayLayer" unique_id=1775434780 instance=ExtResource("10_ability_sequence")]
-layout_mode = 1
 
 [node name="ActionDockUI" parent="GlobalUIRoot/SwayLayer" unique_id=1286708918 instance=ExtResource("11_action_dock")]
-layout_mode = 1
 
 [node name="AbilityInfoUi" parent="GlobalUIRoot/SwayLayer" unique_id=200573368 instance=ExtResource("19_sb1hv")]
-layout_mode = 1
 
 [node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue_UI", "player_ability_bar", "execute_button", "obstacles")]
 script = ExtResource("13_action_executor")

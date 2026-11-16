@@ -8,19 +8,11 @@
 [ext_resource type="Resource" uid="uid://bd8u5js5idheq" path="res://Abilities/Wait.tres" id="6_wait"]
 [ext_resource type="Resource" uid="uid://ws7vkafabric" path="res://Abilities/Trap.tres" id="7_i5ni0"]
 
-[node name="AbilityBarUI" type="Control" unique_id=880316113]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
+[node name="AbilityBarUI" type="CanvasLayer" unique_id=1123829999]
 script = ExtResource("1_bar_script")
 abilities = Array[ExtResource("2_ability_type")]([ExtResource("3_dash"), ExtResource("4_move"), ExtResource("5_slash"), ExtResource("6_wait"), ExtResource("7_i5ni0"), null])
 
 [node name="BottomMargin" type="MarginContainer" parent="." unique_id=1386646230]
-layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

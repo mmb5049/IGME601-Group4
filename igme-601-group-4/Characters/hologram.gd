@@ -15,11 +15,12 @@ func _ready() -> void:
 		if parent is Enemy:
 			await parent.ready
 			health.changed.connect(
-				func(current,max):
-					(parent as Enemy)._health_bar._update_health(current,max,false)
+				func(_current,_max):
+					(parent as Enemy)._health_bar._update_health(_current,_max,false)
 			)
 
 func reset() -> void:
+	@warning_ignore("int_as_enum_without_cast")
 	entity_type = Global.EntityMask.HOLOGRAM | parent.entity_type
 	if(movement):
 		movement.copy(parent.movement)

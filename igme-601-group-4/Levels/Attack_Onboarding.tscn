@@ -4,9 +4,7 @@
 [ext_resource type="Script" uid="uid://t4kd0j6ad157" path="res://Arena Features/WallData.gd" id="2_jb6uf"]
 [ext_resource type="Script" uid="uid://bx20wmawrkbto" path="res://Levels/scene_transition.gd" id="2_qks1h"]
 [ext_resource type="PackedScene" uid="uid://b0576k1jo61m6" path="res://Levels/Arena.tscn" id="3_qmiul"]
-[ext_resource type="Shader" uid="uid://ckx4elrx78lc3" path="res://UI/Onboarding_Movement/Darken_UI.gdshader" id="4_p7nde"]
-[ext_resource type="Script" uid="uid://dw3gn3rw8c31k" path="res://UI/Onboarding_Movement/Darken_UI.gd" id="5_a3uxg"]
-[ext_resource type="Script" uid="uid://bb0hd8ec4i4l0" path="res://Scripts/hex_grid.gd" id="6_jb6uf"]
+[ext_resource type="PackedScene" uid="uid://for1r2yqd4ve" path="res://UI/darken_ui.tscn" id="5_0f17p"]
 [ext_resource type="PackedScene" uid="uid://c7oel5paqcgs5" path="res://Arena Features/camera_3d.tscn" id="7_2684n"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="7_amkee"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="8_0f17p"]
@@ -117,11 +115,6 @@ script = ExtResource("2_jb6uf")
 position = Vector2i(1, 0)
 metadata/_custom_type_script = "uid://t4kd0j6ad157"
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_kvn1v"]
-shader = ExtResource("4_p7nde")
-shader_parameter/cutout_position = Vector2(950, 1000)
-shader_parameter/cutout_size = Vector2(800, 200)
-
 [sub_resource type="Environment" id="Environment_pdfgs"]
 glow_enabled = true
 glow_hdr_luminance_cap = 46.67
@@ -139,31 +132,16 @@ shader_parameter/scanline_intensity = 0.3
 script = ExtResource("1_5lmnt")
 onBoardMovement = true
 walls = Array[ExtResource("2_jb6uf")]([SubResource("Resource_gs75m"), SubResource("Resource_0f3il"), SubResource("Resource_gtgc1"), SubResource("Resource_o8tsv"), SubResource("Resource_jb6uf"), SubResource("Resource_amkee"), SubResource("Resource_0f17p"), SubResource("Resource_jt7y4"), SubResource("Resource_2684n"), SubResource("Resource_8ijtj"), SubResource("Resource_agwup"), SubResource("Resource_nvfdb"), SubResource("Resource_n0vt4"), SubResource("Resource_4a8jy"), SubResource("Resource_hcmnr"), SubResource("Resource_b1rjk")])
+player_start = Vector2i(-4, 0)
 
 [node name="SceneTransition" type="Node" parent="." unique_id=1919496798 node_paths=PackedStringArray("glitch_tv")]
 script = ExtResource("2_qks1h")
 glitch_tv = NodePath("../TVGlitch/ColorRect")
 NEXT_SCENE = ExtResource("3_qmiul")
 
-[node name="DarkenUI" type="CanvasLayer" parent="." unique_id=1948548575]
-
-[node name="ColorRect" type="ColorRect" parent="DarkenUI" unique_id=1098515360]
-visible = false
-material = SubResource("ShaderMaterial_kvn1v")
-custom_maximum_size = Vector2(20000, 20000)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.5)
-script = ExtResource("5_a3uxg")
+[node name="DarkenUI" parent="." unique_id=1972266123 instance=ExtResource("5_0f17p")]
 
 [node name="Camera3D" parent="." unique_id=870503545 instance=ExtResource("7_2684n")]
-
-[node name="HexGrid" type="Node3D" parent="." unique_id=391055418]
-script = ExtResource("6_jb6uf")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
@@ -172,9 +150,6 @@ transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41
 abilities = Array[ExtResource("8_0f17p")]([ExtResource("9_2684n"), ExtResource("10_8ijtj"), ExtResource("11_a3uxg"), ExtResource("12_jb6uf"), ExtResource("13_amkee"), ExtResource("14_0f17p"), ExtResource("15_2684n")])
 self_enhance_effect_scene = ExtResource("11_agwup")
 ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
-
-[node name="Movement" parent="Player" index="1" unique_id=1414287046]
-spawn_position = Vector2i(-4, 0)
 
 [node name="HUD" parent="." unique_id=1670573114 instance=ExtResource("13_jt7y4")]
 
@@ -204,7 +179,6 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("15_n0vt4")]
-layout_mode = 1
 abilities = Array[ExtResource("8_0f17p")]([ExtResource("10_8ijtj"), ExtResource("11_a3uxg"), ExtResource("12_jb6uf"), ExtResource("9_2684n"), ExtResource("13_amkee"), ExtResource("15_2684n"), ExtResource("14_0f17p")])
 rotation_step_degrees = 3.0
 breathing_amplitude_pixels = 2.0
@@ -212,21 +186,19 @@ breathing_speed_hz = 0.25
 hover_lift_pixels = 26.0
 
 [node name="AbilitySequenceUI" parent="GlobalUIRoot/SwayLayer" unique_id=1775434780 instance=ExtResource("16_hcmnr")]
-layout_mode = 1
 
 [node name="ActionDockUI" parent="GlobalUIRoot/SwayLayer" unique_id=1286708918 instance=ExtResource("17_b1rjk")]
-layout_mode = 1
 
 [node name="AbilityInfoUi" parent="GlobalUIRoot/SwayLayer" unique_id=200573368 instance=ExtResource("18_bp6t6")]
-layout_mode = 1
 
-[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue", "player_ability_bar", "execute_button")]
+[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue_UI", "player_ability_bar", "execute_button", "obstacles")]
 script = ExtResource("19_jomx8")
 player_actor = NodePath("../Player")
-player_queue = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+player_queue_UI = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
 execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
 between_actions_delay = 0.45
+obstacles = NodePath("../Obstacles")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136143873]
 environment = SubResource("Environment_pdfgs")
@@ -235,6 +207,8 @@ compositor = SubResource("Compositor_fy3br")
 
 [node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("20_jyi0n")]
 visible = false
+
+[node name="Obstacles" type="Node3D" parent="." unique_id=1639613052]
 
 [node name="TVGlitch" type="CanvasLayer" parent="." unique_id=490933593]
 
@@ -267,19 +241,24 @@ Reach the highlight tile"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="Obstacles" type="Node3D" parent="." unique_id=1639613052]
-
-[node name="AttackOnboardingUI" type="CanvasLayer" parent="." unique_id=1767770669 node_paths=PackedStringArray("darkenUI", "task_panel")]
+[node name="AttackOnboardingUI" type="CanvasLayer" parent="." unique_id=1767770669 node_paths=PackedStringArray("darken_ui", "task_panel")]
+layer = 3
 script = ExtResource("30_amkee")
-darkenUI = NodePath("../DarkenUI/ColorRect")
+darken_ui = NodePath("../DarkenUI")
 task_panel = NodePath("../TVGlitch/Task")
 
 [node name="Prompt" type="PanelContainer" parent="AttackOnboardingUI" unique_id=215854079]
-visible = false
-offset_left = 450.0
-offset_top = 874.0
-offset_right = 1606.0
-offset_bottom = 923.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -578.0
+offset_top = -24.5
+offset_right = 578.0
+offset_bottom = 24.5
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="Text" type="Label" parent="AttackOnboardingUI/Prompt" unique_id=364307511]
 layout_mode = 2
@@ -295,7 +274,6 @@ text = "These pillars can be broken using an attack ability"
 [connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
 
-[editable path="Player"]
 [editable path="GlobalUIRoot/SwayLayer/AbilityBarUI"]
 [editable path="GlobalUIRoot/SwayLayer/AbilitySequenceUI"]
 [editable path="GlobalUIRoot/SwayLayer/ActionDockUI"]

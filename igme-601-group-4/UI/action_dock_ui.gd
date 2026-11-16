@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 class_name ActionDockUI
 
 const HEX_DISPLAY_SCENE := preload("res://UI/AbilityHexDisplayUI.tscn")

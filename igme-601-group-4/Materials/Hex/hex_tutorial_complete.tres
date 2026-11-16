@@ -1,10 +1,10 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://b7r4fcosjx65"]
 
-[ext_resource type="Shader" uid="uid://ki1kfwdpc5si" path="res://Materials/Shaders/hex_glow.gdshader" id="1_2g0f7"]
+[ext_resource type="Shader" uid="uid://ki1kfwdpc5si" path="res://Materials/Shaders/hex_glow.gdshader" id="1_houuy"]
 
 [resource]
-render_priority = 0
-shader = ExtResource("1_2g0f7")
+render_priority = 1
+shader = ExtResource("1_houuy")
 shader_parameter/base_color = Color(0.48452926, 0.48452926, 0.48452926, 1)
 shader_parameter/glow_color = Color(1, 1, 1, 1)
 shader_parameter/glow_strength = 4.0

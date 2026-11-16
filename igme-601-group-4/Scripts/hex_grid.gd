@@ -13,18 +13,18 @@ var highlighted_cells: Dictionary = {}
 
 var hex_mesh := preload("res://Meshes/cell.tres")
 
-##Tutorial
-var tutorial_target_cell: Vector2i = Vector2i.ZERO
-var tutorial_target_active: bool = false
-var tutorial_target_reached: bool = false
+# Goal
+var goal_cell: Vector2i = Vector2i.ZERO
+var goal_active: bool = false
+var goal_reached: bool = false
 
 # Materials
-var material_base := preload("res://Materials/hex_base.tres")
-var material_attack := preload("res://Materials/hex_glow_attack.tres")
-var material_move := preload("res://Materials/hex_glow_move.tres")
-var material_select := preload("res://Materials/hex_glow_select.tres")
-var material_tutorial_target := preload("res://Materials/hex_tutorial_target.tres")
-var material_tutorial_complete := preload("res://Materials/hex_tutorial_complete.tres")
+var material_base := preload("res://Materials/Hex/hex_base.tres")
+var material_attack := preload("res://Materials/Hex/hex_glow_attack.tres")
+var material_move := preload("res://Materials/Hex/hex_glow_move.tres")
+var material_select := preload("res://Materials/Hex/hex_glow_select.tres")
+var material_goal_target := preload("res://Materials/Hex/hex_tutorial_target.tres")
+var material_goal_complete := preload("res://Materials/Hex/hex_tutorial_complete.tres")
 
 const DIRECTIONS = [
 	Vector2i(1, 0),
@@ -262,7 +262,6 @@ func clear_highlights():
 		if cell_meshes.has(coord):
 			cell_meshes[coord].material_overlay = null
 	highlighted_cells.clear()
-	
 	# Restore the tutorial highlight if it is active.
 	update_tutorial_highlight()
 
@@ -324,50 +323,43 @@ func set_tutorial_target(coord: Vector2i) -> void:
 	if not is_valid_cell(coord):
 		return
 
-	tutorial_target_cell = coord
-	tutorial_target_active = true
-	tutorial_target_reached = false
+	goal_cell = coord
+	goal_active = true
+	goal_reached = false
 
 	update_tutorial_highlight()
 
 
 func update_tutorial_highlight() -> void:
-	if not tutorial_target_active:
+	if not goal_active:
 		return
 
-	if not cell_meshes.has(tutorial_target_cell):
+	if not cell_meshes.has(goal_cell):
 		return
 
 	var material: ShaderMaterial
 
-	if tutorial_target_reached:
-		material = material_tutorial_complete
+	if goal_reached:
+		material = material_goal_complete
 	else:
-		material = material_tutorial_target
+		material = material_goal_target
+	create_highlight(material, goal_cell)
 
-	cell_meshes[tutorial_target_cell].material_overlay = material
-
-
-func reach_tutorial_target() -> void:
-	if not tutorial_target_active or tutorial_target_reached:
+func reached_goal() -> void:
+	if not goal_active or goal_reached:
 		return
-
-	tutorial_target_reached = true
+	goal_reached = true
 	update_tutorial_highlight()
 	tutorial_target_completed.emit()
 
-	print("Tutorial destination reached!")
-
-
-func clear_tutorial_target() -> void:
-	if not tutorial_target_active:
+func clear_goal() -> void:
+	if not goal_active:
 		return
 
-	if cell_meshes.has(tutorial_target_cell):
-		cell_meshes[tutorial_target_cell].material_override = null
+	goal_active = false
+	goal_reached = false
+	clear_highlights()
 
-	tutorial_target_active = false
-	tutorial_target_reached = false
 # Check all entities and cast to their respective classes
 func cast_entities() -> void:
 	for cell in occupied_cells:

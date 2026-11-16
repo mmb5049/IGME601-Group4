@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 class_name AbilitySequenceUI
 
 ## Emitted whenever an entry is added, removed, or reordered.
@@ -233,7 +233,7 @@ func _on_item_reorder_requested(
 	var previous_positions: Dictionary[int, Vector2] = _capture_item_positions()
 	# The dragged entry must continue from the icon under the player's cursor,
 	# not from the now-empty slot where that entry originally lived.
-	previous_positions[dragged_entry_id] = get_canvas_transform().affine_inverse() * (
+	previous_positions[dragged_entry_id] = get_final_transform().affine_inverse() * (
 		CRTOverlay.get_content_mouse_position(get_viewport())
 	)
 	_clear_reorder_preview(false)

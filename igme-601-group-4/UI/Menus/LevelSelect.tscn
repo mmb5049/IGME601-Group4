@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://137s5mg3vfg3" path="res://UI/Menus/LevelNode.tscn" id="2_node"]
 [ext_resource type="PackedScene" uid="uid://cqaqm6pjwq766" path="res://Levels/Movement_Onboarding.tscn" id="3_tutorial"]
 [ext_resource type="PackedScene" uid="uid://b0576k1jo61m6" path="res://Levels/Arena.tscn" id="4_arena"]
+[ext_resource type="PackedScene" uid="uid://i65lwsdvht24" path="res://Levels/Attack_Onboarding.tscn" id="6_yhrh5"]
 
 [sub_resource type="Environment" id="Environment_route"]
 background_mode = 1
@@ -28,20 +29,22 @@ size = 15.259
 
 [node name="MovementTutorial" parent="Levels" unique_id=1384848381 instance=ExtResource("2_node")]
 level_id = &"1"
-level_name = "Movement Tutorial"
+level_name = "I/O Board"
 level_scene = ExtResource("3_tutorial")
 
 [node name="Arena" parent="Levels" unique_id=1590162674 instance=ExtResource("2_node")]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 10.803042, 1.9073486e-06, 3.123292)
-level_id = &"2"
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 18.776112, 1.9073486e-06, -0.02574253)
+active = false
+level_id = &"3"
 level_name = "Arena"
 level_scene = ExtResource("4_arena")
 
 [node name="LevelNode" parent="Levels" unique_id=1446866354 instance=ExtResource("2_node")]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 24.434662, -3.8146973e-06, -0.26423264)
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 9.3465, -3.8146973e-06, 3.4871554)
 active = false
-level_id = &"3"
-level_name = "Type Name Here"
+level_id = &"2"
+level_name = "Motherboard"
+level_scene = ExtResource("6_yhrh5")
 
 [node name="LevelNode2" parent="Levels" unique_id=1351070229 instance=ExtResource("2_node")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 35.21961, 0, 2.486742)

@@ -206,6 +206,7 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 			return await movement.execute_directional_move(entry.target.direction, entry.ability.range)
 		Global.AbilityType.ATTACK:
 			if entry.ability.presentation != null:
+				@warning_ignore("redundant_await")
 				if not await entry.ability.presentation.play(self, mesh, entry.target):
 					return false
 			if health.is_dead or is_queued_for_deletion():

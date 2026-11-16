@@ -21,9 +21,15 @@ var wall_breakable_scene = preload("res://Arena Features/breakable_wall.tscn")
 var enemies:Array[Enemy]
 var total_enemies:int = 0
 
+@export var player_start:Vector2i = Vector2i.MIN
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	HexGrid.reset()
+	
+	if player_start != Vector2i.MIN:
+		Global.player.movement.set_pos(player_start)
+	
 	if gameOverScreen:
 		gameOverScreen.restart_game.connect(func(): get_tree().reload_current_scene())
 

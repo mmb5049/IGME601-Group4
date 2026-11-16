@@ -39,7 +39,7 @@ var self_enhance_effect: Node3D = null
 var selected_ability: Ability = null
 var cursor_position: Vector2 = Vector2.ZERO
 var _last_preview_target: AbilityTarget
-var _last_preview_origin: Vector2i
+#var _last_preview_origin: Vector2i
 
 ## Remains true across the small gaps between queued abilities. current_mode
 ## alone cannot provide this lock because each individual action resets it.
@@ -200,7 +200,6 @@ func update_ability_preview(origin:Vector2i = movement.current_cell, ability = s
 show_possible:bool = true, target:AbilityTarget  = null) -> void:
 	if ability and not target:
 		target = evaluate_target(ability, cursor_position, origin)
-		print("test")
 	super(origin, ability, show_possible, target)
 	target_preview_changed.emit(target)
 
@@ -345,6 +344,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 		Global.AbilityType.ATTACK:
 			#_attack_applied = false
 			if ability.presentation != null:
+				@warning_ignore("redundant_await")
 				var completed: bool = await ability.presentation.play(self, presentation_visual, target)
 				if completed and not health.is_dead:
 					_apply_attack(ability,target)
@@ -480,11 +480,11 @@ func clear_preview() -> void:
 	action_execution_controller.clear_preview()
 
 func check_tutorial_destination() -> void:
-	if not HexGrid.tutorial_target_active:
+	if not HexGrid.goal_active:
 		return
 
-	if HexGrid.tutorial_target_reached:
+	if HexGrid.goal_reached:
 		return
 
-	if movement.current_cell == HexGrid.tutorial_target_cell:
-		HexGrid.reach_tutorial_target()
+	if movement.current_cell == HexGrid.goal_cell:
+		HexGrid.reached_goal()
