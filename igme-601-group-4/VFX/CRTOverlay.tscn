@@ -7,7 +7,7 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pixelation"]
 resource_local_to_scene = true
 shader = ExtResource("3_pixelation")
-shader_parameter/pixel_size = 1.0
+shader_parameter/pixel_size = 2.0
 shader_parameter/chromatic_aberration_pixels = 1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]

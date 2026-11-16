@@ -115,7 +115,7 @@ func show_queue () -> void:
 	
 	# Highlight queue
 	darkenUI.highlight_UI(ability_sequence)
-	prompt_label.text = "Ability got added to queue"
+	prompt_label.text = "The ability got added to queue"
 	await user_input
 	prompt_hover_queue()
 	
@@ -143,7 +143,7 @@ func prompt_multiple_ability() -> void:
 	if current_step != TutorialStep.PRESS_START:
 		return
 	current_step = TutorialStep.PROMPT_MULTIPLE_ABILITY
-	prompt_label.text = "You can add multiple ability to the queue before execute it!"
+	prompt_label.text = "You can add multiple abilities to the queue before executing it!"
 	tutorial_panel.show()
 	await user_input
 	complete_ability_tutorial()

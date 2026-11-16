@@ -30,7 +30,6 @@ func start_attack_tutorial() -> void:
 	#highlight walls
 	darken_ui.show()
 	
-	
 	prompt_panel.show()
 	prompt_text.text = "Some pillars can be broken using an attack ability"
 	await user_input
