@@ -47,3 +47,9 @@ func get_target_material(ability: Ability) -> ShaderMaterial:
 	if ability.type == Global.AbilityType.MOVEMENT:
 		return HexGrid.material_move
 	return HexGrid.material_attack
+
+## switch to an instantiated scene
+func switch_scenes(scene) -> void:
+	get_tree().root.add_child(scene)
+	get_tree().current_scene.queue_free()
+	get_tree().current_scene = scene

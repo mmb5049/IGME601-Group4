@@ -16,7 +16,7 @@ signal notification_requested(message: String)
 const INVALID_CELL := Vector2i(2147483647, 2147483647)
 const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 
-@onready var camera: Camera3D = get_viewport().get_camera_3d()
+var camera: Camera3D
 @export var animationManager:AnimationManager
 ## Outer pivot isolates procedural movement from AnimationPlayer root tracks.
 @export var presentation_visual: Node3D
@@ -60,6 +60,9 @@ enum PlayerMode {
 var current_mode: PlayerMode = PlayerMode.NONE
 
 func _ready() -> void:
+	await get_parent().last_scene_done
+	Global.player = self
+	
 	entity_type = Global.EntityMask.PLAYER
 	
 	movement.set_pos(movement.spawn_position)
@@ -74,7 +77,8 @@ func _ready() -> void:
 	func(ability: Ability):
 		refund_mana(ability.cost)
 	)
-	Global.player = self
+	
+	camera = get_viewport().get_camera_3d()
 	
 	## TODO: There is a weird bug where setting the occupancy at on_ready doesn't 
 	## allow the enemies to read that a player is on this tile. Setting the position 
@@ -190,7 +194,6 @@ func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
 		return
 	
-	print("cancel")
 	clear_preview()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
@@ -435,6 +438,7 @@ func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 	return HexGrid.world_to_hex(local_position)
 
 func spend_mana(amount: int) -> bool:
+	print("spending mana: " + str(amount))
 	if amount < 0 or current_mana < amount:
 		return false
 

@@ -40,12 +40,11 @@ shader_parameter/scanline_intensity = 0.3
 
 [node name="Arena" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_vc7xe")
-onBoardMovement = true
 
 [node name="SceneTransition" type="Node" parent="." unique_id=1919496798 node_paths=PackedStringArray("glitch_tv")]
 script = ExtResource("2_5wh74")
 glitch_tv = NodePath("../TVGlitch/ColorRect")
-NEXT_SCENE = ExtResource("3_5wh74")
+next_stage = ExtResource("3_5wh74")
 
 [node name="DarkenUI" parent="." unique_id=1972266123 instance=ExtResource("4_wg0dr")]
 
@@ -53,6 +52,11 @@ NEXT_SCENE = ExtResource("3_5wh74")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
 transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
+
+[node name="Obstacles" type="Node3D" parent="." unique_id=739621331]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.3841858e-07, -1.1920929e-07)
+
+[node name="Enemies" type="Node3D" parent="." unique_id=1742302211]
 
 [node name="Player" parent="." unique_id=372403699 node_paths=PackedStringArray("ability_sequence_ui") groups=["player"] instance=ExtResource("3_ix0gq")]
 abilities = Array[ExtResource("4_5wh74")]([ExtResource("5_wg0dr"), ExtResource("6_nngry")])
@@ -87,7 +91,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("16_3wnhm")]
-abilities = Array[ExtResource("4_5wh74")]([ExtResource("6_nngry"), ExtResource("5_wg0dr"), null, null])
+abilities = Array[ExtResource("4_5wh74")]([ExtResource("6_nngry"), ExtResource("5_wg0dr")])
 rotation_step_degrees = 3.0
 breathing_amplitude_pixels = 2.0
 breathing_speed_hz = 0.25
@@ -99,22 +103,24 @@ hover_lift_pixels = 26.0
 
 [node name="AbilityInfoUi" parent="GlobalUIRoot/SwayLayer" unique_id=200573368 instance=ExtResource("19_vp6my")]
 
-[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue_UI", "player_ability_bar", "execute_button")]
+[node name="GameOver" parent="GlobalUIRoot" unique_id=1785312048 instance=ExtResource("21_py3uu")]
+unique_name_in_owner = true
+visible = false
+
+[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue_UI", "player_ability_bar", "enemy_parent", "execute_button", "obstacles")]
 script = ExtResource("20_inylp")
 player_actor = NodePath("../Player")
 player_queue_UI = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+enemy_parent = NodePath("../Enemies")
 execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
 between_actions_delay = 0.45
+obstacles = NodePath("../Obstacles")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136143873]
 environment = SubResource("Environment_pdfgs")
 camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
 compositor = SubResource("Compositor_fy3br")
-
-[node name="GameOver" parent="." unique_id=1785312048 instance=ExtResource("21_py3uu")]
-unique_name_in_owner = true
-visible = false
 
 [node name="MovementOnboardUI" type="CanvasLayer" parent="." unique_id=1059049711 node_paths=PackedStringArray("ability_bar", "ability_sequence", "action_execute", "ability_info_ui", "start_button", "darkenUI", "task_panel")]
 layer = 3
@@ -215,4 +221,4 @@ horizontal_alignment = 1
 [editable path="GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI"]
 [editable path="GlobalUIRoot/SwayLayer/ActionDockUI/OperationIndicatorUI"]
 [editable path="GlobalUIRoot/SwayLayer/AbilityInfoUi"]
-[editable path="GameOver"]
+[editable path="GlobalUIRoot/GameOver"]

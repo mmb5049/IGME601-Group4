@@ -16,6 +16,7 @@ signal action_finished(actor: Node, entry: QueuedAbility, succeeded: bool)
 @export var player_actor: PlayerController
 @export var player_queue_UI: AbilitySequenceUI
 @export var player_ability_bar: AbilityBarUI
+@export var enemy_parent:Node3D
 @export var execute_button: ExecuteButtonUI
 
 ## Instant abilities could otherwise consume several queue entries in one
@@ -32,6 +33,7 @@ var action_order: Array[Character] = []
 @export var obstacles:Node3D 
 
 func _ready() -> void:
+	await get_parent().last_scene_done
 	if execute_button == null:
 		push_error("ActionExecutionController needs an ExecuteButtonUI reference.")
 		return
@@ -51,7 +53,7 @@ func begin_preparation() -> void:
 	player_actor.action_number = 1
 	action_order.append(player_actor)
 	var enemies: Array[Enemy] = []
-	for node in get_tree().get_nodes_in_group("enemies"):
+	for node in enemy_parent.get_children():
 		if node is Enemy and get_parent().is_ancestor_of(node) and _actor_can_act(node):
 			enemies.append(node)
 	enemies.shuffle()
@@ -157,8 +159,15 @@ func _set_planning_interaction_enabled(enabled: bool) -> void:
 # Runs a simulation of the queue to see a future state
 # Utilize hologram data to get preview information
 func preview_queue(index:int) -> void:
+	#if index <= 0:
+		#print("zero")
 	# Reset character holograms
-	for character in action_order:
+	for i:int in range(0,action_order.size()):
+		var character = action_order[i]
+		if not is_instance_valid(character):
+			action_order.remove_at(i)
+			i -= 1
+			continue
 		character.hologram.reset()
 		character.hologram.visible = true
 		character.mesh.visible = false
@@ -199,7 +208,12 @@ func preview_queue(index:int) -> void:
 				queued_ability.ability,false,queued_ability.target)
 
 func clear_preview() -> void:
-	for character in action_order:
+	for i:int in range(0,action_order.size()):
+		var character = action_order[i]
+		if not is_instance_valid(character):
+			action_order.remove_at(i)
+			i -= 1
+			continue
 		character.hologram.visible = false
 		character.mesh.visible = true
 		character.user_interface.show_ui()

@@ -1,7 +1,7 @@
 extends Node
 
 @onready var _arena: Node = get_parent()
-@onready var _game_over: Control = _arena.get_node("%GameOver")
+@onready var _game_over: CanvasLayer = _arena.get_node("%GameOver")
 
 var hovered_enemy: Enemy
 var _mouse_inside: bool = true

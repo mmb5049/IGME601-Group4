@@ -51,6 +51,7 @@ func reset():
 		traps[coord].queue_free()
 	traps.clear()
 	occupied_cells.clear()
+	occupied_cells_preview.clear()
 	hex_height = hex_mesh.height
 	generate_grid()
 

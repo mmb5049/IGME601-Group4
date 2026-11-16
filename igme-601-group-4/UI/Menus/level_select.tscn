@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://byskgdomf4xs0"]
+
+[ext_resource type="Script" uid="uid://bal71247go6f7" path="res://UI/Menus/level_select.gd" id="1_tinl6"]
+[ext_resource type="PackedScene" uid="uid://ct5d84slhdgyj" path="res://VFX/CRTOverlay.tscn" id="2_pmvu6"]
+[ext_resource type="PackedScene" uid="uid://dwkqh617qukd1" path="res://UI/Menus/level_node.tscn" id="3_ccgke"]
+[ext_resource type="PackedScene" uid="uid://cqaqm6pjwq766" path="res://Levels/Movement_Onboarding.tscn" id="4_qaiwm"]
+[ext_resource type="PackedScene" uid="uid://b0576k1jo61m6" path="res://Levels/Arena.tscn" id="5_4hgqp"]
+
+[sub_resource type="Environment" id="Environment_route"]
+background_mode = 1
+
+[node name="LevelSelect" type="Node3D" unique_id=1745154020]
+script = ExtResource("1_tinl6")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2039004678]
+environment = SubResource("Environment_route")
+
+[node name="CRTOverlay" parent="." unique_id=1019875901 instance=ExtResource("2_pmvu6")]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1362488675]
+transform = Transform3D(1, 0, 0, 0, 0.7071067, 0.7071068, 0, -0.7071068, 0.7071067, 3.51667, 9.265353, 11.39615)
+cull_mask = 2
+projection = 1
+current = true
+size = 15.259
+
+[node name="Levels" type="Node3D" parent="." unique_id=332864055]
+
+[node name="IO Panel" parent="Levels" unique_id=1224281857 node_paths=PackedStringArray("next_levels") instance=ExtResource("3_ccgke")]
+next_levels = [NodePath("../Motherboard")]
+level_name = "I/O Panel"
+level_scene = ExtResource("4_qaiwm")
+
+[node name="Motherboard" parent="Levels" unique_id=1205440517 instance=ExtResource("3_ccgke")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 9.744285, 0, 4.3709435)
+active = false
+level_id = &"2"
+level_name = "Motherboard"
+level_scene = ExtResource("5_4hgqp")
+
+[node name="Hard Drive" parent="Levels" unique_id=470409494 instance=ExtResource("3_ccgke")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 17.493511, 1.9073486e-06, -3.9307866)
+active = false
+level_id = &"3"
+level_name = "Hard Drive"
+level_scene = ExtResource("5_4hgqp")
+
+[node name="RAM" parent="Levels" unique_id=865771352 instance=ExtResource("3_ccgke")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 24.759428, 1.9073486e-06, 1.7010651)
+active = false
+level_id = &"4"
+level_name = "RAM"
+level_scene = ExtResource("5_4hgqp")

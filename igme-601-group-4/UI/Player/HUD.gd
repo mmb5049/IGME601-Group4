@@ -9,6 +9,7 @@ extends CanvasLayer
 var notification_id: int = 0
 
 func _ready() -> void:
+	await get_parent().last_scene_done
 	Global.player = get_tree().get_first_node_in_group("player") as PlayerController
 	
 	notification_label.text = ""

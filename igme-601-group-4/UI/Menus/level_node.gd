@@ -12,6 +12,7 @@ class_name LevelNode
 	set(value):
 		level_id = value
 		update_configuration_warnings()
+@export var next_levels: Array[LevelNode] = []
 @export var level_name: String:
 	set(value):
 		level_name = value
@@ -90,6 +91,7 @@ func _input_event(_camera: Camera3D, event: InputEvent, _hit: Vector3,
 	if Engine.is_editor_hint() or not active or level_scene == null:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var result := get_tree().change_scene_to_packed(level_scene)
-		if result != OK:
-			push_error("Could not enter level '%s': %s" % [level_id, error_string(result)])
+		var new_scene:ArenaManager = level_scene.instantiate()
+		new_scene.current_level = level_id
+		print(new_scene.current_level)
+		Global.switch_scenes(new_scene)

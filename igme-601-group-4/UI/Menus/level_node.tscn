@@ -1,9 +1,9 @@
-[gd_scene format=3 uid="uid://137s5mg3vfg3"]
+[gd_scene format=3 uid="uid://dwkqh617qukd1"]
 
-[ext_resource type="Script" uid="uid://br6yhyh1fvs31" path="res://UI/Menus/level_node.gd" id="1_node"]
-[ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="2_font"]
+[ext_resource type="Script" uid="uid://br6yhyh1fvs31" path="res://UI/Menus/level_node.gd" id="1_qbekf"]
+[ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="3_vblhx"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rim"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ibymf"]
 resource_local_to_scene = true
 shading_mode = 0
 albedo_color = Color(0.27173224, 0.4887452, 0.8397367, 1)
@@ -30,34 +30,37 @@ rings = 0
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hexagon"]
 points = PackedVector3Array(0, -2.25, -0.15, 1.94856, -1.125, -0.15, 1.94856, 1.125, -0.15, 0, 2.25, -0.15, -1.94856, 1.125, -0.15, -1.94856, -1.125, -0.15, 0, -2.25, 0.18, 1.94856, -1.125, 0.18, 1.94856, 1.125, 0.18, 0, 2.25, 0.18, -1.94856, 1.125, 0.18, -1.94856, -1.125, 0.18)
 
-[node name="LevelNode" type="Area3D" unique_id=1446866354]
+[node name="MovementTutorial" type="Area3D" unique_id=1224281857]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
 collision_mask = 0
 monitoring = false
-script = ExtResource("1_node")
+script = ExtResource("1_qbekf")
+level_id = &"1"
+level_name = "Level Name"
 active_accent = Color(0.27173224, 0.4887452, 0.8397367, 1)
 
-[node name="Rim" type="MeshInstance3D" parent="." unique_id=1066132331]
+[node name="Rim" type="MeshInstance3D" parent="." unique_id=695588757]
 transform = Transform3D(1, 0, 0, 0, -1.3164086e-07, -0.99999994, 0, 3.011592, -4.3711385e-08, 0, 0, -0.32346332)
 layers = 2
-material_override = SubResource("StandardMaterial3D_rim")
+material_override = SubResource("StandardMaterial3D_ibymf")
 mesh = SubResource("CylinderMesh_rim")
 
-[node name="Face" type="MeshInstance3D" parent="." unique_id=1437577532]
+[node name="Face" type="MeshInstance3D" parent="." unique_id=829024961]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0.14)
 layers = 2
 mesh = SubResource("CylinderMesh_face")
 
-[node name="LevelName" type="Label3D" parent="." unique_id=2017403526]
+[node name="LevelName" type="Label3D" parent="." unique_id=459099658]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.2)
 layers = 2
 pixel_size = 0.0095
 modulate = Color(0.8784314, 0.9764706, 0.96862745, 1)
-font = ExtResource("2_font")
+text = "Level Name"
+font = ExtResource("3_vblhx")
 font_size = 54
 outline_size = 0
 autowrap_mode = 3
 width = 342.0
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1278978125]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1373563797]
 shape = SubResource("ConvexPolygonShape3D_hexagon")

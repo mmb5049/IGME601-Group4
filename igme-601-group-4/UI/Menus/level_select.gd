@@ -1,5 +1,7 @@
 extends Node3D
 
+class_name LevelSelect
+
 const COAST_DECAY := 9.0
 const EDGE_RETURN_RATE := 26.0
 const MAX_EDGE_OVERSHOOT := 0.75
@@ -123,3 +125,21 @@ func _unhandled_input(event: InputEvent) -> void:
 	_pan_speed = clampf(_pan_speed + direction * speed_per_notch * wheel.factor, -speed_limit, speed_limit)
 	set_process(true)
 	get_viewport().set_input_as_handled()
+
+func get_level_from_id(id:StringName) -> LevelNode:
+	for child in _levels.get_children():
+		if child is LevelNode:
+			var level = child as LevelNode
+			if level.level_id == id:
+				return level
+	return null
+
+func unlock_level(origin_level_id:StringName) -> void:
+	if not is_node_ready():
+		await ready
+	var origin_level = get_level_from_id(origin_level_id)
+	if origin_level:
+		for level in origin_level.next_levels:
+			level.active = true
+	else:
+		push_error("id not found: " + origin_level_id)
