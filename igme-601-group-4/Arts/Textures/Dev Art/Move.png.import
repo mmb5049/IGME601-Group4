@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://x8lsvr443bs5"
-path="res://.godot/imported/MoveHex.png-534f5781e328e1aa843fe4153140e335.ctex"
+uid="uid://dad2hal1ub8ml"
+path="res://.godot/imported/Move.png-4890d7b3bcf59543f2cc890e4562ead6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Abilities/MoveHex.png"
-dest_files=["res://.godot/imported/MoveHex.png-534f5781e328e1aa843fe4153140e335.ctex"]
+source_file="res://Arts/Textures/Dev Art/Move.png"
+dest_files=["res://.godot/imported/Move.png-4890d7b3bcf59543f2cc890e4562ead6.ctex"]
 
 [params]
 

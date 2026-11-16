@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dl63bux8kddhv"
-path="res://.godot/imported/Slash.png-49e84fd4688233b3e69e4edc6e67073a.ctex"
+uid="uid://bcnrgv0b6sgyx"
+path="res://.godot/imported/abilities-03.png-b4d2ce1ef8c9cfb11770ed8dce3cd06b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Slash.png"
-dest_files=["res://.godot/imported/Slash.png-49e84fd4688233b3e69e4edc6e67073a.ctex"]
+source_file="res://Arts/Textures/Abilities/abilities-03.png"
+dest_files=["res://.godot/imported/abilities-03.png-b4d2ce1ef8c9cfb11770ed8dce3cd06b.ctex"]
 
 [params]
 

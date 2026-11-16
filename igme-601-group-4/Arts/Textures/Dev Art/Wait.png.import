@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dkhn8mgrmanso"
-path="res://.godot/imported/SlashHex.png-56203664624c653039005a9550b29a5f.ctex"
+uid="uid://cwnot23vjglye"
+path="res://.godot/imported/Wait.png-61144e3451dff16394dfa2ecf3d4306f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Abilities/SlashHex.png"
-dest_files=["res://.godot/imported/SlashHex.png-56203664624c653039005a9550b29a5f.ctex"]
+source_file="res://Arts/Textures/Dev Art/Wait.png"
+dest_files=["res://.godot/imported/Wait.png-61144e3451dff16394dfa2ecf3d4306f.ctex"]
 
 [params]
 
