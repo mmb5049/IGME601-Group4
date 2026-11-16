@@ -32,7 +32,7 @@ func start_attack_tutorial() -> void:
 	
 	
 	prompt_panel.show()
-	prompt_text.text = "These pillars can be broken using an attack ability"
+	prompt_text.text = "Some pillars can be broken using an attack ability"
 	await user_input
 	finish_attack_tutorial()
 	

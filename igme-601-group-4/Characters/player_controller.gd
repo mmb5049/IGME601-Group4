@@ -65,6 +65,8 @@ func _ready() -> void:
 	
 	entity_type = Global.EntityMask.PLAYER
 	
+	movement.floorHeight = HexGrid.hex_height
+	hologram.movement.floorHeight = HexGrid.hex_height
 	movement.set_pos(movement.spawn_position)
 	
 	cursor_position = CRTOverlay.get_content_mouse_position(get_viewport())

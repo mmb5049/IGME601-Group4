@@ -38,7 +38,6 @@ func _ready() -> void:
 	HexGrid.reset()
 	
 	await last_scene_done
-	print("current level: " + current_level)
 	
 	if player_start != Vector2i.MIN:
 		Global.player.movement.spawn_position = player_start

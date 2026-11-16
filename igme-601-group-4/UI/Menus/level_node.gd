@@ -93,5 +93,4 @@ func _input_event(_camera: Camera3D, event: InputEvent, _hit: Vector3,
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var new_scene:ArenaManager = level_scene.instantiate()
 		new_scene.current_level = level_id
-		print(new_scene.current_level)
 		Global.switch_scenes(new_scene)
