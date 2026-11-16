@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2t0r70c6opof"
-path.s3tc="res://.godot/imported/code_image.jpg-dfc56146fe9f9ae3485d86d933d93ad3.s3tc.ctex"
-path.etc2="res://.godot/imported/code_image.jpg-dfc56146fe9f9ae3485d86d933d93ad3.etc2.ctex"
+uid="uid://cmqbgiq1lu4dt"
+path.s3tc="res://.godot/imported/grunge_cracked_texture_background_1307.jpg-d56e1eaa59d20330e952e042eada8377.s3tc.ctex"
+path.etc2="res://.godot/imported/grunge_cracked_texture_background_1307.jpg-d56e1eaa59d20330e952e042eada8377.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://Materials/code_image.jpg"
-dest_files=["res://.godot/imported/code_image.jpg-dfc56146fe9f9ae3485d86d933d93ad3.s3tc.ctex", "res://.godot/imported/code_image.jpg-dfc56146fe9f9ae3485d86d933d93ad3.etc2.ctex"]
+source_file="res://Materials/grunge_cracked_texture_background_1307.jpg"
+dest_files=["res://.godot/imported/grunge_cracked_texture_background_1307.jpg-d56e1eaa59d20330e952e042eada8377.s3tc.ctex", "res://.godot/imported/grunge_cracked_texture_background_1307.jpg-d56e1eaa59d20330e952e042eada8377.etc2.ctex"]
 
 [params]
 

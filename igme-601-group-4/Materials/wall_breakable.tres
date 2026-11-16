@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://6vjg1qpk4ux"]
+
+[ext_resource type="Shader" uid="uid://bw0m2hp5ix56k" path="res://Materials/Shaders/wall_breakable.gdshader" id="1_v4er8"]
+[ext_resource type="Texture2D" uid="uid://cmqbgiq1lu4dt" path="res://Materials/grunge_cracked_texture_background_1307.jpg" id="2_0ing1"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_v4er8")
+shader_parameter/color = Color(0.26324546, 0.19707851, 0.08591806, 1)
+shader_parameter/cracked_texture = ExtResource("2_0ing1")

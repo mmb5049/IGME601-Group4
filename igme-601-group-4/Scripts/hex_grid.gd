@@ -5,6 +5,7 @@ var hex_size: float = 1.0
 var hex_height: float 
 
 var occupied_cells: Dictionary = {}
+var occupied_cells_preview: Dictionary = {}
 var valid_cells: Dictionary = {}
 
 var cell_meshes: Dictionary[Vector2i,MeshInstance3D] = {}
@@ -12,12 +13,18 @@ var highlighted_cells: Dictionary = {}
 
 var hex_mesh := preload("res://Meshes/cell.tres")
 
+##Tutorial
+var tutorial_target_cell: Vector2i = Vector2i.ZERO
+var tutorial_target_active: bool = false
+var tutorial_target_reached: bool = false
 
 # Materials
 var material_base := preload("res://Materials/hex_base.tres")
 var material_attack := preload("res://Materials/hex_glow_attack.tres")
 var material_move := preload("res://Materials/hex_glow_move.tres")
 var material_select := preload("res://Materials/hex_glow_select.tres")
+var material_tutorial_target := preload("res://Materials/hex_tutorial_target.tres")
+var material_tutorial_complete := preload("res://Materials/hex_tutorial_complete.tres")
 
 const DIRECTIONS = [
 	Vector2i(1, 0),
@@ -29,12 +36,13 @@ const DIRECTIONS = [
 ]
 
 var traps: Dictionary = {}
-
 var trap_scene: PackedScene = preload("res://Abilities/Trap.tscn")
 
 
+signal tutorial_target_completed
+
 func _ready():
-	reset()
+	pass
 
 # needs to reset every round because this is an autoload script
 func reset():
@@ -140,30 +148,44 @@ func set_occupied(coord: Vector2i, value:Variant):
 		occupied_cells[coord] = value
 	else:
 		occupied_cells.erase(coord)
-		
+
+func set_occupied_preview(coord: Vector2i, value:Variant):
+	if value:
+		occupied_cells_preview[coord] = value
+	else:
+		occupied_cells_preview.erase(coord)
 
 func is_valid_cell(coord: Vector2i) -> bool:
 	return valid_cells.has(coord)
 
 func raycast(start:Vector2i, direction:Vector2i,length:int,
-check_flag: = Global.OccupiedType.NONE) -> Vector2i:
+entity_mask: = Global.EntityMask.ALL, use_preview = false) -> Vector2i:
 	var cell
 	for i in range(1,length+1):
 		cell = start + direction*i
-		# check if cell is valid and if check_flag includes the cell
-		if not is_valid_cell(cell) or (get_flag_from_cell(cell) != Global.OccupiedType.NONE and 
-		Global.has_flag(check_flag,get_flag_from_cell(cell))):
+		
+		if not is_valid_cell(cell):
+			cell = start + direction*(i-1)
+			break
+		
+		# get the entity
+		var entity:Entity = null
+		if not use_preview and occupied_cells.has(cell):
+			entity = occupied_cells[cell]
+		elif use_preview and occupied_cells_preview.has(cell):
+			entity = occupied_cells_preview[cell]
+		
+		# get the entity type
+		var type:Global.EntityMask = Global.EntityMask.NONE
+		if (entity != null and is_instance_valid(entity) and entity is Entity):
+			type = entity.entity_type
+		
+		# check if entity matches the entity mask
+		if (type != Global.EntityMask.NONE and 
+		Global.contains_a_flag(entity_mask,type)):
 			cell = start + direction*(i-1)
 			break
 	return cell
-
-func get_flag_from_cell(cell:Vector2i) -> Global.OccupiedType:
-	if is_occupied(cell):
-		if (is_instance_valid(occupied_cells[cell]) and 
-		(occupied_cells[cell] is PlayerController or occupied_cells[cell] is Enemy)):
-			return Global.OccupiedType.DYNAMIC
-		return Global.OccupiedType.STATIC
-	return Global.OccupiedType.NONE
 
 func find_path(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 	var open_set: Array[Vector2i] = [start]
@@ -232,14 +254,17 @@ func create_highlight(material:ShaderMaterial, coord:Vector2i):
 	if not cell_meshes.has(coord):
 		return
 	var cell: MeshInstance3D = cell_meshes[coord]
-	cell.material_override = material
+	cell.material_overlay = material
 	highlighted_cells[coord] = cell
 
 func clear_highlights():
 	for coord in highlighted_cells.keys():
 		if cell_meshes.has(coord):
-			cell_meshes[coord].material_override = null
+			cell_meshes[coord].material_overlay = null
 	highlighted_cells.clear()
+	
+	# Restore the tutorial highlight if it is active.
+	update_tutorial_highlight()
 
 func highlight_cells(material:ShaderMaterial,cells:Array[Vector2i]):
 	for cell in cells:
@@ -292,3 +317,67 @@ func trigger_trap(coord: Vector2i, target: Node) -> void:
 		trap.trigger(target)
 	else:
 		traps.erase(coord)
+		
+		
+		
+func set_tutorial_target(coord: Vector2i) -> void:
+	if not is_valid_cell(coord):
+		return
+
+	tutorial_target_cell = coord
+	tutorial_target_active = true
+	tutorial_target_reached = false
+
+	update_tutorial_highlight()
+
+
+func update_tutorial_highlight() -> void:
+	if not tutorial_target_active:
+		return
+
+	if not cell_meshes.has(tutorial_target_cell):
+		return
+
+	var material: ShaderMaterial
+
+	if tutorial_target_reached:
+		material = material_tutorial_complete
+	else:
+		material = material_tutorial_target
+
+	cell_meshes[tutorial_target_cell].material_overlay = material
+
+
+func reach_tutorial_target() -> void:
+	if not tutorial_target_active or tutorial_target_reached:
+		return
+
+	tutorial_target_reached = true
+	update_tutorial_highlight()
+	tutorial_target_completed.emit()
+
+	print("Tutorial destination reached!")
+
+
+func clear_tutorial_target() -> void:
+	if not tutorial_target_active:
+		return
+
+	if cell_meshes.has(tutorial_target_cell):
+		cell_meshes[tutorial_target_cell].material_override = null
+
+	tutorial_target_active = false
+	tutorial_target_reached = false
+# Check all entities and cast to their respective classes
+func cast_entities() -> void:
+	for cell in occupied_cells:
+		var entity = occupied_cells[cell]
+		if entity is PlayerController:
+			occupied_cells[cell] = entity as PlayerController
+			print("Cast player")
+		elif entity is Enemy:
+			occupied_cells[cell] = entity as Enemy
+			print("Cast enemy")
+		elif entity is Obstacle:
+			occupied_cells[cell] = entity as Obstacle
+			print("Cast obstacle")

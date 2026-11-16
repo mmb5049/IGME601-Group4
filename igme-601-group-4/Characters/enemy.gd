@@ -1,36 +1,126 @@
-extends Node3D
+extends Character
 
 class_name Enemy
 
-@export var movement:CharacterMovement
-@onready var mesh:MeshInstance3D = $Pivot/Skeleton3D/Cube
 @export_category("Turn Planning")
 @export var move_ability: Ability = preload("res://Abilities/Move.tres")
 @export var attack_ability: Ability = preload("res://Abilities/Whirlwind.tres")
 @export_range(1, 10) var minimum_actions: int = 2
 @export_range(1, 10) var maximum_actions: int = 3
 
+const OVERHEAD_UI_RISE: float = 28.0
+const EnemyHealthBar := preload("res://Characters/enemy_health_bar.gd")
+const HOVER_MATERIAL := preload("res://Materials/enemy_hover.tres")
+const HOVER_SCALE: float = 1.5
+const HOVER_TRANSITION: float = 0.12
+# Body and head regions in fractions of the unscaled mesh bounds.
+const HOVER_REGIONS: Array[AABB] = [
+	AABB(Vector3(0.04, 0.02, 0.08), Vector3(0.92, 0.64, 0.84)),
+	AABB(Vector3(0.16, 0.57, 0.04), Vector3(0.68, 0.43, 0.92)),
+]
+
 signal action_number_changed(number: int)
+signal died
+signal death_animation_finished
 
 var action_number: int = 0:
 	set(value):
 		action_number = value
 		action_number_changed.emit(value)
-var ability_queue: AbilityQueue = AbilityQueue.new()
-var number_display = preload("res://Misc/number_display.tscn")
 
-var health:int = 10
+var _dying: bool = false
+var is_model_hovered: bool = false
+var hover_scale: float = 1.0
+var _hover_progress: float = 0.0
+var _normal_overlay: Material
 
-signal died()
+@onready var _health_bar: EnemyHealthBar = $UI/HealthBar
+@onready var _ability_queue_ui: EnemyAbilityQueueUI = get_node_or_null("UI/EnemyAbilityQueueUI")
+@onready var _action_number_label: Label = get_node_or_null("UI/ActionNumberUI/CanvasLayer/Number")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	add_to_group("enemies")
+	_health_bar.bind_health(health)
+	health.died.connect(die)
+	entity_type = Global.EntityMask.ENEMY
+	process_priority = -4
+	set_process(false)
+
+
+func get_hover_distance_squared(ray_start: Vector3, ray_end: Vector3) -> float:
+	if health.is_dead or is_queued_for_deletion() or not mesh.is_visible_in_tree() or mesh.mesh == null:
+		return INF
+	var to_mesh := mesh.global_transform.affine_inverse()
+	var local_start := to_mesh * ray_start
+	var local_end := to_mesh * ray_end
+	var bounds := mesh.get_aabb()
+	var closest := INF
+	for region in HOVER_REGIONS:
+		var hitbox := AABB(bounds.position + bounds.size * region.position, bounds.size * region.size)
+		var hit: Variant = hitbox.intersects_segment(local_start, local_end)
+		if hit != null:
+			closest = minf(closest, ray_start.distance_squared_to(mesh.to_global(hit)))
+	return closest
+
+
+func set_model_hovered(hovered: bool) -> void:
+	if is_model_hovered == hovered:
+		return
+	is_model_hovered = hovered
+	if hovered:
+		_normal_overlay = mesh.material_overlay
+		mesh.material_overlay = HOVER_MATERIAL
+	else:
+		mesh.material_overlay = _normal_overlay
+	_health_bar.set_show_through_walls(hovered)
+	set_process(true)
+
+
+func _process(delta: float) -> void:
+	var target := 1.0 if is_model_hovered else 0.0
+	_hover_progress = move_toward(_hover_progress, target, delta / HOVER_TRANSITION)
+	hover_scale = lerpf(1.0, HOVER_SCALE, smoothstep(0.0, 1.0, _hover_progress))
+	_health_bar.set_hover_scale(hover_scale, to_local(mesh.global_position))
+	if _hover_progress == 0.0 and not is_model_hovered:
+		set_process(false)
+
+
+func scale_overhead_position(camera: Camera3D, anchor: Vector2, offset: Vector2 = Vector2.ZERO) -> Vector2:
+	var point := anchor + offset
+	if hover_scale == 1.0:
+		return point
+	var bottom := -INF
+	if is_instance_valid(_ability_queue_ui):
+		bottom = _ability_queue_ui.get_rest_bottom_offset()
+	if is_instance_valid(_action_number_label) and action_number > 0:
+		bottom = maxf(bottom, _action_number_label.size.y * 0.5)
+	# Keep the shared bottom edge fixed while retaining the model as the horizontal pivot.
+	var pivot := anchor
+	pivot.y += bottom if is_finite(bottom) else 0.0
+	if not camera.is_position_behind(user_interface.global_position):
+		pivot.x = camera.unproject_position(user_interface.global_position).x
+	return pivot.lerp(point, hover_scale)
+
+
+func get_overhead_screen_position(camera: Camera3D) -> Vector2:
+	if not is_instance_valid(mesh) or mesh.mesh == null:
+		return Vector2.INF
+	# The mesh transform includes import scale and any movement from ability effects.
+	var center := mesh.to_global(mesh.get_aabb().get_center())+user_interface.position
+	if camera.is_position_behind(center):
+		return Vector2.INF
+	var overhead_position := camera.unproject_position(center) - Vector2(0.0, OVERHEAD_UI_RISE)
+	# Center the number and the queue's fixed bottom slot as a pair.
+	if is_instance_valid(_ability_queue_ui):
+		overhead_position.x -= _ability_queue_ui.screen_offset.x * 0.5
+	return overhead_position
+
 
 ## Override this method for enemy types with different planning rules.
 func prepare_turn(player: PlayerController) -> void:
 	ability_queue.clear_queue()
-	if not is_instance_valid(player) or player.is_dead or health <= 0 or movement == null:
+	if not is_instance_valid(player) or player.health.is_dead or health.is_dead or movement == null:
 		return
 	var planned_cell: Vector2i = movement.current_cell
 	var player_cell: Vector2i = player.movement.current_cell
@@ -105,9 +195,8 @@ func _direction_toward(start: Vector2i, player_cell: Vector2i) -> Vector2i:
 			direction = candidate
 	return direction if difference != Vector3.ZERO else Vector2i.ZERO
 
-
 func execute_queued_ability(entry: QueuedAbility) -> bool:
-	if health <= 0 or entry == null or entry.ability == null or entry.target == null:
+	if health.is_dead or entry == null or entry.ability == null or entry.target == null:
 		return false
 	if not entry.target.is_valid:
 		return false
@@ -118,44 +207,84 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 			if entry.ability.presentation != null:
 				if not await entry.ability.presentation.play(self, mesh, entry.target):
 					return false
-			if health <= 0 or is_queued_for_deletion():
+			if health.is_dead or is_queued_for_deletion():
 				return false
-			# Resolve around the actual execution position. Prepared plans do
-			# not track or retarget a player who moved out of the selected ring.
-			for cell in entry.target.resolve_cells(movement.current_cell):
-				# A target may have been freed while presentation was awaiting.
-				# Keep the raw Variant until validated: assigning a freed instance
-				# to a typed Node fails before is_instance_valid can run.
-				var victim: Variant = HexGrid.occupied_cells.get(cell)
-				if not is_instance_valid(victim):
-					continue
-				if victim == self or victim.is_queued_for_deletion():
-					continue
-				if victim is PlayerController:
-					victim.damage(entry.ability.damage)
-				else:
-					print(victim)
+			_apply_attack(entry.ability,entry.target,0,Global.EntityMask.PLAYER)
 			return true
 	return false
 
-func damage(amount:int):
-	if health <= 0:
+func update_ability_preview(origin:Vector2i = movement.current_cell, ability = move_ability,
+show_possible:bool = true, target:AbilityTarget  = null) -> void:
+	var possible_material: ShaderMaterial = Global.get_target_material(ability)
+	var target_material: ShaderMaterial = HexGrid.material_select
+	
+	if ability:
+		if not target:
+			#target = evaluate_target(ability, cursor_position, origin)
+			pass
+		else:
+			# use color to show ability type when previewing
+			target_material = possible_material
+	
+	# Display hologram
+	if origin != movement.current_cell:
+		hologram.set_pos(origin)
+	
+	match ability.targeting_type:
+		Global.TargetingType.DIRECTION:
+			if show_possible:
+				for direction: Vector2i in HexGrid.DIRECTIONS:
+					HexGrid.highlight_line(
+						possible_material,
+						origin,
+						direction,
+						ability.range
+					)
+			if target and target.is_valid:
+				HexGrid.highlight_line(
+					target_material,
+					origin,
+					target.direction,
+					ability.range
+				)
+
+		Global.TargetingType.SINGLE_TILE:
+			if show_possible:
+				var cells: Array[Vector2i] = []
+				for radius in range(1, ability.range + 1):
+					cells.append_array(HexGrid.get_ring(origin, radius))
+				HexGrid.highlight_cells(possible_material, cells)
+			if target and target.is_valid:
+				HexGrid.create_highlight(target_material,
+					target.target_cell + origin)
+
+		Global.TargetingType.ANNULAR:
+			if show_possible:
+				var cells: Array[Vector2i] = []
+				for radius in range(1, ability.range + 1):
+					cells.append_array(HexGrid.get_ring(origin, radius))
+				HexGrid.highlight_cells(possible_material, cells)
+			if target and target.is_valid:
+				HexGrid.highlight_cells(target_material, target.resolve_cells(origin))
+
+		Global.TargetingType.SHAPE:
+			pass
+
+		Global.TargetingType.NONE:
+			pass
+	
+func die() -> void:
+	if _dying:
 		return
-	health -= amount
-	print("Enemy health is now: " + str(health))
-	
-	var new_display:Node3D = number_display.instantiate()
-	get_parent().add_child(new_display)
-	
-	new_display.global_position = global_position + Vector3(0, 1.1, 0)
-	new_display.set_number(-amount)
-
-	mesh.flash()
-	
-	if health <= 0:
-		die()
-
-func die():
-	HexGrid.set_occupied(movement.current_cell, false)
+	_dying = true
+	var lethal_hit := health.is_dead
+	health.is_dead = true
+	set_model_hovered(false)
+	if HexGrid.occupied_cells.get(movement.current_cell) == self:
+		HexGrid.set_occupied(movement.current_cell, false)
+	$Pivot.hide()
 	died.emit()
+	if lethal_hit and _health_bar.is_animating_damage():
+		await _health_bar.damage_animation_finished
 	queue_free()
+	death_animation_finished.emit()
