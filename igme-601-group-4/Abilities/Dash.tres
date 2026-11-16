@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Ability" format=3 uid="uid://but2yi6prxp3a"]
 
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="1_5dgc1"]
-[ext_resource type="Texture2D" uid="uid://dwiln6wsp52eg" path="res://Arts/Textures/Abilities/Dash.png" id="1_stjd2"]
+[ext_resource type="Texture2D" uid="uid://ck3548yiisn5k" path="res://Arts/Textures/Abilities/abilities-01.png" id="1_stjd2"]
 [ext_resource type="Texture2D" uid="uid://b0vfbr6t07gk4" path="res://Arts/Textures/Cards/DashCard.png" id="2_stjd2"]
 
 [resource]

@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://2fjq2caqt5ok"]
+[gd_scene format=3 uid="uid://cdvb1up2ty2yg"]
 
 [ext_resource type="Script" uid="uid://c4yy1p2mryrie" path="res://Arena Features/obstacle.gd" id="1_soqan"]
 [ext_resource type="Script" uid="uid://c1a8bcrjruokn" path="res://Characters/character_movement.gd" id="2_420lp"]

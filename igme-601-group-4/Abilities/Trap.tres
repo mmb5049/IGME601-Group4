@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Ability" format=3 uid="uid://ws7vkafabric"]
 
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="1_d7r1p"]
-[ext_resource type="Texture2D" uid="uid://7i4j20idqikg" path="res://Arts/Textures/Abilities/Trap.png" id="1_m0wii"]
+[ext_resource type="Texture2D" uid="uid://c73fnbgb8q1to" path="res://Arts/Textures/Abilities/abilities-02.png" id="1_m0wii"]
 [ext_resource type="Texture2D" uid="uid://d1nhgxn81rxl7" path="res://Arts/Textures/Cards/TrapCard.png" id="2_m0wii"]
 
 [resource]
