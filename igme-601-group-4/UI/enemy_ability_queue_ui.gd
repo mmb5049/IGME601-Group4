@@ -1,16 +1,16 @@
 extends Node3D
 class_name EnemyAbilityQueueUI
 
-## This Node3D is the world-space head anchor. Its CanvasLayer keeps the
-## shared player artwork crisp and the same screen size at any distance.
+## The CanvasLayer keeps the queue the same screen size at any distance.
 @export var item_scene: PackedScene = preload("res://UI/AbilitySequenceItemUI.tscn")
 @export_range(0.1, 1.0, 0.05) var queue_scale: float = 0.5
 @export_range(1.0, 128.0, 1.0) var row_spacing: float = 69.0
 @export_range(0.01, 0.75, 0.01, "suffix:s") var animation_duration: float = 0.20
+## Offset from the shared overhead anchor to the center of the bottom hex.
 @export var screen_offset: Vector2 = Vector2(-48.0, -8.0)
 @export var frame_color: Color = Color(1.0, 0.20, 0.20, 0.85)
 
-var _enemy: Enemy
+@export var _enemy: Enemy
 var _queue: AbilityQueue
 var _items: Dictionary[int, AbilitySequenceItemUI] = {}
 var _visibility_tween: Tween
@@ -21,15 +21,17 @@ var _target_opacity: float = 1.0
 
 
 func _ready() -> void:
-	_enemy = get_parent() as Enemy
-	if _enemy == null:
+	if not _enemy:
 		push_error("EnemyAbilityQueueUI must be a child of an Enemy.")
 		set_process(false)
 		return
+	
+	await _enemy.ready
+	
 	_queue = _enemy.ability_queue
 	add_to_group("enemy_queue_displays")
 	_queue.queue_changed.connect(_sync_queue)
-	_enemy.died.connect(_on_enemy_died)
+	_enemy.health.died.connect(_on_enemy_died)
 	_sync_queue()
 	_update_screen_position()
 
@@ -40,22 +42,31 @@ func _process(_delta: float) -> void:
 
 func _update_screen_position() -> void:
 	var camera := get_viewport().get_camera_3d()
-	if camera == null or not is_instance_valid(_enemy) or _enemy.health <= 0:
+	if camera == null or not is_instance_valid(_enemy) or _enemy.health.is_dead:
 		_screen_root.hide()
 		return
-	var screen_position: Vector2 = camera.unproject_position(global_position) + screen_offset
-	_screen_root.visible = (
-		not camera.is_position_behind(global_position)
-		and get_viewport().get_visible_rect().has_point(screen_position)
-	)
-	_screen_root.position = screen_position
-	_items_root.scale = Vector2.ONE * queue_scale
+	var anchor := _enemy.get_overhead_screen_position(camera)
+	var screen_position := anchor + screen_offset
+	if not screen_position.is_finite():
+		_screen_root.hide()
+		return
+	_screen_root.visible = get_viewport().get_visible_rect().has_point(screen_position)
+	_screen_root.position = _enemy.scale_overhead_position(camera, anchor, screen_offset)
+	_items_root.scale = Vector2.ONE * queue_scale * _enemy.hover_scale
+
+
+func get_rest_bottom_offset() -> float:
+	if _items_root.get_child_count() == 0:
+		return -INF
+	# The bottom slot stays fixed as items enter, exit, and reflow.
+	var item := _items_root.get_child(0) as AbilitySequenceItemUI
+	return screen_offset.y + item.HEX_RADIUS * item.get_hex_scale().y * queue_scale
 
 
 func _sync_queue() -> void:
 	var removed_any: bool = false
 	var remaining_ids: Array[int] = []
-	for entry in _queue.queued_entries:
+	for entry in _queue.queue:
 		remaining_ids.append(entry.id)
 	for entry_id in _items.keys():
 		if not remaining_ids.has(entry_id):
@@ -64,8 +75,8 @@ func _sync_queue() -> void:
 			removed.play_removal_animation(animation_duration)
 			removed_any = true
 
-	for index in range(_queue.queued_entries.size()):
-		var entry: QueuedAbility = _queue.queued_entries[index]
+	for index in range(_queue.queue.size()):
+		var entry: QueuedAbility = _queue.queue[index]
 		# Queue front executes first and occupies the fixed bottom slot.
 		# After consumption the remaining entries slide down into that slot.
 		var depth: int = index
@@ -77,6 +88,7 @@ func _sync_queue() -> void:
 			old_position = item.get_hex_global_position()
 		else:
 			item = item_scene.instantiate() as AbilitySequenceItemUI
+			item.use_red_direction_sign = true
 			item.configure(entry.id, index, entry.ability, entry.target, align_right, null, true)
 			item.set_interaction_enabled(false)
 			item.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -99,7 +111,7 @@ func _on_enemy_died() -> void:
 
 func get_display_polygons() -> Array[PackedVector2Array]:
 	var polygons: Array[PackedVector2Array] = []
-	if not _screen_root.visible or not is_instance_valid(_enemy) or _enemy.health <= 0:
+	if not _screen_root.visible or not is_instance_valid(_enemy) or _enemy.health.is_dead:
 		return polygons
 	# Include disappearing blocks until their exit animation completes.
 	for child in _items_root.get_children():

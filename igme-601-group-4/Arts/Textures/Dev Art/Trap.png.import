@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cwnot23vjglye"
-path="res://.godot/imported/Wait.png-57c5107f2bc9c61c026f55b25712d871.ctex"
+uid="uid://p0c5m4h4bhsn"
+path="res://.godot/imported/Trap.png-409c4599ba6924725ae64a918efb8c3f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Wait.png"
-dest_files=["res://.godot/imported/Wait.png-57c5107f2bc9c61c026f55b25712d871.ctex"]
+source_file="res://Arts/Textures/Dev Art/Trap.png"
+dest_files=["res://.godot/imported/Trap.png-409c4599ba6924725ae64a918efb8c3f.ctex"]
 
 [params]
 

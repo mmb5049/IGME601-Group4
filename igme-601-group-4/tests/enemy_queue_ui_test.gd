@@ -25,8 +25,14 @@ func run() -> void:
 		var number_ui: Node3D = actor.get_node("ActionNumberUI")
 		var label: Label = number_ui.get_node("CanvasLayer/Number")
 		check(label.text == str(actor.action_number), "Head number must match assigned turn order")
-		var projected: Vector2 = get_viewport().get_camera_3d().unproject_position(number_ui.global_position)
-		check((label.position + label.size * 0.5).distance_to(projected) < 0.1, "Action number must be centered directly above the actor")
+		var camera := get_viewport().get_camera_3d()
+		var projected: Vector2 = camera.unproject_position(number_ui.global_position)
+		if actor is Enemy:
+			var model_center: Vector3 = actor.mesh.to_global(actor.mesh.get_aabb().get_center())
+			projected = camera.unproject_position(model_center)
+			check(label.get_rect().end.y < projected.y, "Enemy number must sit above the model center")
+		else:
+			check(label.get_rect().get_center().distance_to(projected) < 0.1, "Player number must stay centered on its head anchor")
 		check(label.visible and label.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Action number must be visible and non-interactive")
 	var enemy: Enemy = controller.action_order[1]
 	var ui: EnemyAbilityQueueUI = enemy.get_node("EnemyAbilityQueueUI")
@@ -44,28 +50,35 @@ func run() -> void:
 		else:
 			check(item._direction_edges._active_direction_index == -1, "Ring attacks must not show a movement direction")
 		check(item._hex_display.get_node("VisualContent/HexFrame").self_modulate == ui.frame_color, "Enemy frame must be red")
-	check(ui.screen_offset.x < 0 and ui.screen_offset.y < 0, "Enemy queue must sit above and left of its head anchor")
 	var camera := get_viewport().get_camera_3d()
 	var bottom_id: int = original.id
 	var bottom: AbilitySequenceItemUI = ui._items[bottom_id]
-	var anchor: Vector2 = camera.unproject_position(ui.global_position) + ui.screen_offset
-	check(bottom.get_hex_global_position().distance_to(anchor) < 0.1, "Bottom hex must be centered on the head anchor")
+	var anchor: Vector2 = enemy.get_overhead_screen_position(camera) + ui.screen_offset
+	check(bottom.get_hex_global_position().distance_to(anchor) < 0.1, "Bottom hex must align with the overhead position")
+	var original_layout := Vector2(-48.0, -8.0)
+	check((bottom.get_hex_global_position() - number_label.get_rect().get_center()).distance_to(original_layout) < 0.1, "Bottom hex must keep its original offset from the action number")
+	var model_center := enemy.mesh.to_global(enemy.mesh.get_aabb().get_center())
+	var midpoint_x := (bottom.get_hex_global_position().x + number_label.get_rect().get_center().x) * 0.5
+	check(absf(midpoint_x - camera.unproject_position(model_center).x) < 0.1, "The number and bottom hex must straddle the model center")
 	check(bottom._hex_display.global_scale.is_equal_approx(Vector2.ONE * 0.36), "Enemy hex must be half the player queue size")
 	var removed: AbilitySequenceItemUI = ui._items[original.id]
 	var next: AbilitySequenceItemUI = ui._items[enemy.ability_queue.queued_entries[1].id]
-	var next_position: Vector2 = next.get_hex_global_position()
+	var next_offset: Vector2 = next.get_hex_global_position() - anchor
 	enemy.ability_queue.consume_entry(original.id)
 	check(not ui._items.has(original.id) and is_instance_valid(removed), "Consumed entry must play an exit animation before freeing")
 	await get_tree().create_timer(0.08).timeout
-	check(next.get_hex_global_position().distance_to(next_position) < 0.1, "Remaining queue must wait for the removal animation before shifting")
+	anchor = enemy.get_overhead_screen_position(camera) + ui.screen_offset
+	check(next.get_hex_global_position().distance_to(anchor + next_offset) < 0.1, "Remaining queue must wait for the removal animation before shifting")
 	await get_tree().create_timer(0.4).timeout
 	check(not is_instance_valid(removed), "Exit animation must clean up the consumed item")
+	anchor = enemy.get_overhead_screen_position(camera) + ui.screen_offset
 	check(next.get_hex_global_position().distance_to(anchor) < 0.1, "Next action must slide down into the fixed bottom slot")
 	for count in [1, 2, 6]:
 		enemy.ability_queue.clear_queue()
 		for index in range(count):
 			enemy.ability_queue.add_ability(original.ability, original.target)
 		await get_tree().create_timer(0.25).timeout
+		anchor = enemy.get_overhead_screen_position(camera) + ui.screen_offset
 		check(ui._items.size() == count, "UI count must match queue after regeneration")
 		bottom = ui._items[enemy.ability_queue.peek_front_entry().id]
 		check(bottom.get_hex_global_position().distance_to(anchor) < 0.1, "Bottom anchor must be independent of queue length")
@@ -76,13 +89,26 @@ func run() -> void:
 	enemy.movement.set_pos(Vector2i(0, 3))
 	await get_tree().process_frame
 	await get_tree().process_frame
-	anchor = camera.unproject_position(ui.global_position) + ui.screen_offset
+	anchor = enemy.get_overhead_screen_position(camera) + ui.screen_offset
 	check(bottom.get_hex_global_position().distance_to(anchor) < 0.1, "Queue must follow enemy movement")
-	var anchor_position: Vector3 = ui.global_position
-	ui.global_position = camera.global_position + camera.global_basis.z * 2.0
+	var mesh_position: Vector3 = enemy.mesh.global_position
+	var actor_position: Vector3 = enemy.global_position
+	enemy.mesh.global_position += Vector3(1.0, 0.0, 0.0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var moved_anchor := enemy.get_overhead_screen_position(camera) + ui.screen_offset
+	check(enemy.global_position.is_equal_approx(actor_position), "Moving the model must leave the actor in place")
+	check(moved_anchor.distance_to(anchor) > 5.0, "Moving the model must move the projected anchor")
+	check(bottom.get_hex_global_position().distance_to(moved_anchor) < 0.1, "Queue must follow model-only movement")
+	check((bottom.get_hex_global_position() - number_label.get_rect().get_center()).distance_to(original_layout) < 0.1, "Queue and number must move together with the model")
+	model_center = enemy.mesh.to_global(enemy.mesh.get_aabb().get_center())
+	midpoint_x = (bottom.get_hex_global_position().x + number_label.get_rect().get_center().x) * 0.5
+	check(absf(midpoint_x - camera.unproject_position(model_center).x) < 0.1, "The midpoint must follow the moved model")
+
+	enemy.mesh.global_position = camera.global_position + camera.global_basis.z * 2.0
 	ui._update_screen_position()
 	check(not ui._screen_root.visible, "Queue behind the camera must be hidden")
-	ui.global_position = anchor_position
+	enemy.mesh.global_position = mesh_position
 	ui._update_screen_position()
 	check(ui._screen_root.visible, "Queue must reappear when its anchor returns onscreen")
 	enemy.ability_queue.clear_queue()
@@ -93,10 +119,11 @@ func run() -> void:
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://../enemy-queue-preview.png")
-	enemy.die()
+	enemy.health.damage(enemy.health.current)
 	check(not ui._screen_root.visible, "Death must immediately hide the queue")
 	check(not number_label.visible, "Death must immediately hide the action number")
+	await enemy.death_animation_finished
 	await get_tree().process_frame
-	check(not is_instance_valid(ui), "Enemy death must free its CanvasLayer and queue")
+	check(not is_instance_valid(ui), "Enemy death must free its CanvasLayer and queue after the health bar fades")
 	print("ENEMY_UI_TEST_RESULT: ", "PASS" if failures == 0 else "FAIL", " (", failures, " failures)")
 	get_tree().quit(0 if failures == 0 else 1)

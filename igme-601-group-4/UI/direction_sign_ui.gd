@@ -1,6 +1,8 @@
 extends Node2D
 class_name DirectionSignUI
 
+const RED_DIRECTION_SIGN_SHADER := preload("res://Materials/Shaders/red_direction_sign.gdshader")
+
 ## Each direction sign contains both supplied artworks. Fading the layers
 ## independently preserves their authored glow and avoids recoloring artifacts.
 var _state_is_active: bool = false
@@ -27,6 +29,12 @@ func set_green_artwork(
 	_green_sign.texture = texture
 	_green_sign.position = visual_center_offset
 	_green_sign.rotation = artwork_rotation
+
+
+func recolor_green_artwork_red() -> void:
+	var red_material := ShaderMaterial.new()
+	red_material.shader = RED_DIRECTION_SIGN_SHADER
+	_green_sign.material = red_material
 
 
 ## Shows green for a legal direction, red for an illegal direction, or hides

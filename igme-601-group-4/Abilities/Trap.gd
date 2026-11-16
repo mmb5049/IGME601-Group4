@@ -84,8 +84,8 @@ func trigger(target: Node) -> void:
 			child.emitting = true
 
 	# Damage the character.
-	if is_instance_valid(target) and target.has_method("damage"):
-		target.damage(damage_amount)
+	if is_instance_valid(target) and target.health:
+		target.health.damage(damage_amount)
 
 	# Remove the trap from the grid.
 	if is_instance_valid(grid):
