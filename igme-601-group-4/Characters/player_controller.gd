@@ -16,7 +16,7 @@ signal notification_requested(message: String)
 const INVALID_CELL := Vector2i(2147483647, 2147483647)
 const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 
-@onready var camera: Camera3D = get_viewport().get_camera_3d()
+var camera: Camera3D
 @export var animationManager:AnimationManager
 ## Outer pivot isolates procedural movement from AnimationPlayer root tracks.
 @export var presentation_visual: Node3D
@@ -39,7 +39,7 @@ var self_enhance_effect: Node3D = null
 var selected_ability: Ability = null
 var cursor_position: Vector2 = Vector2.ZERO
 var _last_preview_target: AbilityTarget
-var _last_preview_origin: Vector2i
+#var _last_preview_origin: Vector2i
 
 ## Remains true across the small gaps between queued abilities. current_mode
 ## alone cannot provide this lock because each individual action resets it.
@@ -60,8 +60,13 @@ enum PlayerMode {
 var current_mode: PlayerMode = PlayerMode.NONE
 
 func _ready() -> void:
+	await get_parent().last_scene_done
+	Global.player = self
+	
 	entity_type = Global.EntityMask.PLAYER
 	
+	movement.floorHeight = HexGrid.hex_height
+	hologram.movement.floorHeight = HexGrid.hex_height
 	movement.set_pos(movement.spawn_position)
 	
 	cursor_position = CRTOverlay.get_content_mouse_position(get_viewport())
@@ -74,7 +79,8 @@ func _ready() -> void:
 	func(ability: Ability):
 		refund_mana(ability.cost)
 	)
-	Global.player = self
+	
+	camera = get_viewport().get_camera_3d()
 	
 	## TODO: There is a weird bug where setting the occupancy at on_ready doesn't 
 	## allow the enemies to read that a player is on this tile. Setting the position 
@@ -190,11 +196,17 @@ func cancel_targeting() -> void:
 	if current_mode != PlayerMode.TARGETING:
 		return
 	
-	print("cancel")
 	clear_preview()
 	selected_ability = null
 	current_mode = PlayerMode.NONE
 	targeting_ended.emit()
+
+func update_ability_preview(origin:Vector2i = movement.current_cell, ability = selected_ability, 
+show_possible:bool = true, target:AbilityTarget  = null) -> void:
+	if ability and not target:
+		target = evaluate_target(ability, cursor_position, origin)
+	super(origin, ability, show_possible, target)
+	target_preview_changed.emit(target)
 
 func _confirm_current_target() -> void:
 	if selected_ability == null:
@@ -221,72 +233,6 @@ func _confirm_current_target() -> void:
 	ability_confirmed.emit(confirmed_ability, target)
 	targeting_ended.emit()
 	clear_preview()
-
-## Reuses one evaluation result for grid highlighting, indicator feedback, and
-## final confirmation so all three always agree about target legality.
-func update_ability_preview(origin:Vector2i = movement.current_cell, ability = selected_ability, 
-show_possible:bool = true, target:AbilityTarget  = null) -> void:
-	var possible_material: ShaderMaterial = Global.get_target_material(ability)
-	var target_material: ShaderMaterial = HexGrid.material_select
-	
-	if ability:
-		if not target:
-			target = evaluate_target(ability, cursor_position, origin)
-		else:
-			# use color to show ability type when previewing
-			target_material = possible_material
-	match ability.targeting_type:
-		Global.TargetingType.DIRECTION:
-			if show_possible:
-				for direction: Vector2i in HexGrid.DIRECTIONS:
-					var length:int = HexGrid.hex_distance(
-						origin,
-						HexGrid.raycast(origin,direction,ability.range,Global.EntityMask.ALL,true)
-						)
-					HexGrid.highlight_line(
-						possible_material,
-						origin,
-						direction,
-						length
-					)
-			if target and target.is_valid:
-				var length:int = HexGrid.hex_distance(
-						origin,
-						HexGrid.raycast(origin,target.direction,ability.range,Global.EntityMask.ALL,true)
-						)
-				HexGrid.highlight_line(
-					target_material,
-					origin,
-					target.direction,
-					length
-				)
-
-		Global.TargetingType.SINGLE_TILE:
-			if show_possible:
-				var cells: Array[Vector2i] = []
-				for radius in range(1, ability.range + 1):
-					cells.append_array(HexGrid.get_ring(origin, radius))
-				HexGrid.highlight_cells(possible_material, cells)
-			if target and target.is_valid:
-				HexGrid.create_highlight(target_material,
-					target.target_cell + origin)
-
-		Global.TargetingType.ANNULAR:
-			if show_possible:
-				var cells: Array[Vector2i] = []
-				for radius in range(1, ability.range + 1):
-					cells.append_array(HexGrid.get_ring(origin, radius))
-				HexGrid.highlight_cells(possible_material, cells)
-			if target and target.is_valid:
-				HexGrid.highlight_cells(target_material, target.resolve_cells(origin))
-
-		Global.TargetingType.SHAPE:
-			pass
-
-		Global.TargetingType.NONE:
-			pass
-
-	target_preview_changed.emit(target)
 
 ## Produces a typed target without changing UI or grid state.
 func evaluate_target(ability: Ability, mouse_position: Vector2, origin:Vector2i) -> AbilityTarget:
@@ -403,6 +349,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 		Global.AbilityType.ATTACK:
 			#_attack_applied = false
 			if ability.presentation != null:
+				@warning_ignore("redundant_await")
 				var completed: bool = await ability.presentation.play(self, presentation_visual, target)
 				if completed and not health.is_dead:
 					_apply_attack(ability,target)
@@ -493,6 +440,7 @@ func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 	return HexGrid.world_to_hex(local_position)
 
 func spend_mana(amount: int) -> bool:
+	print("spending mana: " + str(amount))
 	if amount < 0 or current_mana < amount:
 		return false
 
@@ -538,11 +486,11 @@ func clear_preview() -> void:
 	action_execution_controller.clear_preview()
 
 func check_tutorial_destination() -> void:
-	if not HexGrid.tutorial_target_active:
+	if not HexGrid.goal_active:
 		return
 
-	if HexGrid.tutorial_target_reached:
+	if HexGrid.goal_reached:
 		return
 
-	if movement.current_cell == HexGrid.tutorial_target_cell:
-		HexGrid.reach_tutorial_target()
+	if movement.current_cell == HexGrid.goal_cell:
+		HexGrid.reached_goal()

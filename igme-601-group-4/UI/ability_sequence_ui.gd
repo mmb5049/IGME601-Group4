@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 class_name AbilitySequenceUI
 
 ## Emitted whenever an entry is added, removed, or reordered.
@@ -49,7 +49,6 @@ func add_confirmed_ability_pending(ability: Ability, target: AbilityTarget) -> i
 	Global.player.ability_queue._next_entry_id += 1
 	_rebuild_items()
 	queue_changed.emit()
-	print("select ability")
 	ability_confirmed.emit()
 	return added_entry_id
 
@@ -213,7 +212,6 @@ func _on_item_removal_requested(entry_id: int, release_viewport_position: Vector
 	ability_removed.emit(ability)
 
 	consume_entry(entry_id, release_viewport_position)
-	print("remove")
 
 ## Moves a unique queue entry relative to another entry. The target index is
 ## resolved again after removal because removing an earlier item shifts every
@@ -233,7 +231,7 @@ func _on_item_reorder_requested(
 	var previous_positions: Dictionary[int, Vector2] = _capture_item_positions()
 	# The dragged entry must continue from the icon under the player's cursor,
 	# not from the now-empty slot where that entry originally lived.
-	previous_positions[dragged_entry_id] = get_canvas_transform().affine_inverse() * (
+	previous_positions[dragged_entry_id] = get_final_transform().affine_inverse() * (
 		CRTOverlay.get_content_mouse_position(get_viewport())
 	)
 	_clear_reorder_preview(false)

@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://bl22qcqt5bvd6" path="res://Characters/hologram.gd" id="13_r52jx"]
 [ext_resource type="Shader" uid="uid://dro6pejj8lvd3" path="res://Materials/Shaders/hologram.gdshader" id="14_ijtlc"]
 [ext_resource type="Texture2D" uid="uid://cmqbgiq1lu4dt" path="res://Materials/grunge_cracked_texture_background_1307.jpg" id="15_wbcqo"]
+[ext_resource type="Script" uid="uid://b443gq8qkq3ob" path="res://Characters/character_ui.gd" id="16_wbcqo"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0f3il"]
 
@@ -680,7 +681,9 @@ script = ExtResource("10_x35ji")
 libraries/Attack = ExtResource("6_55lj8")
 autoplay = &"Attack/FightingIdle"
 
-[node name="UI" type="Node3D" parent="." unique_id=1353826049]
+[node name="UI" type="Node3D" parent="." unique_id=1353826049 node_paths=PackedStringArray("action_number")]
+script = ExtResource("16_wbcqo")
+action_number = NodePath("ActionNumberUI")
 
 [node name="ActionNumberUI" parent="UI" unique_id=162314650 node_paths=PackedStringArray("_actor") instance=ExtResource("11_action_number")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)

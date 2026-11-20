@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b0xvgnulwxb1n"
-path="res://.godot/imported/DashHex.png-4a2fd05b70a0651cd194cf06f08f5931.ctex"
+uid="uid://vgikm1bpam1o"
+path="res://.godot/imported/abilities-04.png-3fe4f222afeb1bf9d894a2f4d4f2676c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Abilities/DashHex.png"
-dest_files=["res://.godot/imported/DashHex.png-4a2fd05b70a0651cd194cf06f08f5931.ctex"]
+source_file="res://Arts/Textures/Abilities/abilities-04.png"
+dest_files=["res://.godot/imported/abilities-04.png-3fe4f222afeb1bf9d894a2f4d4f2676c.ctex"]
 
 [params]
 

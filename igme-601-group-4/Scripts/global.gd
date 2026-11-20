@@ -35,11 +35,11 @@ enum OccupiedType {
 	DYNAMIC = 1 << 1
 }
 
-# returns true if _value has all flags in _flag
+## returns true if _value has all flags in _flag
 func contains_all_flags(_value, _flag) -> bool:
 	return (_value & _flag) == _flag
 
-# returns true if _value has any flag in _flag
+## returns true if _value has any flag in _flag
 func contains_a_flag(_value, _flag) -> bool:
 	return (_value & _flag) != 0
 
@@ -47,3 +47,9 @@ func get_target_material(ability: Ability) -> ShaderMaterial:
 	if ability.type == Global.AbilityType.MOVEMENT:
 		return HexGrid.material_move
 	return HexGrid.material_attack
+
+## switch to an instantiated scene
+func switch_scenes(scene) -> void:
+	get_tree().root.add_child(scene)
+	get_tree().current_scene.queue_free()
+	get_tree().current_scene = scene

@@ -1,5 +1,7 @@
 extends Node3D
 
+class_name ActionNumberUI
+
 ## The CanvasLayer keeps action numbers upright and independent of camera distance.
 @onready var _label: Label = $CanvasLayer/Number
 @export var _actor: Character
@@ -48,6 +50,10 @@ func _update_position() -> void:
 		_label.scale = Vector2.ONE * _actor.hover_scale
 	_label.position = screen_position - _label.size * 0.5
 
+
+func _show_number() -> void:
+	_label.show()
+	set_process(true)
 
 func _hide_number() -> void:
 	_label.hide()

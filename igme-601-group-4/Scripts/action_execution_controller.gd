@@ -16,6 +16,7 @@ signal action_finished(actor: Node, entry: QueuedAbility, succeeded: bool)
 @export var player_actor: PlayerController
 @export var player_queue_UI: AbilitySequenceUI
 @export var player_ability_bar: AbilityBarUI
+@export var enemy_parent:Node3D
 @export var execute_button: ExecuteButtonUI
 
 ## Instant abilities could otherwise consume several queue entries in one
@@ -32,13 +33,15 @@ var action_order: Array[Character] = []
 @export var obstacles:Node3D 
 
 func _ready() -> void:
+	await get_parent().last_scene_done
 	if execute_button == null:
 		push_error("ActionExecutionController needs an ExecuteButtonUI reference.")
 		return
 	execute_button.execute_requested.connect(_on_execute_requested)
 	# Arena._ready() spawns enemies after this child becomes ready.
 	begin_preparation.call_deferred()
-
+	if not obstacles:
+		push_warning("Obstacle parent not set")
 
 func begin_preparation() -> void:
 	if _is_executing or current_phase == TurnPhase.PREPARATION:
@@ -50,7 +53,7 @@ func begin_preparation() -> void:
 	player_actor.action_number = 1
 	action_order.append(player_actor)
 	var enemies: Array[Enemy] = []
-	for node in get_tree().get_nodes_in_group("enemies"):
+	for node in enemy_parent.get_children():
 		if node is Enemy and get_parent().is_ancestor_of(node) and _actor_can_act(node):
 			enemies.append(node)
 	enemies.shuffle()
@@ -136,6 +139,7 @@ func execute_next(actor: Character, queue_source: AbilityQueue) -> bool:
 	# await also accepts an immediate return value. Movement abilities suspend
 	# here until CharacterMovement emits done_moving; attacks and Wait complete
 	# synchronously and proceed directly to queue consumption.
+	@warning_ignore("redundant_await")
 	var succeeded: bool = await actor.execute_queued_ability(entry)
 	if(actor is PlayerController):
 		player_queue_UI.consume_entry(entry.id)
@@ -155,8 +159,15 @@ func _set_planning_interaction_enabled(enabled: bool) -> void:
 # Runs a simulation of the queue to see a future state
 # Utilize hologram data to get preview information
 func preview_queue(index:int) -> void:
+	#if index <= 0:
+		#print("zero")
 	# Reset character holograms
-	for character in action_order:
+	for i:int in range(0,action_order.size()):
+		var character = action_order[i]
+		if not is_instance_valid(character):
+			action_order.remove_at(i)
+			i -= 1
+			continue
 		character.hologram.reset()
 		character.hologram.visible = true
 		character.mesh.visible = false
@@ -182,14 +193,37 @@ func preview_queue(index:int) -> void:
 			execute_next(character.hologram, character.hologram.ability_queue)
 			character.user_interface.global_position = character.hologram.global_position
 	
-	# Display preview of enemy abilities
-	
+	# Display targeting choice when previewing mid-queue
+	for character in action_order:
+		
+		## TODO: Implement some way for the player to select which character to preview
+		if not character is PlayerController:
+			break
+		
+		if index < character.ability_queue.size():
+			# Get ability data
+			var queued_ability:QueuedAbility = character.ability_queue.queue.get(index)
+			if queued_ability:
+				character.update_ability_preview(character.hologram.movement.current_cell,
+				queued_ability.ability,false,queued_ability.target)
 
 func clear_preview() -> void:
-	for character in action_order:
+	for i:int in range(0,action_order.size()):
+		var character = action_order[i]
+		if not is_instance_valid(character):
+			action_order.remove_at(i)
+			i -= 1
+			continue
 		character.hologram.visible = false
 		character.mesh.visible = true
+		character.user_interface.show_ui()
 		character.user_interface.global_position = character.global_position
+		
+		# Update health bar to use real data (not hologram)
+		if character is Enemy:
+			(character as Enemy)._health_bar._update_health(
+				character.health.current,
+				character.health.max)
 	if obstacles:
 		for obstacle in obstacles.get_children():
 			if obstacle is Obstacle and obstacle.hologram:

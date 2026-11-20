@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d1gsglifboydv"
-path="res://.godot/imported/WhirlwindHex.png-24275018cd8ce73d1c4f4b336876e453.ctex"
+uid="uid://ds5t3apv26us0"
+path="res://.godot/imported/abilities-06.png-41ebd79cc357b11a48ac1cd76986da68.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Abilities/WhirlwindHex.png"
-dest_files=["res://.godot/imported/WhirlwindHex.png-24275018cd8ce73d1c4f4b336876e453.ctex"]
+source_file="res://Arts/Textures/Abilities/abilities-06.png"
+dest_files=["res://.godot/imported/abilities-06.png-41ebd79cc357b11a48ac1cd76986da68.ctex"]
 
 [params]
 

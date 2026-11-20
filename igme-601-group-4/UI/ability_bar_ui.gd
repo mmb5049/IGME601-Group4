@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 class_name AbilityBarUI
 
 ## Forwarded when the player clicks a non-empty Slot. The Bar keeps its

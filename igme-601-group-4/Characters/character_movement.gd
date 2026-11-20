@@ -28,6 +28,7 @@ signal done_moving(sender:Signal)
 var is_moving:bool
 
 func _ready():
+	
 	target_cell = current_cell
 	floorHeight = HexGrid.hex_height
 	

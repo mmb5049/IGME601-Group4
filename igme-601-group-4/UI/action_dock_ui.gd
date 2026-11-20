@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 class_name ActionDockUI
 
 const HEX_DISPLAY_SCENE := preload("res://UI/AbilityHexDisplayUI.tscn")
@@ -58,7 +58,8 @@ func _ready() -> void:
 	_indicator.hide_indicator()
 	if _sequence != null:
 		_sequence.queue_changed.connect(_sync_execute_button)
-	_sync_execute_button()
+	await $"../../..".last_scene_done
+	call_deferred("_sync_execute_button")
 
 
 ## Connected to PlayerController.targeting_started by the Arena scene.

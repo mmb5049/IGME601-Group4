@@ -10,6 +10,7 @@ class_name Ability
 @export var type: Global.AbilityType = Global.AbilityType.ATTACK
 @export var cost: int = 0
 @export var cooldown: float = 0.0
+@warning_ignore("shadowed_global_identifier")
 @export var range: int = 0
 @export var damage: int = 0
 

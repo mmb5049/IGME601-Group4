@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bku1xbd8mha4"]
+
+[ext_resource type="Shader" uid="uid://ckx4elrx78lc3" path="res://Materials/Shaders/stencil_screen_read.gdshader" id="1_fwm3p"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_fwm3p")
+shader_parameter/cutout_position = Vector2(0, 0)
+shader_parameter/cutout_size = Vector2(0, 0)

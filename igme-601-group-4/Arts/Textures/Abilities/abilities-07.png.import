@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dad2hal1ub8ml"
-path="res://.godot/imported/Move.png-e9efc89ede967e00fde3be2fec181a10.ctex"
+uid="uid://cm3pk4eligfr3"
+path="res://.godot/imported/abilities-07.png-735985a65db14dafbdeaa32ef809b471.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Move.png"
-dest_files=["res://.godot/imported/Move.png-e9efc89ede967e00fde3be2fec181a10.ctex"]
+source_file="res://Arts/Textures/Abilities/abilities-07.png"
+dest_files=["res://.godot/imported/abilities-07.png-735985a65db14dafbdeaa32ef809b471.ctex"]
 
 [params]
 

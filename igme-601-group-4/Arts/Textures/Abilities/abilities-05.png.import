@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://gg4f8bytiflp"
-path="res://.godot/imported/Self_Enhancement.png-a19b409ea05a89abaf5e0aae00ada379.ctex"
+uid="uid://br8dn6cmf45ho"
+path="res://.godot/imported/abilities-05.png-57ddc657db139edd71fd9d4717290ede.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Self_Enhancement.png"
-dest_files=["res://.godot/imported/Self_Enhancement.png-a19b409ea05a89abaf5e0aae00ada379.ctex"]
+source_file="res://Arts/Textures/Abilities/abilities-05.png"
+dest_files=["res://.godot/imported/abilities-05.png-57ddc657db139edd71fd9d4717290ede.ctex"]
 
 [params]
 
