@@ -8,7 +8,7 @@ class_name ArenaManager
 
 @export_group("Arena Configuration")
 @export_file("*.json") var levels_file: String = "res://Levels/Levels_Data.json"
-var current_level: StringName
+@export var current_level: StringName
 @export var current_stage: int
 
 var current_level_data: Dictionary = {}
@@ -30,6 +30,7 @@ var last_scene_unloaded:bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	print("Current Level", current_level)
 	if not game_over_screen:
 		push_warning("No game over screen found!")
 	if not scene_transition:
@@ -73,6 +74,7 @@ func _ready() -> void:
 			spawn_walls()
 
 	Global.player.health.died.connect(func(): game_over(false))
+	
 
 func _process(_delta):
 	if not last_scene_unloaded and get_tree().current_scene == self:

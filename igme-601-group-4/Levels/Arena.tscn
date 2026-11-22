@@ -160,3 +160,5 @@ compositor = SubResource("Compositor_fy3br")
 [connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
 [connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
 [connection signal="visibility_changed" from="GlobalUIRoot/GameOver" to="." method="_on_game_over_visibility_changed"]
+
+[editable path="GlobalUIRoot/SwayLayer/AbilityInfoUi"]
