@@ -13,7 +13,7 @@
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="11_xn071"]
 [ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="12_cyh48"]
 [ext_resource type="PackedScene" uid="uid://bkw5j0bx88rjt" path="res://UI/AbilityBarUI.tscn" id="13_l1np0"]
-[ext_resource type="PackedScene" path="res://UI/AbilitySequenceUI.tscn" id="14_0krmd"]
+[ext_resource type="PackedScene" uid="uid://cvr0mhxrtq6oq" path="res://UI/AbilitySequenceUI.tscn" id="14_0krmd"]
 [ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="15_6gukf"]
 [ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="16_pxk26"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="17_y3ot0"]
@@ -22,6 +22,7 @@
 [ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="21_axbvx"]
 [ext_resource type="Shader" uid="uid://bsde1p6q4m62r" path="res://Levels/TVGlitch.gdshader" id="22_bq6uc"]
 [ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="23_1xhhl"]
+[ext_resource type="Script" uid="uid://d0t0hkxel4hq7" path="res://UI/Onboarding_Enemy/Enemy_Onboard.gd" id="24_pa47a"]
 [ext_resource type="PackedScene" uid="uid://ct5d84slhdgyj" path="res://VFX/CRTOverlay.tscn" id="24_q1uay"]
 
 [sub_resource type="Environment" id="Environment_pdfgs"]
@@ -48,7 +49,6 @@ glitch_tv = NodePath("../TVGlitch/ColorRect")
 next_stage = ExtResource("3_clrwc")
 
 [node name="DarkenUI" parent="." unique_id=1972266123 instance=ExtResource("4_xjbim")]
-visible = false
 
 [node name="Camera3D" parent="." unique_id=870503545 instance=ExtResource("5_gw3ge")]
 
@@ -157,6 +157,53 @@ horizontal_alignment = 1
 [node name="HUD" parent="." unique_id=1670573114 instance=ExtResource("23_1xhhl")]
 
 [node name="CRTOverlay" parent="." unique_id=1019875901 instance=ExtResource("24_q1uay")]
+
+[node name="EnemyOnboardUI" type="CanvasLayer" parent="." unique_id=345218347 node_paths=PackedStringArray("darken_ui", "enemyParent")]
+layer = 3
+script = ExtResource("24_pa47a")
+darken_ui = NodePath("../DarkenUI")
+enemyParent = NodePath("../Enemies")
+
+[node name="Welcome" type="PanelContainer" parent="EnemyOnboardUI" unique_id=797183326]
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 250.0
+offset_right = 200.0
+offset_bottom = 312.0
+grow_horizontal = 2
+script = ExtResource("20_xtey1")
+
+[node name="Label" type="Label" parent="EnemyOnboardUI/Welcome" unique_id=1042597050]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("21_axbvx")
+theme_override_font_sizes/font_size = 48
+text = "Motherboard"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TutorialPrompt" type="PanelContainer" parent="EnemyOnboardUI" unique_id=640890150]
+visible = false
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -320.0
+offset_top = 728.0
+offset_right = 254.0
+offset_bottom = 790.0
+grow_horizontal = 2
+script = ExtResource("20_xtey1")
+
+[node name="TutorialText" type="Label" parent="EnemyOnboardUI/TutorialPrompt" unique_id=534315522]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("21_axbvx")
+theme_override_font_sizes/font_size = 48
+text = "Hover to view the ability's detail"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
