@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dwkqh617qukd1" path="res://UI/Menus/level_node.tscn" id="3_ccgke"]
 [ext_resource type="PackedScene" uid="uid://cqaqm6pjwq766" path="res://Levels/Movement_Onboarding.tscn" id="4_qaiwm"]
 [ext_resource type="PackedScene" uid="uid://b0576k1jo61m6" path="res://Levels/Arena.tscn" id="5_4hgqp"]
+[ext_resource type="PackedScene" uid="uid://q3wa381ad8ui" path="res://Levels/Enemy_Onboarding.tscn" id="5_tinl6"]
 
 [sub_resource type="Environment" id="Environment_route"]
 background_mode = 1
@@ -33,10 +34,9 @@ level_scene = ExtResource("4_qaiwm")
 
 [node name="Motherboard" parent="Levels" unique_id=1205440517 instance=ExtResource("3_ccgke")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 9.744285, 0, 4.3709435)
-active = false
-level_id = &"2"
+level_id = &"Onboard-1"
 level_name = "Motherboard"
-level_scene = ExtResource("5_4hgqp")
+level_scene = ExtResource("5_tinl6")
 
 [node name="Hard Drive" parent="Levels" unique_id=470409494 instance=ExtResource("3_ccgke")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 17.493511, 1.9073486e-06, -3.9307866)
