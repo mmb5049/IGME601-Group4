@@ -18,9 +18,8 @@ signal user_input
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	enemy = enemyParent.get_child(0)
 	
-	
+	get_enemy()
 	await user_input
 	welcome_panel.fade_in()
 	welcome_panel.hide()
@@ -40,6 +39,9 @@ func start_enemy_tutorial() -> void:
 	
 	prompt_panel.show()
 	prompt_text.text = "Enemy on the field can damage you!"
+	if enemy == null:
+		get_enemy()
+	darken_ui.highlight_3D(enemy)
 	await user_input
 	#finish_attack_tutorial()
 	
@@ -48,3 +50,7 @@ func finish_attack_tutorial() -> void:
 	prompt_panel.hide()
 	HexGrid.set_tutorial_target(Vector2i(4,0))
 	#task_panel.show()
+	
+func get_enemy() -> void:
+	enemy = enemyParent.get_child(0)
+	print(enemy)
