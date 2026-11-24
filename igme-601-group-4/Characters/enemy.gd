@@ -77,7 +77,6 @@ func set_model_hovered(hovered: bool) -> void:
 		mesh.material_overlay = _normal_overlay
 	_health_bar.set_show_through_walls(hovered)
 	
-	print("currently hovered")
 	set_process(true)
 	being_hovered.emit()
 

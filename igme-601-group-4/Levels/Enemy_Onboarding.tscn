@@ -11,10 +11,14 @@
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="8_cv1qy"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="9_lejm7"]
 [ext_resource type="PackedScene" uid="uid://c35cgvpcvfvxk" path="res://VFX/Self_Enhancement.tscn" id="10_1yt6e"]
+[ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="11_0gipd"]
 [ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="11_xn071"]
 [ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="12_cyh48"]
+[ext_resource type="Resource" uid="uid://bd8u5js5idheq" path="res://Abilities/Wait.tres" id="12_recak"]
+[ext_resource type="Resource" uid="uid://c6k8dqbeef8ht" path="res://Abilities/Whirlwind.tres" id="13_cv1qy"]
 [ext_resource type="PackedScene" uid="uid://bkw5j0bx88rjt" path="res://UI/AbilityBarUI.tscn" id="13_l1np0"]
 [ext_resource type="PackedScene" uid="uid://cvr0mhxrtq6oq" path="res://UI/AbilitySequenceUI.tscn" id="14_0krmd"]
+[ext_resource type="Resource" uid="uid://6cjwk84iec8y" path="res://Abilities/Attack_Up.tres" id="14_lejm7"]
 [ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="15_6gukf"]
 [ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="16_pxk26"]
 [ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="17_y3ot0"]
@@ -65,7 +69,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.3841858e-07, -1.1920929
 script = ExtResource("6_y8ph2")
 
 [node name="Player" parent="." unique_id=372403699 node_paths=PackedStringArray("ability_sequence_ui") groups=["player"] instance=ExtResource("6_0gipd")]
-abilities = Array[ExtResource("7_recak")]([ExtResource("8_cv1qy"), ExtResource("9_lejm7")])
+abilities = Array[ExtResource("7_recak")]([ExtResource("8_cv1qy"), ExtResource("9_lejm7"), ExtResource("11_0gipd"), ExtResource("12_recak"), ExtResource("13_cv1qy"), ExtResource("14_lejm7")])
 self_enhance_effect_scene = ExtResource("10_1yt6e")
 ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 
@@ -97,7 +101,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("13_l1np0")]
-abilities = Array[ExtResource("7_recak")]([ExtResource("9_lejm7"), ExtResource("8_cv1qy")])
+abilities = Array[ExtResource("7_recak")]([ExtResource("9_lejm7"), ExtResource("8_cv1qy"), ExtResource("11_0gipd"), ExtResource("12_recak"), ExtResource("13_cv1qy"), ExtResource("14_lejm7")])
 rotation_step_degrees = 3.0
 breathing_amplitude_pixels = 2.0
 breathing_speed_hz = 0.25
@@ -142,10 +146,10 @@ custom_maximum_size = Vector2(20000, 20000)
 anchors_preset = -1
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = 340.0
-offset_top = 929.0
-offset_right = 940.0
-offset_bottom = 1082.0
+offset_left = 349.0
+offset_top = 812.0
+offset_right = 949.0
+offset_bottom = 965.0
 grow_horizontal = 2
 script = ExtResource("20_xtey1")
 
@@ -155,18 +159,20 @@ theme_override_fonts/font = ExtResource("21_axbvx")
 theme_override_font_sizes/font_size = 48
 text = "Task
 
-Reach the highlight tile"
+Defeat the enemy"
 horizontal_alignment = 1
 
 [node name="HUD" parent="." unique_id=1670573114 instance=ExtResource("23_1xhhl")]
 
 [node name="CRTOverlay" parent="." unique_id=1019875901 instance=ExtResource("24_q1uay")]
 
-[node name="EnemyOnboardUI" type="CanvasLayer" parent="." unique_id=345218347 node_paths=PackedStringArray("darken_ui", "enemyParent")]
+[node name="EnemyOnboardUI" type="CanvasLayer" parent="." unique_id=345218347 node_paths=PackedStringArray("ability_bar", "darken_ui", "enemyParent", "task_panel")]
 layer = 3
 script = ExtResource("24_pa47a")
+ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
 darken_ui = NodePath("../DarkenUI")
 enemyParent = NodePath("../Enemies")
+task_panel = NodePath("../TVGlitch/Task")
 
 [node name="Welcome" type="PanelContainer" parent="EnemyOnboardUI" unique_id=797183326]
 custom_maximum_size = Vector2(20000, 20000)
