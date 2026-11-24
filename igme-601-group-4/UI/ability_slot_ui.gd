@@ -18,6 +18,7 @@ var _hover_transition_seconds: float = 0.0
 var _hover_target: float = 0.0
 var _hover_progress: float = 0.0
 var _interaction_enabled: bool = true
+var _click_enabled: bool = true
 
 @onready var _hex_display: AbilityHexDisplayUI = $AbilityHexDisplayUI
 
@@ -109,7 +110,8 @@ func _gui_input(event: InputEvent) -> void:
 		return
 
 	var mouse_event: InputEventMouseButton = event as InputEventMouseButton
-	if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed and ability != null:
+	if (mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed and ability != null 
+	and _click_enabled):
 		ability_pressed.emit(ability)
 		accept_event()
 

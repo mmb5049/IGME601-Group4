@@ -1,6 +1,12 @@
 {
 	"levels": [
 		{
+			"level_number": "Onboard-1",
+			"enemies": [
+				{ "position": [1, 1] }
+			],
+		},
+		{
 			"level_number": 1,
 			"enemies": [
 				{ "position": [1, 1] },

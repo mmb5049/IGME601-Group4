@@ -153,6 +153,18 @@ text = "Welcome To Combo Core"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="ContinueText" type="Label" parent="MovementOnboardUI/Welcome/Label" unique_id=1163638374]
+layout_mode = 0
+offset_left = -1.5
+offset_top = 57.0
+offset_right = 569.0
+offset_bottom = 106.0
+theme_override_fonts/font = ExtResource("22_ypint")
+theme_override_font_sizes/font_size = 32
+text = "(Click to continue)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="TutorialPrompt" type="PanelContainer" parent="MovementOnboardUI" unique_id=1809753597]
 visible = false
 custom_maximum_size = Vector2(20000, 20000)
@@ -171,6 +183,25 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("22_ypint")
 theme_override_font_sizes/font_size = 48
 text = "Hover to view the ability's detail"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContinueText" type="Label" parent="MovementOnboardUI/TutorialPrompt/TutorialText" unique_id=720937478]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -142.5
+offset_top = 15.474998
+offset_right = 142.5
+offset_bottom = 48.475014
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("22_ypint")
+theme_override_font_sizes/font_size = 32
+text = "(Click to continue)"
 horizontal_alignment = 1
 vertical_alignment = 1
 

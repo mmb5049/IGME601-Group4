@@ -7,6 +7,11 @@ signal ability_selected(ability: Ability)
 
 ## Signal when the user hover an ability
 signal ability_hovered(ability: Ability, slot: Control)
+signal stopped_hovering
+var is_hovered:bool = false
+var _click_enabled = true
+var hovered_ability:Ability
+var hovered_slot:AbilitySlotUI
 
 ## Each array entry creates one slot. Null entries create empty slots, so this
 ## array is the single source of truth for both slot count and slot contents.
@@ -82,10 +87,10 @@ func rebuild_slots() -> void:
 		slot.configure(abilities[index])
 		slot.set_interaction_enabled(_interaction_enabled)
 		slot.show_ability_info.connect(
-			func(ability):
-				_ability_info_ui.set_image(ability)
-				_ability_info_ui.show_image()
-				ability_hovered.emit(ability, slot)
+			func(ability):_mouse_entered_ability(ability,slot)
+		)
+		slot.hide_ability_info.connect(
+			func(ability):_on_mouse_exited()
 		)
 
 		slot.hide_ability_info.connect(_ability_info_ui.hide_image)
@@ -130,3 +135,20 @@ func set_interaction_enabled(enabled: bool) -> void:
 		var slot: AbilitySlotUI = child as AbilitySlotUI
 		if slot != null:
 			slot.set_interaction_enabled(enabled)
+
+
+func _mouse_entered_ability(ability:Ability,slot:AbilitySlotUI):
+	_ability_info_ui.set_image(ability)
+	_ability_info_ui.show_image()
+	ability_hovered.emit(ability, slot)
+	is_hovered = true
+	hovered_ability = ability
+	hovered_slot = slot
+
+func _on_mouse_exited() -> void:
+	stopped_hovering.emit()
+	is_hovered = false
+
+func set_click_enabled(is_true:bool):
+	for slot in _slot_container.get_children():
+		(slot as AbilitySlotUI)._click_enabled = is_true

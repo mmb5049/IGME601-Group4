@@ -1,0 +1,221 @@
+[gd_scene format=3 uid="uid://q3wa381ad8ui"]
+
+[ext_resource type="Script" uid="uid://dl8o2e2kjwvf0" path="res://Levels/arena_manager.gd" id="1_pa47a"]
+[ext_resource type="Script" uid="uid://bx20wmawrkbto" path="res://Levels/scene_transition.gd" id="2_y8ph2"]
+[ext_resource type="PackedScene" uid="uid://i65lwsdvht24" path="res://Levels/Attack_Onboarding.tscn" id="3_clrwc"]
+[ext_resource type="PackedScene" uid="uid://for1r2yqd4ve" path="res://UI/darken_ui.tscn" id="4_xjbim"]
+[ext_resource type="PackedScene" uid="uid://c7oel5paqcgs5" path="res://Arena Features/camera_3d.tscn" id="5_gw3ge"]
+[ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="6_0gipd"]
+[ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="7_recak"]
+[ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="8_cv1qy"]
+[ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="9_lejm7"]
+[ext_resource type="PackedScene" uid="uid://c35cgvpcvfvxk" path="res://VFX/Self_Enhancement.tscn" id="10_1yt6e"]
+[ext_resource type="Script" uid="uid://cjji6ue6sj03y" path="res://UI/enemy_queue_visibility_manager.gd" id="11_xn071"]
+[ext_resource type="Script" uid="uid://dosnlnm0d3y77" path="res://UI/global_ui_sway.gd" id="12_cyh48"]
+[ext_resource type="PackedScene" uid="uid://bkw5j0bx88rjt" path="res://UI/AbilityBarUI.tscn" id="13_l1np0"]
+[ext_resource type="PackedScene" uid="uid://cvr0mhxrtq6oq" path="res://UI/AbilitySequenceUI.tscn" id="14_0krmd"]
+[ext_resource type="PackedScene" uid="uid://4umsbgvqtyhm" path="res://UI/ActionDockUI.tscn" id="15_6gukf"]
+[ext_resource type="PackedScene" uid="uid://8sn2l0pafp8i" path="res://UI/AbilityInfoUI.tscn" id="16_pxk26"]
+[ext_resource type="PackedScene" uid="uid://d2af5376r7sff" path="res://UI/Menus/game_over.tscn" id="17_y3ot0"]
+[ext_resource type="Script" uid="uid://bqyjg7cr7355y" path="res://Scripts/action_execution_controller.gd" id="18_dw62d"]
+[ext_resource type="Script" uid="uid://bf4vtvg2yf0tc" path="res://UI/Onboarding_Movement/PanelText.gd" id="20_xtey1"]
+[ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="21_axbvx"]
+[ext_resource type="Shader" uid="uid://bsde1p6q4m62r" path="res://Levels/TVGlitch.gdshader" id="22_bq6uc"]
+[ext_resource type="PackedScene" uid="uid://cr5jts6r1074n" path="res://UI/Player/HUD.tscn" id="23_1xhhl"]
+[ext_resource type="Script" uid="uid://d0t0hkxel4hq7" path="res://UI/Onboarding_Enemy/Enemy_Onboard.gd" id="24_pa47a"]
+[ext_resource type="PackedScene" uid="uid://ct5d84slhdgyj" path="res://VFX/CRTOverlay.tscn" id="24_q1uay"]
+
+[sub_resource type="Environment" id="Environment_pdfgs"]
+glow_enabled = true
+glow_hdr_luminance_cap = 46.67
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_dfd4s"]
+
+[sub_resource type="Compositor" id="Compositor_fy3br"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_42q7o"]
+shader = ExtResource("22_bq6uc")
+shader_parameter/glitch_intensity = 0.2
+shader_parameter/scanline_intensity = 0.3
+
+[node name="Arena" type="Node3D" unique_id=1193273823]
+script = ExtResource("1_pa47a")
+current_level = &"0"
+current_stage = 1
+
+[node name="SceneTransition" type="Node" parent="." unique_id=1919496798 node_paths=PackedStringArray("glitch_tv")]
+script = ExtResource("2_y8ph2")
+glitch_tv = NodePath("../TVGlitch/ColorRect")
+next_stage = ExtResource("3_clrwc")
+
+[node name="DarkenUI" parent="." unique_id=1972266123 instance=ExtResource("4_xjbim")]
+
+[node name="Camera3D" parent="." unique_id=870503545 instance=ExtResource("5_gw3ge")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=311003560]
+transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41029218, 0, 2.4668567, 1.7899017)
+
+[node name="Obstacles" type="Node3D" parent="." unique_id=739621331]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.3841858e-07, -1.1920929e-07)
+
+[node name="Enemies" type="Node3D" parent="." unique_id=1742302211]
+
+[node name="Player" parent="." unique_id=372403699 node_paths=PackedStringArray("ability_sequence_ui") groups=["player"] instance=ExtResource("6_0gipd")]
+abilities = Array[ExtResource("7_recak")]([ExtResource("8_cv1qy"), ExtResource("9_lejm7")])
+self_enhance_effect_scene = ExtResource("10_1yt6e")
+ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+
+[node name="Movement" parent="Player" index="1" unique_id=1414287046]
+spawn_position = Vector2i(-4, 0)
+
+[node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
+script = ExtResource("11_xn071")
+
+[node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("12_cyh48")
+maximum_sway_pixels = Vector2(12, 8)
+
+[node name="SwayLayer" type="Control" parent="GlobalUIRoot" unique_id=368694180]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("13_l1np0")]
+abilities = Array[ExtResource("7_recak")]([ExtResource("9_lejm7"), ExtResource("8_cv1qy")])
+rotation_step_degrees = 3.0
+breathing_amplitude_pixels = 2.0
+breathing_speed_hz = 0.25
+hover_lift_pixels = 26.0
+
+[node name="AbilitySequenceUI" parent="GlobalUIRoot/SwayLayer" unique_id=1775434780 instance=ExtResource("14_0krmd")]
+
+[node name="ActionDockUI" parent="GlobalUIRoot/SwayLayer" unique_id=1286708918 instance=ExtResource("15_6gukf")]
+
+[node name="AbilityInfoUi" parent="GlobalUIRoot/SwayLayer" unique_id=200573368 instance=ExtResource("16_pxk26")]
+
+[node name="GameOver" parent="GlobalUIRoot" unique_id=1785312048 instance=ExtResource("17_y3ot0")]
+unique_name_in_owner = true
+visible = false
+
+[node name="ActionExecutionController" type="Node" parent="." unique_id=557674095 node_paths=PackedStringArray("player_actor", "player_queue_UI", "player_ability_bar", "enemy_parent", "execute_button", "obstacles")]
+script = ExtResource("18_dw62d")
+player_actor = NodePath("../Player")
+player_queue_UI = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
+player_ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+enemy_parent = NodePath("../Enemies")
+execute_button = NodePath("../GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI")
+between_actions_delay = 0.45
+obstacles = NodePath("../Obstacles")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136143873]
+environment = SubResource("Environment_pdfgs")
+camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
+compositor = SubResource("Compositor_fy3br")
+
+[node name="TVGlitch" type="CanvasLayer" parent="." unique_id=490933593]
+
+[node name="ColorRect" type="ColorRect" parent="TVGlitch" unique_id=736041042]
+visible = false
+material = SubResource("ShaderMaterial_42q7o")
+offset_right = 1966.0
+offset_bottom = 1106.0
+
+[node name="Task" type="PanelContainer" parent="TVGlitch" unique_id=2062470217]
+visible = false
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 340.0
+offset_top = 929.0
+offset_right = 940.0
+offset_bottom = 1082.0
+grow_horizontal = 2
+script = ExtResource("20_xtey1")
+
+[node name="Task Text" type="Label" parent="TVGlitch/Task" unique_id=1952783207]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("21_axbvx")
+theme_override_font_sizes/font_size = 48
+text = "Task
+
+Reach the highlight tile"
+horizontal_alignment = 1
+
+[node name="HUD" parent="." unique_id=1670573114 instance=ExtResource("23_1xhhl")]
+
+[node name="CRTOverlay" parent="." unique_id=1019875901 instance=ExtResource("24_q1uay")]
+
+[node name="EnemyOnboardUI" type="CanvasLayer" parent="." unique_id=345218347 node_paths=PackedStringArray("darken_ui", "enemyParent")]
+layer = 3
+script = ExtResource("24_pa47a")
+darken_ui = NodePath("../DarkenUI")
+enemyParent = NodePath("../Enemies")
+
+[node name="Welcome" type="PanelContainer" parent="EnemyOnboardUI" unique_id=797183326]
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 250.0
+offset_right = 200.0
+offset_bottom = 312.0
+grow_horizontal = 2
+script = ExtResource("20_xtey1")
+
+[node name="Label" type="Label" parent="EnemyOnboardUI/Welcome" unique_id=1042597050]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("21_axbvx")
+theme_override_font_sizes/font_size = 48
+text = "Motherboard"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TutorialPrompt" type="PanelContainer" parent="EnemyOnboardUI" unique_id=640890150]
+visible = false
+custom_maximum_size = Vector2(20000, 20000)
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -320.0
+offset_top = 728.0
+offset_right = 254.0
+offset_bottom = 790.0
+grow_horizontal = 2
+script = ExtResource("20_xtey1")
+
+[node name="TutorialText" type="Label" parent="EnemyOnboardUI/TutorialPrompt" unique_id=534315522]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("21_axbvx")
+theme_override_font_sizes/font_size = 48
+text = "Hover to view the ability's detail"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
+[connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
+[connection signal="targeting_ended" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="end_targeting"]
+[connection signal="targeting_started" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="begin_targeting"]
+[connection signal="ability_selected" from="GlobalUIRoot/SwayLayer/AbilityBarUI" to="Player" method="request_ability"]
+
+[editable path="Player"]
+[editable path="GlobalUIRoot/SwayLayer/AbilityBarUI"]
+[editable path="GlobalUIRoot/SwayLayer/AbilitySequenceUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI/ExecuteButtonUI"]
+[editable path="GlobalUIRoot/SwayLayer/ActionDockUI/OperationIndicatorUI"]
+[editable path="GlobalUIRoot/SwayLayer/AbilityInfoUi"]
+[editable path="GlobalUIRoot/GameOver"]

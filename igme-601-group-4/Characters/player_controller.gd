@@ -23,7 +23,7 @@ var camera: Camera3D
 
 @export_category("Mana")
 @export var max_mana: int = 100
-@export var mana_per_turn: int = 100
+@export var mana_per_turn: int = 70
 @export var current_mana: int = 100
 
 @export_category("Abilities")

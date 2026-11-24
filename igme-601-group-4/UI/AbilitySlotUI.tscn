@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bsr4glpyi0627"]
 
 [ext_resource type="Script" uid="uid://suaak8c2ruat" path="res://UI/ability_slot_ui.gd" id="1_slot_script"]
-[ext_resource type="PackedScene" path="res://UI/AbilityHexDisplayUI.tscn" id="2_hex_display"]
+[ext_resource type="PackedScene" uid="uid://2npwggdub13g" path="res://UI/AbilityHexDisplayUI.tscn" id="2_hex_display"]
 [ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="3_slash"]
 
 [node name="AbilitySlotUI" type="Control" unique_id=217648308]

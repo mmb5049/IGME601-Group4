@@ -9,7 +9,7 @@
 script = ExtResource("1_8nbmr")
 ability_name = "Slash"
 icon = ExtResource("2_ptatf")
-cost = 15
+cost = 10
 range = 2
 damage = 5
 animation = ExtResource("1_b255d")

@@ -4,14 +4,17 @@
 [ext_resource type="FontFile" uid="uid://iva2kdc7h4yg" path="res://Font/Oxanium-VariableFont_wght.ttf" id="2_h6622"]
 [ext_resource type="FontFile" uid="uid://b6w8dn8xwm34c" path="res://Font/Oxanium-ExtraBold.ttf" id="2_minvw"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o8tsv"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0f3il"]
+bg_color = Color(1, 0, 0, 1)
+
 [sub_resource type="FontVariation" id="FontVariation_minvw"]
 base_font = ExtResource("2_minvw")
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_i3jvf"]
-blend_mode = 1
-
-[sub_resource type="FontVariation" id="FontVariation_ity2r"]
-base_font = ExtResource("2_minvw")
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gkdul"]
+bg_color = Color(0.7137255, 0.7176471, 1, 1)
 
 [sub_resource type="Theme" id="Theme_tmhow"]
 
@@ -21,44 +24,63 @@ base_font = ExtResource("2_h6622")
 [node name="HUD" type="CanvasLayer" unique_id=1670573114]
 script = ExtResource("1_vwvg8")
 
-[node name="HealthBar" type="ProgressBar" parent="." unique_id=861420710]
-modulate = Color(1, 0, 0, 1)
+[node name="HealthWhiteBar" type="ProgressBar" parent="." unique_id=1284201871]
 offset_left = 25.0
 offset_top = 23.0
 offset_right = 548.0
 offset_bottom = 79.0
 scale = Vector2(0.8922286, 0.73076844)
+theme_override_styles/fill = SubResource("StyleBoxFlat_o8tsv")
+value = 100.0
+show_percentage = false
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=861420710]
+offset_left = 25.0
+offset_top = 23.0
+offset_right = 548.0
+offset_bottom = 79.0
+scale = Vector2(0.8922286, 0.73076844)
+theme_override_styles/fill = SubResource("StyleBoxFlat_0f3il")
 value = 100.0
 show_percentage = false
 
 [node name="HealthLabel" type="Label" parent="HealthBar" unique_id=164554152]
 layout_mode = 0
-offset_left = 201.74202
-offset_top = 12.315803
+offset_left = 201.742
+offset_top = 12.315804
 offset_right = 319.742
 offset_bottom = 36.3158
 scale = Vector2(2.1207945, 2.1494749)
 theme_override_fonts/font = SubResource("FontVariation_minvw")
 
-[node name="ManaBar" type="ProgressBar" parent="." unique_id=38245691]
-self_modulate = Color(0.7129441, 0.7188152, 1, 1)
-material = SubResource("CanvasItemMaterial_i3jvf")
-offset_left = 25.0
-offset_top = 83.00001
-offset_right = 548.0
-offset_bottom = 139.0
-scale = Vector2(0.8922286, 0.49076843)
+[node name="ManaWhiteBar" type="ProgressBar" parent="." unique_id=1338750421]
+offset_left = 26.000002
+offset_top = 79.0
+offset_right = 549.0
+offset_bottom = 135.0
+scale = Vector2(0.8922286, 0.73076844)
+theme_override_styles/fill = SubResource("StyleBoxFlat_o8tsv")
 value = 100.0
 show_percentage = false
 
-[node name="ManaLabel" type="Label" parent="ManaBar" unique_id=411236276]
+[node name="ManaBar" type="ProgressBar" parent="." unique_id=996215175]
+offset_left = 26.0
+offset_top = 79.0
+offset_right = 549.0
+offset_bottom = 135.0
+scale = Vector2(0.8922286, 0.73076844)
+theme_override_styles/fill = SubResource("StyleBoxFlat_gkdul")
+value = 100.0
+show_percentage = false
+
+[node name="ManaLabel" type="Label" parent="ManaBar" unique_id=954830123]
 layout_mode = 0
-offset_left = 202.86282
-offset_top = 8.150469
-offset_right = 320.8628
-offset_bottom = 32.150467
-scale = Vector2(1.5534978, 2.2225676)
-theme_override_fonts/font = SubResource("FontVariation_ity2r")
+offset_left = 201.742
+offset_top = 12.315804
+offset_right = 319.742
+offset_bottom = 36.3158
+scale = Vector2(2.1207945, 2.1494749)
+theme_override_fonts/font = SubResource("FontVariation_minvw")
 
 [node name="NotificationPanel" type="PanelContainer" parent="." unique_id=1435650588]
 visible = false

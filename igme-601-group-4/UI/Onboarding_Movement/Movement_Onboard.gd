@@ -28,6 +28,7 @@ signal tutorial_complete(Vector2i)
 @onready var tutorial_panel: PanelContainer = $TutorialPrompt
 @export var task_panel: PanelContainer
 @onready var prompt_label: Label = $TutorialPrompt/TutorialText
+@onready var continue_label: Label = $TutorialPrompt/TutorialText/ContinueText
 
 var current_step: TutorialStep = TutorialStep.WELCOME
 
@@ -46,7 +47,11 @@ func _ready() -> void:
 	_connect_to_existing_children(ability_sequence)
 	
 	# Welcome message
+	ability_bar.visible = false
+	enable_mouse_for_canvas(ability_bar, false)
 	await user_input
+	await get_tree().process_frame
+	enable_mouse_for_canvas(ability_bar, true)
 	welcome_panel.fade_in()
 	welcome_panel.hide()
 	
@@ -64,27 +69,37 @@ func _input(event: InputEvent) -> void:
 func start_ability_tutorial() -> void:
 	current_step = TutorialStep.HOVER_ABILITY
 
+	ability_bar.visible = true
 	tutorial_panel.visible = true
 	prompt_label.text = "Hover over an ability to learn more!"
 	prompt_label.show()
+	continue_label.text = "(Hover to continue)"
 
 	# Highlight the entire ability bar.
 	darkenUI.highlight_UI(ability_bar)
 
 
-func _on_ability_hovered(_ability: Ability, _slot: Control) -> void:
+func _on_ability_hovered(_ability: Ability = null, _slot: Control = null) -> void:
 	if current_step != TutorialStep.HOVER_ABILITY:
 		return
 	current_step = TutorialStep.ABILITY_DETAILS
+	if ability_bar.is_hovered:
+		print("Already hovered")
+		ability_bar.hovered_slot._on_mouse_entered()
+	ability_bar.set_click_enabled(false)
 
 	# Wait for AbilityInfoUI to finish updating its visibility/layout.
 	await get_tree().process_frame
 
 	prompt_label.text = "The full details of the ability will display here!"
+	continue_label.text = "(Click to continue)"
 
 	# Move the highlight to the ability information panel.
 	darkenUI.highlight_UI(ability_info_ui)
 	await user_input
+	await get_tree().process_frame
+	ability_bar.set_click_enabled(true)
+	
 	promt_choosing_ability()
 	
 func promt_choosing_ability() -> void:
@@ -92,6 +107,8 @@ func promt_choosing_ability() -> void:
 		return
 	current_step = TutorialStep.SELECT_ABILITY
 	prompt_label.text = "Select an ability"
+	continue_label.text = "(Click on ability to continue)"
+	enable_mouse_for_canvas(ability_bar, true)
 
 	# Highlight the entire ability bar.
 	darkenUI.highlight_UI(ability_bar)
@@ -102,6 +119,7 @@ func _on_ability_selected(_ability: Ability) -> void:
 	current_step = TutorialStep.CHOOSE_DIRECTION
 	darkenUI.clear()
 	prompt_label.text = "Select a direction"
+	continue_label.text = "(Click on grid to continue)"
 
 func _on_direction_selected() -> void:
 	if current_step != TutorialStep.CHOOSE_DIRECTION:
@@ -116,6 +134,9 @@ func show_queue () -> void:
 	# Highlight queue
 	darkenUI.highlight_UI(ability_sequence)
 	prompt_label.text = "The ability got added to queue"
+	continue_label.text = "(Click to continue)"
+	
+	await get_tree().process_frame
 	await user_input
 	prompt_hover_queue()
 	
@@ -124,14 +145,18 @@ func prompt_hover_queue () -> void:
 		return
 	current_step = TutorialStep.HOVER_QUEUE
 	prompt_label.text = "Hover over ability to show a preview"
+	continue_label.text = "(Hover to continue)"
+	enable_mouse_for_canvas(start_button,false)
 	
 func prompt_press_start () -> void:
 	if current_step != TutorialStep.HOVER_QUEUE:
 		return
 	current_step = TutorialStep.PRESS_START
 	prompt_label.text = "Press start to execute the queue"
+	continue_label.text = "(Click on button to continue)"
 	# Highlight start button
 	darkenUI.highlight_UI(start_button)
+	enable_mouse_for_canvas(start_button,true)
 	
 func queue_in_action() -> void:
 	if current_step != TutorialStep.PRESS_START:
@@ -144,6 +169,7 @@ func prompt_multiple_ability() -> void:
 		return
 	current_step = TutorialStep.PROMPT_MULTIPLE_ABILITY
 	prompt_label.text = "You can add multiple abilities to the queue before executing it!"
+	continue_label.text = "(Click to continue)"
 	tutorial_panel.show()
 	await user_input
 	complete_ability_tutorial()
@@ -155,7 +181,10 @@ func complete_ability_tutorial() -> void:
 	darkenUI.clear()
 
 	print("Ability tutorial completed!")
-	tutorial_complete.emit(Vector2i(2,2))
+	if Global.player.movement.current_cell == Vector2i(2,2):
+		tutorial_complete.emit(Vector2i(-2,-2))
+	else:
+		tutorial_complete.emit(Vector2i(2,2))
 	task_panel.show()
 
 func _on_sequence_child_added(child: Node) -> void:
@@ -184,3 +213,9 @@ func _on_preview_character() -> void:
 		return
 	darkenUI.clear()
 	prompt_press_start()
+
+func enable_mouse_for_canvas(canvas:CanvasLayer, enable:bool) -> void:
+	for control in canvas.get_children():
+		if control is Control:
+			(control as Control).mouse_behavior_recursive = (
+			Control.MOUSE_BEHAVIOR_ENABLED if enable else Control.MOUSE_BEHAVIOR_DISABLED)
