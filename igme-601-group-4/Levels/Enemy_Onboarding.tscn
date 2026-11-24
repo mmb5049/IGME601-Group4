@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://for1r2yqd4ve" path="res://UI/darken_ui.tscn" id="4_xjbim"]
 [ext_resource type="PackedScene" uid="uid://c7oel5paqcgs5" path="res://Arena Features/camera_3d.tscn" id="5_gw3ge"]
 [ext_resource type="PackedScene" uid="uid://dqd3f12ucks48" path="res://Characters/Player.tscn" id="6_0gipd"]
+[ext_resource type="Script" uid="uid://juqaw1ro2jx5" path="res://Levels/enemy_hover.gd" id="6_y8ph2"]
 [ext_resource type="Script" uid="uid://bb2g6ka3m3kqr" path="res://Abilities/ability_template.gd" id="7_recak"]
 [ext_resource type="Resource" uid="uid://but2yi6prxp3a" path="res://Abilities/Dash.tres" id="8_cv1qy"]
 [ext_resource type="Resource" uid="uid://cqkngmj77qk5w" path="res://Abilities/Move.tres" id="9_lejm7"]
@@ -59,6 +60,9 @@ transform = Transform3D(1, 0, 0, 0, 0.41029218, 0.91195416, 0, -0.91195416, 0.41
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.3841858e-07, -1.1920929e-07)
 
 [node name="Enemies" type="Node3D" parent="." unique_id=1742302211]
+
+[node name="EnemyHover" type="Node" parent="." unique_id=1965614152]
+script = ExtResource("6_y8ph2")
 
 [node name="Player" parent="." unique_id=372403699 node_paths=PackedStringArray("ability_sequence_ui") groups=["player"] instance=ExtResource("6_0gipd")]
 abilities = Array[ExtResource("7_recak")]([ExtResource("8_cv1qy"), ExtResource("9_lejm7")])

@@ -2,6 +2,7 @@ extends Node
 
 enum TutorialStep {
 	SHOW_ENEMY,
+	HOVER_ENEMY
 }
 
 var current_step: TutorialStep = TutorialStep.SHOW_ENEMY
@@ -34,16 +35,24 @@ func _input(event: InputEvent) -> void:
 	user_input.emit()
 
 func start_enemy_tutorial() -> void:
-	#highlight walls
-	darken_ui.show()
 	
-	prompt_panel.show()
-	prompt_text.text = "Enemy on the field can damage you!"
 	if enemy == null:
 		get_enemy()
 	darken_ui.highlight_3D(enemy)
+	prompt_panel.show()
+	prompt_text.text = "Enemy on the field can damage you!"
+	
 	await user_input
-	#finish_attack_tutorial()
+	prompt_text.text = "Hover over the enemy to learn more!"
+	darken_ui.clear()
+	current_step = TutorialStep.HOVER_ENEMY
+	
+func hover_enemy() -> void:
+	if current_step != TutorialStep.HOVER_ENEMY:
+		return
+	
+	prompt_text.text = "Enemy have their own ability queue \n And the number 2 mean that they will move after us (1)"
+	
 	
 func finish_attack_tutorial() -> void:
 	darken_ui.clear()
@@ -54,3 +63,5 @@ func finish_attack_tutorial() -> void:
 func get_enemy() -> void:
 	enemy = enemyParent.get_child(0)
 	print(enemy)
+	if enemy:
+		enemy.being_hovered.connect(hover_enemy)

@@ -19,6 +19,7 @@ const HOVER_REGIONS: Array[AABB] = [
 	AABB(Vector3(0.16, 0.57, 0.04), Vector3(0.68, 0.43, 0.92)),
 ]
 
+signal being_hovered
 signal action_number_changed(number: int)
 signal died
 signal death_animation_finished
@@ -75,7 +76,10 @@ func set_model_hovered(hovered: bool) -> void:
 	else:
 		mesh.material_overlay = _normal_overlay
 	_health_bar.set_show_through_walls(hovered)
+	
+	print("currently hovered")
 	set_process(true)
+	being_hovered.emit()
 
 
 func _process(delta: float) -> void:
