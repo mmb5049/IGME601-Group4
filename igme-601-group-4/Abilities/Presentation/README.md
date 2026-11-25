@@ -6,10 +6,10 @@ successful return. Returning false cancels damage. Without a presentation, the
 existing AnimationPlayer/keyframe or immediate-attack path remains active.
 
 Whirlwind uses `WhirlwindPresentation.tres` (default duration 0.48 seconds).
-It moves only the player's `VisualPivot`: AnimationPlayer and the skeleton sit
+It moves only the character's visual pivot: AnimationPlayer and the skeleton sit
 inside that pivot, while the actor, collisions, grid occupancy and overhead UI
 remain stationary. It follows the selected ring's valid hex centers, closes
-complete rings, returns home and restores the original local transform.
+complete rings and faces the home tile throughout. On return it keeps the final approach heading.
 
 Runtime Tween state lives on a temporary `presentation_motion.gd` node per
 playback, not on the shared resource. Death, scene exit or runtime-node removal

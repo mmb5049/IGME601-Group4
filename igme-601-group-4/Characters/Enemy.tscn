@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://h6s843qltya5" path="res://UI/EnemyAbilityQueueUI.tscn" id="6_queue_ui"]
 [ext_resource type="PackedScene" path="res://UI/ActionNumberUI.tscn" id="7_action_number"]
 [ext_resource type="Script" uid="uid://c80f8o057pkjn" path="res://Characters/enemy_health_bar.gd" id="8_health_bar"]
+[ext_resource type="Material" path="res://Materials/number_pixelation.tres" id="9_pixelation"]
 [ext_resource type="Script" uid="uid://bl22qcqt5bvd6" path="res://Characters/hologram.gd" id="11_6vurl"]
 [ext_resource type="Shader" uid="uid://dro6pejj8lvd3" path="res://Materials/Shaders/hologram.gdshader" id="11_b5jcg"]
 [ext_resource type="Script" uid="uid://b443gq8qkq3ob" path="res://Characters/character_ui.gd" id="11_tdpgy"]
@@ -34,23 +35,27 @@ shader_parameter/texture_color = Color(1, 0, 0, 1)
 script = ExtResource("1_1oqew")
 movement = NodePath("Movement")
 health = NodePath("Health")
-mesh = NodePath("Pivot/Skeleton3D/Cube")
+mesh = NodePath("VisualPivot/Pivot/Skeleton3D/Cube")
 hologram = NodePath("PivotHolo")
 user_interface = NodePath("UI")
 
-[node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character")]
+[node name="Movement" type="Node" parent="." unique_id=977198110 node_paths=PackedStringArray("character", "facing_visual")]
 script = ExtResource("2_mig5a")
 character = NodePath("..")
+move_speed = 7.0
+facing_visual = NodePath("../VisualPivot")
 
 [node name="Health" type="Node3D" parent="." unique_id=1291475363]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9622617, 0)
 script = ExtResource("3_r4647")
 max = 10
 
-[node name="Pivot" parent="." unique_id=790799423 instance=ExtResource("3_16c55")]
+[node name="VisualPivot" type="Node3D" parent="."]
+
+[node name="Pivot" parent="VisualPivot" unique_id=790799423 instance=ExtResource("3_16c55")]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
 
-[node name="Skeleton3D" parent="Pivot" index="0" unique_id=1981908507]
+[node name="Skeleton3D" parent="VisualPivot/Pivot" index="0" unique_id=1981908507]
 bones/0/position = Vector3(3.6954814e-06, 0.0037289695, -9.156007e-06)
 bones/0/rotation = Quaternion(-0.0022096976, 1.9929488e-05, -0.010155457, 0.999946)
 bones/1/rotation = Quaternion(0.13959458, 0.0017724395, 0.004262328, 0.9901981)
@@ -105,11 +110,11 @@ bones/61/rotation = Quaternion(-0.45352215, -0.070923895, 0.038608838, 0.8875792
 bones/62/rotation = Quaternion(0.6043026, -0.0038150665, 0.1098681, 0.7891344)
 bones/63/rotation = Quaternion(0.3431002, 0.10457877, 0.0916434, 0.9289494)
 
-[node name="Cube" parent="Pivot/Skeleton3D" index="0" unique_id=1922800396]
+[node name="Cube" parent="VisualPivot/Pivot/Skeleton3D" index="0" unique_id=1922800396]
 surface_material_override/0 = ExtResource("3_mfhi6")
 script = ExtResource("4_oie3p")
 
-[node name="AnimationPlayer" parent="Pivot" index="1" unique_id=1383296118]
+[node name="AnimationPlayer" parent="VisualPivot/Pivot" index="1" unique_id=1383296118]
 libraries/Enemy = SubResource("AnimationLibrary_r4647")
 autoplay = &"Enemy/Idle"
 
@@ -208,9 +213,23 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.07, 0.5)
 script = ExtResource("8_health_bar")
 outline_width = 0.046
 
+[node name="CanvasLayer" type="CanvasLayer" parent="UI/HealthBar"]
+layer = 8
+
+[node name="Pixelation" type="CanvasGroup" parent="UI/HealthBar/CanvasLayer"]
+material = ExtResource("9_pixelation")
+
+[node name="HealthValue" type="Label" parent="UI/HealthBar/CanvasLayer/Pixelation"]
+visible = false
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+
 [node name="EnemyAbilityQueueUI" parent="UI" unique_id=949041406 node_paths=PackedStringArray("_enemy") instance=ExtResource("6_queue_ui")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
 _enemy = NodePath("../..")
 
-[editable path="Pivot"]
+[editable path="VisualPivot/Pivot"]
 [editable path="PivotHolo"]

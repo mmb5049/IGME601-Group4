@@ -24,6 +24,7 @@ signal action_finished(actor: Node, entry: QueuedAbility, succeeded: bool)
 @export_category("Execution Timing")
 @export_range(0.0, 1.0, 0.01, "suffix:s") var between_actions_delay: float = 0.20
 
+var preview_actor: Character
 var _is_executing: bool = false
 enum TurnPhase { INITIALIZING, PREPARATION, EXECUTION }
 var current_phase: TurnPhase = TurnPhase.INITIALIZING
@@ -99,8 +100,12 @@ func _execute_turn() -> void:
 			if actor.ability_queue == null or not actor.ability_queue.has_entries():
 				continue
 			await execute_next(actor, actor.ability_queue)
+			if not is_inside_tree():
+				return
 			if _has_pending_actions() and between_actions_delay > 0.0:
 				await get_tree().create_timer(between_actions_delay).timeout
+				if not is_inside_tree():
+					return
 
 	if is_instance_valid(player_actor):
 		player_actor.end_action_sequence()
@@ -141,6 +146,9 @@ func execute_next(actor: Character, queue_source: AbilityQueue) -> bool:
 	# synchronously and proceed directly to queue consumption.
 	@warning_ignore("redundant_await")
 	var succeeded: bool = await actor.execute_queued_ability(entry)
+	# Cancelling a presentation during scene removal can resume this after exit.
+	if not is_inside_tree():
+		return false
 	if(actor is PlayerController):
 		player_queue_UI.consume_entry(entry.id)
 	else:
@@ -156,74 +164,62 @@ func _set_planning_interaction_enabled(enabled: bool) -> void:
 	if player_queue_UI != null:
 		player_queue_UI.set_interaction_enabled(enabled)
 
-# Runs a simulation of the queue to see a future state
-# Utilize hologram data to get preview information
-func preview_queue(index:int) -> void:
-	#if index <= 0:
-		#print("zero")
-	# Reset character holograms
-	for i:int in range(0,action_order.size()):
-		var character = action_order[i]
-		if not is_instance_valid(character):
-			action_order.remove_at(i)
-			i -= 1
+# The selected actor's turn starts after earlier actors in the same pass.
+func preview_queue(index: int, selected_actor: Character = player_actor) -> void:
+	if current_phase != TurnPhase.PREPARATION or not _actor_can_act(selected_actor):
+		return
+	preview_actor = selected_actor
+	HexGrid.clear_highlights()
+	HexGrid.occupied_cells_preview.clear()
+	for character in action_order:
+		if not _actor_can_act(character):
 			continue
 		character.hologram.reset()
-		character.hologram.visible = true
-		character.mesh.visible = false
-		
-	# Reset obstacle holograms
+		character.hologram.show()
+		character.mesh.hide()
+		character.user_interface.show_ui()
+		character.user_interface.global_position = character.global_position
+		if character is Enemy:
+			character._health_bar._update_health(character.health.current, character.health.max, false)
+
 	if obstacles:
 		for obstacle in obstacles.get_children():
 			if obstacle is Obstacle and obstacle.hologram:
-				obstacle.hologram.reset() 
-				obstacle.hologram.visible = true
-				obstacle.mesh.visible = false
-	
-	# Execute queue of all holograms
-	var all_queues_empty:bool = false
-	var queue_index:int = 0
-	while(not all_queues_empty and queue_index < index):
-		queue_index += 1
-		all_queues_empty = true
+				obstacle.hologram.reset()
+				obstacle.hologram.show()
+				obstacle.mesh.hide()
+
+	for round_index in range(index + 1):
 		for character in action_order:
-			if(character.hologram.ability_queue.queue.size() == 0):
+			if player_actor.hologram.health.is_dead:
+				return
+			if not _actor_can_act(character):
 				continue
-			all_queues_empty = false
-			execute_next(character.hologram, character.hologram.ability_queue)
-			character.user_interface.global_position = character.hologram.global_position
-	
-	# Display targeting choice when previewing mid-queue
-	for character in action_order:
-		
-		## TODO: Implement some way for the player to select which character to preview
-		if not character is PlayerController:
-			break
-		
-		if index < character.ability_queue.size():
-			# Get ability data
-			var queued_ability:QueuedAbility = character.ability_queue.queue.get(index)
-			if queued_ability:
-				character.update_ability_preview(character.hologram.movement.current_cell,
-				queued_ability.ability,false,queued_ability.target)
+			var ghost := character.hologram
+			if round_index == index and character == selected_actor:
+				var selected := ghost.ability_queue.peek_front_entry()
+				if selected and not ghost.health.is_dead:
+					character.update_ability_preview(ghost.movement.current_cell,
+							selected.ability, false, selected.target)
+				return
+			if ghost.health.is_dead or not ghost.ability_queue.has_entries():
+				continue
+			var entry := ghost.ability_queue.peek_front_entry()
+			ghost.execute_queued_ability(entry)
+			ghost.ability_queue.consume_entry(entry.id)
+			character.user_interface.global_position = ghost.global_position
 
 func clear_preview() -> void:
-	for i:int in range(0,action_order.size()):
-		var character = action_order[i]
-		if not is_instance_valid(character):
-			action_order.remove_at(i)
-			i -= 1
+	preview_actor = null
+	for character in action_order:
+		if not _actor_can_act(character):
 			continue
-		character.hologram.visible = false
-		character.mesh.visible = true
+		character.hologram.hide()
+		character.mesh.show()
 		character.user_interface.show_ui()
 		character.user_interface.global_position = character.global_position
-		
-		# Update health bar to use real data (not hologram)
 		if character is Enemy:
-			(character as Enemy)._health_bar._update_health(
-				character.health.current,
-				character.health.max)
+			character._health_bar._update_health(character.health.current, character.health.max)
 	if obstacles:
 		for obstacle in obstacles.get_children():
 			if obstacle is Obstacle and obstacle.hologram:

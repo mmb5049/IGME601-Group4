@@ -3,7 +3,7 @@ extends Node3D
 class_name ActionNumberUI
 
 ## The CanvasLayer keeps action numbers upright and independent of camera distance.
-@onready var _label: Label = $CanvasLayer/Number
+@onready var _label: Label = $CanvasLayer/Pixelation/Number
 @export var _actor: Character
 
 

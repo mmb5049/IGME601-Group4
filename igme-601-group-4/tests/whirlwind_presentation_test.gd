@@ -26,6 +26,7 @@ func ring_target(radius: int) -> AbilityTarget:
 
 func run() -> void:
 	var arena: Node = load("res://Levels/Arena.tscn").instantiate()
+	arena.current_level = &"3"
 	get_tree().root.add_child(arena)
 	get_tree().current_scene = arena
 	var controller: ActionExecutionController = arena.get_node("ActionExecutionController")
@@ -38,6 +39,9 @@ func run() -> void:
 	check(ability.presentation != null, "Whirlwind must reference its modular presentation")
 	var target := ring_target(1)
 	var enemies: Array[Node] = arena.get_node("Enemies").get_children()
+	for enemy: Enemy in enemies:
+		var toward_player := enemy.global_position.direction_to(player.global_position)
+		check(enemy.movement.facing_visual.global_basis.z.normalized().dot(toward_player) > 0.999, "Spawned enemy must face player")
 	enemies[0].movement.set_pos(Vector2i(1, 0))
 	enemies[1].movement.set_pos(Vector2i(-1, 0))
 	var saved_visual: Transform3D = visual.transform
@@ -50,39 +54,45 @@ func run() -> void:
 		expected.y = visual.global_position.y
 		check(route[index].is_equal_approx(expected), "Route must visit selected hex centers in ring order")
 	controller.action_finished.connect(record_finished)
-	controller.player_queue.add_confirmed_ability(ability, target)
-	controller.execute_next(player, controller.player_queue)
-	check(not action_done and enemies[0].health == 10, "Whirlwind must suspend without applying immediate damage")
+	controller.player_queue_UI.add_confirmed_ability(ability, target)
+	controller.execute_next(player, player.ability_queue)
+	check(not action_done and enemies[0].health.current == 10, "Whirlwind must suspend without applying immediate damage")
 	await get_tree().create_timer(0.12).timeout
 	check(not visual.transform.is_equal_approx(saved_visual), "Visual must move during the orbit")
+	var inward := visual.global_position.direction_to(saved_actor.origin)
+	check(visual.global_basis.z.normalized().dot(inward) > 0.999, "Orbit must face the home cell")
 	check(player.global_transform.is_equal_approx(saved_actor), "Actual actor transform must stay fixed")
 	check(HexGrid.occupied_cells == occupancy and not player.movement.is_moving, "Orbit must not change occupancy or run CharacterMovement")
-	check(enemies[0].health == 10 and enemies[1].health == 10, "No enemy damage before the model returns")
+	check(enemies[0].health.current == 10 and enemies[1].health.current == 10, "No enemy damage before the model returns")
 	if "--capture-whirlwind" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://../whirlwind-mid-orbit.png")
 	if not action_done:
 		await controller.action_finished
-	check(action_succeeded and visual.transform.is_equal_approx(saved_visual), "Successful playback must restore position, rotation and scale")
-	check(enemies[0].health == 7 and enemies[1].health == 7, "Return must apply ring damage once")
-	check(not controller.player_queue.has_entries(), "Queue consumption must wait for presentation and damage")
+	check(action_succeeded and visual.position.is_equal_approx(saved_visual.origin), "Successful playback must return home")
+	check(visual.global_basis.z.normalized().dot(route[-2].direction_to(route[-1])) > 0.999, "Player must retain final inward heading")
+	check(visual.scale.is_equal_approx(saved_visual.basis.get_scale()), "Orbit must preserve scale")
+	check(enemies[0].health.current == 7 and enemies[1].health.current == 7, "Return must apply ring damage once")
+	check(not player.ability_queue.has_entries(), "Queue consumption must wait for presentation and damage")
 
 	# Consecutive use and an outer ring use the same shared resource safely.
 	ability.range = 2
 	check(await player.execute_ability(ability, ring_target(2)), "Second playback on a different radius must complete")
-	check(visual.transform.is_equal_approx(saved_visual), "Repeated playback must not accumulate visual drift")
+	check(visual.position.is_equal_approx(saved_visual.origin), "Repeated playback must not accumulate visual drift")
 	player.movement.set_pos(Vector2i(4, 0))
 	var edge_route: PackedVector3Array = ability.presentation.build_route(player, visual, target)
 	check(edge_route.size() == 5, "Clipped corner ring must visit only three valid tiles and return")
 	check(await player.execute_ability(ability, target), "Clipped boundary ring must still animate and finish")
-	check(visual.transform.is_equal_approx(saved_visual), "Boundary playback must restore the visual")
+	check(visual.position.is_equal_approx(saved_visual.origin), "Boundary playback must restore the visual")
 	player.movement.set_pos(Vector2i.ZERO)
+	saved_visual = visual.transform
 	var instant := ability.duplicate() as Ability
 	instant.presentation = null
+	instant.animation = null
 	instant.damage = 1
 	action_done = false
-	controller.player_queue.add_confirmed_ability(instant, target)
-	controller.execute_next(player, controller.player_queue)
+	controller.player_queue_UI.add_confirmed_ability(instant, target)
+	controller.execute_next(player, player.ability_queue)
 	check(action_done and action_succeeded, "Clearing the optional presentation must restore immediate attack behavior")
 	check(visual.transform.is_equal_approx(saved_visual), "Disabled presentation must not change the model")
 
@@ -94,22 +104,32 @@ func run() -> void:
 	enhancement_target.is_valid = true
 	check(await player.execute_ability(enhancement, enhancement_target), "Attack Up must execute")
 	check(player.self_enhance_stacks == 1, "Attack Up must add one stack")
-	var health_before_enhancement: int = enemies[0].health
+	var health_before_enhancement: int = enemies[0].health.current
 	check(await player.execute_ability(ability, target), "Enhanced Whirlwind must finish")
-	check(enemies[0].health == health_before_enhancement - 5 and enemies[1].health == health_before_enhancement - 5, "Attack Up must boost damage across the complete ring")
+	check(enemies[0].health.current == health_before_enhancement - 5 and enemies[1].health.current == health_before_enhancement - 5, "Attack Up must boost damage across the complete ring")
 	player.end_action_sequence()
 	check(player.self_enhance_stacks == 0 and player.self_enhance_effect == null, "Turn end must clear Attack Up and its effect")
 
+	var slash_target := AbilityTarget.new(Global.TargetingType.SINGLE_TILE)
+	slash_target.target_cell = Vector2i(0, -1)
+	slash_target.is_valid = true
+	check(await player.execute_ability(player.get_ability("Slash"), slash_target), "Slash must finish")
+	var toward_target := HexGrid.hex_to_world(slash_target.target_cell).normalized()
+	check(visual.global_basis.z.normalized().dot(toward_target) > 0.999, "Slash must finish facing its target")
+	saved_visual = visual.transform
+	for ability_name in ["Wait", "Attack_Up"]:
+		check(await player.execute_ability(player.get_ability(ability_name), enhancement_target), "Status action must finish")
+		check(visual.transform.is_equal_approx(saved_visual), "Status action must preserve facing")
 	# Death midway through the animation cancels damage and restores the model.
 	action_done = false
-	controller.player_queue.add_confirmed_ability(ability, target)
-	controller.execute_next(player, controller.player_queue)
+	controller.player_queue_UI.add_confirmed_ability(ability, target)
+	controller.execute_next(player, player.ability_queue)
 	await get_tree().create_timer(0.10).timeout
-	var health_before: int = enemies[0].health
-	player.damage(player.max_health)
+	var health_before: int = enemies[0].health.current
+	player.health.damage(player.health.max)
 	check(action_done and not action_succeeded, "Death must release the waiting action as cancelled")
 	check(visual.transform.is_equal_approx(saved_visual), "Cancellation must restore the exact original transform")
-	check(enemies[0].health == health_before, "Cancelled presentation must not apply damage")
+	check(enemies[0].health.current == health_before, "Cancelled presentation must not apply damage")
 	await get_tree().process_frame
 	for child in player.get_children():
 		check(child.get_script() != load("res://Abilities/Presentation/presentation_motion.gd"), "Temporary playback nodes must be cleaned up")

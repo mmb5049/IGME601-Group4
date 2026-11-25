@@ -1,15 +1,19 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://UI/action_number_ui.gd" id="1"]
+[ext_resource type="Material" path="res://Materials/number_pixelation.tres" id="2_pixelation"]
 
 [node name="ActionNumberUI" type="Node3D"]
 position = Vector3(0, 1.65, 0)
 script = ExtResource("1")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
-layer = 1
+layer = 8
 
-[node name="Number" type="Label" parent="CanvasLayer"]
+[node name="Pixelation" type="CanvasGroup" parent="CanvasLayer"]
+material = ExtResource("2_pixelation")
+
+[node name="Number" type="Label" parent="CanvasLayer/Pixelation"]
 offset_right = 48.0
 offset_bottom = 40.0
 mouse_filter = 2

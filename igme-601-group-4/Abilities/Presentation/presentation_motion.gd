@@ -6,6 +6,7 @@ signal completed(succeeded: bool)
 
 var _visual: Node3D
 var _saved_transform: Transform3D
+var _home: Vector3
 var _tween: Tween
 var _finished: bool = false
 
@@ -13,11 +14,10 @@ var _finished: bool = false
 func play(actor: Node3D, visual: Node3D, route: PackedVector3Array, duration: float) -> bool:
 	_visual = visual
 	_saved_transform = visual.transform
+	_home = route[0]
 	actor.tree_exiting.connect(cancel, CONNECT_ONE_SHOT)
-	if actor.has_signal("player_died"):
-		actor.connect("player_died", cancel, CONNECT_ONE_SHOT)
-	elif actor.has_signal("died"):
-		actor.connect("died", cancel, CONNECT_ONE_SHOT)
+	if actor is Character:
+		actor.health.died.connect(cancel, CONNECT_ONE_SHOT)
 	var total_distance: float = 0.0
 	for index in range(1, route.size()):
 		total_distance += route[index - 1].distance_to(route[index])
@@ -38,7 +38,11 @@ func _move_leg(progress: float, start: Vector3, end: Vector3) -> void:
 		cancel()
 		return
 	_visual.global_position = start.lerp(end, progress)
-	var direction: Vector3 = end - start
+	var direction := _home - _visual.global_position
+	# At the center retain the heading of the final approach, even on a skipped frame.
+	if direction.is_zero_approx() and end.is_equal_approx(_home):
+		direction = _home - start
+	direction.y = 0.0
 	if direction.length_squared() > 0.0001:
 		_visual.look_at(_visual.global_position + direction, Vector3.UP, true)
 
@@ -54,7 +58,10 @@ func _finish(succeeded: bool) -> void:
 		return
 	_finished = true
 	if is_instance_valid(_visual):
-		_visual.transform = _saved_transform
+		if succeeded:
+			_visual.position = _saved_transform.origin
+		else:
+			_visual.transform = _saved_transform
 	completed.emit(succeeded)
 
 

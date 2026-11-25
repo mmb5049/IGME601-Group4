@@ -4,11 +4,25 @@ extends CanvasLayer
 @export_range(0.0, 0.5, 0.01, "suffix:s") var fade_duration: float = 0.12
 
 var _hovered_queue: EnemyAbilityQueueUI
+var _active_queue: EnemyAbilityQueueUI
+var _preview_entry: QueuedAbility
+var _mouse_inside := true
+@onready var _game_over := get_parent().get_node_or_null("%GameOver") as CanvasLayer
+@onready var _controller := get_parent().get_node_or_null("ActionExecutionController") as ActionExecutionController
+
+func has_icon_hover() -> bool:
+	return is_instance_valid(_active_queue)
+
 
 
 func _ready() -> void:
 	# Run after the overhead followers have updated their screen positions.
 	process_priority = 100
+	get_window().mouse_entered.connect(func(): _mouse_inside = true)
+	get_window().mouse_exited.connect(func():
+		_mouse_inside = false
+		_update_icon_hover(null, -1, Vector2.INF)
+	)
 
 
 func _process(_delta: float) -> void:
@@ -45,7 +59,15 @@ func update_visibility(mouse_position: Vector2) -> void:
 				_hovered_queue = queues[index]
 				break
 
-	var foreground := model_hover_queue if model_hover_queue != null else _hovered_queue
+	var index_at_mouse := -1
+	var viewport := get_viewport()
+	if is_instance_valid(_hovered_queue) and visible and _mouse_inside and (not _game_over or not _game_over.visible):
+		if viewport.gui_get_hovered_control() == null and not viewport.gui_is_dragging():
+			index_at_mouse = _hovered_queue.entry_index_at(mouse_position)
+	_update_icon_hover(_hovered_queue if index_at_mouse >= 0 else null, index_at_mouse, mouse_position)
+	var foreground := _active_queue if _active_queue else model_hover_queue
+	if not foreground:
+		foreground = _hovered_queue
 	for index in range(queues.size()):
 		var queue: EnemyAbilityQueueUI = queues[index]
 		var faded: bool = false
@@ -59,6 +81,30 @@ func update_visibility(mouse_position: Vector2) -> void:
 						break
 		queue.set_display_opacity(faded_opacity if faded else 1.0, fade_duration)
 		queue._screen_root.z_index = queues.size() if queue == foreground else index
+
+
+func _update_icon_hover(queue: EnemyAbilityQueueUI, index: int, point: Vector2) -> void:
+	if queue != _active_queue:
+		if is_instance_valid(_active_queue):
+			_active_queue.set_hover_point(Vector2.INF)
+		_active_queue = queue
+		if queue:
+			queue.set_hover_point(point)
+
+	var entry: QueuedAbility
+	if queue and _controller and _controller.current_phase == ActionExecutionController.TurnPhase.PREPARATION:
+		if _controller.player_actor.current_mode != PlayerController.PlayerMode.ACTING:
+			entry = queue._enemy.ability_queue.queue[index]
+	if entry and (entry != _preview_entry or _controller.preview_actor != queue._enemy):
+		_controller.preview_queue(index, queue._enemy)
+	elif not entry and _preview_entry and _controller.preview_actor != _controller.player_actor:
+		if _controller.current_phase == ActionExecutionController.TurnPhase.PREPARATION:
+			var player := _controller.player_actor
+			player.clear_preview()
+			if player.current_mode == PlayerController.PlayerMode.TARGETING:
+				_controller.preview_queue(player.ability_queue.size())
+				player.update_ability_preview(player.hologram.movement.current_cell)
+	_preview_entry = entry
 
 
 func _is_above(a: EnemyAbilityQueueUI, b: EnemyAbilityQueueUI) -> bool:

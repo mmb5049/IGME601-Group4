@@ -14,31 +14,31 @@ var notification_id: int = 0
 
 func _ready() -> void:
 	await get_parent().last_scene_done
-	Global.player = get_tree().get_first_node_in_group("player") as PlayerController
+	var player := get_parent().get_node_or_null("Player") as PlayerController
 	
 	notification_label.text = ""
 
 
-	if Global.player == null:
+	if player == null:
 		push_error("HealthBar: Could not find PlayerController!")
 		return
 
-	Global.player.health.changed.connect(_on_health_changed)
-	Global.player.mana_changed.connect(_on_mana_changed)
-	Global.player.notification_requested.connect(_on_notification_requested)
+	player.health.changed.connect(_on_health_changed)
+	player.mana_changed.connect(_on_mana_changed)
+	player.notification_requested.connect(_on_notification_requested)
 	
 	# Initialize the health bar
 	_on_health_changed(
-		Global.player.health.current,
-		Global.player.health.max
+		player.health.current,
+		player.health.max
 	)
-	_on_mana_changed(Global.player.current_mana, Global.player.max_mana)
+	_on_mana_changed(player.current_mana, player.max_mana)
 	
-	health_damage_bar.max_value = Global.player.health.max
-	health_damage_bar.value = Global.player.health.current
+	health_damage_bar.max_value = player.health.max
+	health_damage_bar.value = player.health.current
 
-	mana_damage_bar.max_value = Global.player.max_mana
-	mana_damage_bar.value = Global.player.current_mana
+	mana_damage_bar.max_value = player.max_mana
+	mana_damage_bar.value = player.current_mana
 	
 func _on_health_changed(current: int, maximum: int) -> void:
 	health_bar.max_value = maximum

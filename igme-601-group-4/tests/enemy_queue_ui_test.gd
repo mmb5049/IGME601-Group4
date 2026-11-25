@@ -22,8 +22,8 @@ func run() -> void:
 	await controller.preparation_started
 	await get_tree().create_timer(0.3).timeout
 	for actor in controller.action_order:
-		var number_ui: Node3D = actor.get_node("ActionNumberUI")
-		var label: Label = number_ui.get_node("CanvasLayer/Number")
+		var number_ui: Node3D = actor.get_node("UI/ActionNumberUI")
+		var label: Label = number_ui.get_node("CanvasLayer/Pixelation/Number")
 		check(label.text == str(actor.action_number), "Head number must match assigned turn order")
 		var camera := get_viewport().get_camera_3d()
 		var projected: Vector2 = camera.unproject_position(number_ui.global_position)
@@ -36,7 +36,7 @@ func run() -> void:
 		check(label.visible and label.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Action number must be visible and non-interactive")
 	var enemy: Enemy = controller.action_order[1]
 	var ui: EnemyAbilityQueueUI = enemy.get_node("EnemyAbilityQueueUI")
-	var number_label: Label = enemy.get_node("ActionNumberUI/CanvasLayer/Number")
+	var number_label: Label = enemy.get_node("UI/ActionNumberUI/CanvasLayer/Pixelation/Number")
 	var assigned_number: int = enemy.action_number
 	enemy.action_number = 99
 	check(number_label.text == "99", "Number changes must refresh immediately")

@@ -9,6 +9,7 @@
 [ext_resource type="Resource" uid="uid://ws7vkafabric" path="res://Abilities/Trap.tres" id="7_i5ni0"]
 
 [node name="AbilityBarUI" type="CanvasLayer" unique_id=1123829999]
+layer = 3
 script = ExtResource("1_bar_script")
 abilities = Array[ExtResource("2_ability_type")]([ExtResource("3_dash"), ExtResource("4_move"), ExtResource("5_slash"), ExtResource("6_wait"), ExtResource("7_i5ni0"), null])
 

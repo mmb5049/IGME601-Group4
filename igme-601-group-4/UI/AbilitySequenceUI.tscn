@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dm4b0f167y0wa" path="res://UI/ability_sequence_ui.gd" id="1_sequence_script"]
 
 [node name="AbilitySequenceUI" type="CanvasLayer" unique_id=403234317]
+layer = 3
 script = ExtResource("1_sequence_script")
 
 [node name="SequenceDropRegion" type="Control" parent="." unique_id=907889457]

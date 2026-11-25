@@ -157,7 +157,7 @@ ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 [node name="HUD" parent="." unique_id=1670573114 instance=ExtResource("13_jt7y4")]
 
 [node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
-layer = 2
+layer = 4
 script = ExtResource("12_nvfdb")
 
 [node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]
@@ -213,12 +213,17 @@ camera_attributes = SubResource("CameraAttributesPractical_dfd4s")
 compositor = SubResource("Compositor_fy3br")
 
 [node name="TVGlitch" type="CanvasLayer" parent="." unique_id=490933593]
+layer = 7
 
 [node name="ColorRect" type="ColorRect" parent="TVGlitch" unique_id=736041042]
 visible = false
 material = SubResource("ShaderMaterial_42q7o")
 offset_right = 1966.0
 offset_bottom = 1106.0
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="TVGlitch/ColorRect"]
+show_behind_parent = true
+copy_mode = 2
 
 [node name="Task" type="PanelContainer" parent="TVGlitch" unique_id=2062470217]
 visible = false
@@ -244,7 +249,7 @@ horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="AttackOnboardingUI" type="CanvasLayer" parent="." unique_id=1767770669 node_paths=PackedStringArray("darken_ui", "task_panel")]
-layer = 3
+layer = 6
 script = ExtResource("30_amkee")
 darken_ui = NodePath("../DarkenUI")
 task_panel = NodePath("../TVGlitch/Task")

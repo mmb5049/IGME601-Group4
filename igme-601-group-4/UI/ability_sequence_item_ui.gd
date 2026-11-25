@@ -27,6 +27,8 @@ signal reorder_preview_requested(
 )
 signal preview_character
 
+var preview_player: PlayerController
+
 const HEX_DISPLAY_SCENE := preload("res://UI/AbilityHexDisplayUI.tscn")
 const DIRECTION_EDGES_SCENE := preload("res://UI/AbilityDirectionEdgesUI.tscn")
 
@@ -120,12 +122,13 @@ func _refresh_display() -> void:
 	tooltip_text = _ability.ability_name if _ability else "Empty Queue Entry"
 
 func show_preview() -> void:
-	Global.player.action_execution_controller.preview_queue(_index)
-	preview_character.emit()
-	#Global.player.clear_preview()
+	if is_instance_valid(preview_player) and not preview_player.is_queued_for_deletion():
+		preview_player.action_execution_controller.preview_queue(_index)
+		preview_character.emit()
 
 func stop_preview() -> void:
-	Global.player.clear_preview()
+	if is_instance_valid(preview_player) and not preview_player.is_queued_for_deletion():
+		preview_player.clear_preview()
 
 ## Queue entries preserve their confirmed AbilityTarget. Directional entries
 ## therefore show a fixed edge matching the direction that will execute.

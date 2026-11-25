@@ -4,7 +4,7 @@
 [ext_resource type="Material" uid="uid://bku1xbd8mha4" path="res://Materials/stencil_screen_read.tres" id="1_xbmme"]
 
 [node name="DarkenUI" type="CanvasLayer" unique_id=1972266123]
-layer = 2
+layer = 5
 script = ExtResource("1_m7b2g")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1381126627]

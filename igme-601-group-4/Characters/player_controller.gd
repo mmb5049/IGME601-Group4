@@ -16,7 +16,9 @@ signal notification_requested(message: String)
 const INVALID_CELL := Vector2i(2147483647, 2147483647)
 const INVALID_WORLD_POSITION := Vector3(INF, INF, INF)
 
-var camera: Camera3D
+var camera: Camera3D:
+	get:
+		return get_viewport().get_camera_3d() if is_inside_tree() else null
 @export var animationManager:AnimationManager
 ## Outer pivot isolates procedural movement from AnimationPlayer root tracks.
 @export var presentation_visual: Node3D
@@ -60,6 +62,8 @@ enum PlayerMode {
 var current_mode: PlayerMode = PlayerMode.NONE
 
 func _ready() -> void:
+	if ability_sequence_ui != null:
+		ability_sequence_ui.bind_player(self)
 	await get_parent().last_scene_done
 	Global.player = self
 	
@@ -80,13 +84,16 @@ func _ready() -> void:
 		refund_mana(ability.cost)
 	)
 	
-	camera = get_viewport().get_camera_3d()
-	
 	## TODO: There is a weird bug where setting the occupancy at on_ready doesn't 
 	## allow the enemies to read that a player is on this tile. Setting the position 
 	## shortly after fixes this...
 	await get_tree().create_timer(0.1).timeout
 	movement.set_pos(movement.current_cell)
+
+func _exit_tree() -> void:
+	if Global.player == self:
+		Global.player = null
+
 
 func _process(_delta: float) -> void:
 	if current_mode != PlayerMode.TARGETING:
@@ -317,6 +324,7 @@ func execute_ability(ability: Ability, target: AbilityTarget) -> bool:
 	if ability == null or target == null or not target.is_valid:
 		return false
 
+	face_attack_target(ability, target)
 	current_mode = PlayerMode.ACTING
 	var succeeded: bool = true
 	# play animation
@@ -420,8 +428,11 @@ func end_action_sequence() -> void:
 		animationManager.play_animation(animationManager.idle_animation)
 
 func get_clicked_pos(mouse_position: Vector2) -> Vector3:
-	var ray_origin: Vector3 = camera.project_ray_origin(mouse_position)
-	var ray_direction: Vector3 = camera.project_ray_normal(mouse_position)
+	var active_camera := camera
+	if active_camera == null or active_camera.is_queued_for_deletion():
+		return INVALID_WORLD_POSITION
+	var ray_origin: Vector3 = active_camera.project_ray_origin(mouse_position)
+	var ray_direction: Vector3 = active_camera.project_ray_normal(mouse_position)
 	if absf(ray_direction.y) < 0.001:
 		return INVALID_WORLD_POSITION
 

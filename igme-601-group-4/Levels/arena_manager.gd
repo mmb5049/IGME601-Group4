@@ -86,6 +86,7 @@ func spawn_enemy(pos:Vector2i, type = enemy_scene):
 	var new_enemy:Enemy = type.instantiate()
 	enemy_parent.add_child(new_enemy)
 	new_enemy.movement.set_pos(pos)
+	new_enemy.face_player()
 	new_enemy.death_animation_finished.connect(enemy_died)
 	enemies.push_back(new_enemy)
 	

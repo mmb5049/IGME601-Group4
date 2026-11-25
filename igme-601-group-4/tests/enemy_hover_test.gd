@@ -33,7 +33,7 @@ func _run() -> void:
 
 	var queue := enemy._ability_queue_ui
 	var manager := arena.get_node("EnemyQueueVisibilityManager")
-	var number: Label = enemy.get_node("ActionNumberUI/CanvasLayer/Number")
+	var number: Label = enemy.get_node("UI/ActionNumberUI/CanvasLayer/Pixelation/Number")
 	var bar := enemy._health_bar
 	var original_bar_position := bar.position
 	var original_bar_scale := bar.scale

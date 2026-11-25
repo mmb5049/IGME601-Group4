@@ -13,6 +13,8 @@ class_name EnemyAbilityQueueUI
 @export var _enemy: Enemy
 var _queue: AbilityQueue
 var _items: Dictionary[int, AbilitySequenceItemUI] = {}
+var _hover_point := Vector2.INF
+var _hover_local := Vector2.ZERO
 var _visibility_tween: Tween
 var _target_opacity: float = 1.0
 
@@ -45,6 +47,11 @@ func _update_screen_position() -> void:
 	if camera == null or not is_instance_valid(_enemy) or _enemy.health.is_dead:
 		_screen_root.hide()
 		return
+	_items_root.scale = Vector2.ONE * queue_scale * _enemy.hover_scale
+	if _hover_point.is_finite():
+		# Grow around the hit point so predicting a move cannot pull the icon off the cursor.
+		_screen_root.position = _hover_point - _hover_local * _items_root.scale
+		return
 	var anchor := _enemy.get_overhead_screen_position(camera)
 	var screen_position := anchor + screen_offset
 	if not screen_position.is_finite():
@@ -52,8 +59,21 @@ func _update_screen_position() -> void:
 		return
 	_screen_root.visible = get_viewport().get_visible_rect().has_point(screen_position)
 	_screen_root.position = _enemy.scale_overhead_position(camera, anchor, screen_offset)
-	_items_root.scale = Vector2.ONE * queue_scale * _enemy.hover_scale
 
+func set_hover_point(point: Vector2) -> void:
+	_hover_point = point
+	if point.is_finite():
+		_hover_local = _items_root.get_global_transform_with_canvas().affine_inverse() * point
+	_enemy.set_queue_hovered(point.is_finite())
+
+func entry_index_at(point: Vector2) -> int:
+	if not _items_root.is_visible_in_tree():
+		return -1
+	for index in range(_queue.size() - 1, -1, -1):
+		var item: AbilitySequenceItemUI = _items.get(_queue.queue[index].id)
+		if item and Geometry2D.is_point_in_polygon(point, item.get_hex_screen_polygon()):
+			return index
+	return -1
 
 func get_rest_bottom_offset() -> float:
 	if _items_root.get_child_count() == 0:
@@ -111,7 +131,7 @@ func _on_enemy_died() -> void:
 
 func get_display_polygons() -> Array[PackedVector2Array]:
 	var polygons: Array[PackedVector2Array] = []
-	if not _screen_root.visible or not is_instance_valid(_enemy) or _enemy.health.is_dead:
+	if not _items_root.is_visible_in_tree() or not is_instance_valid(_enemy) or _enemy.health.is_dead:
 		return polygons
 	# Include disappearing blocks until their exit animation completes.
 	for child in _items_root.get_children():
@@ -144,5 +164,7 @@ func _show_ui() -> void:
 	_items_root.visible = true
 	
 func _hide_ui() -> void:
+	if _hover_point.is_finite() and not _enemy.health.is_dead:
+		return
 	_screen_root.visible = false
 	_items_root.visible = false

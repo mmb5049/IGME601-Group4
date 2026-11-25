@@ -1,13 +1,14 @@
 [gd_scene format=3 uid="uid://bif4qnecxdnq5"]
 
 [ext_resource type="Script" uid="uid://du1lo0tn7ja7s" path="res://Misc/number_display.gd" id="1_xu5cc"]
+[ext_resource type="Shader" path="res://Materials/Shaders/crt_pixelation.gdshader" id="2_pixelation"]
 
 [sub_resource type="Animation" id="Animation_xu5cc"]
 length = 0.001
 tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Label3D:position:y")
+tracks/0/path = NodePath("Anchor:position:y")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -18,7 +19,7 @@ tracks/0/keys = {
 tracks/1/type = "bezier"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Label3D:scale:x")
+tracks/1/path = NodePath("Anchor:scale:x")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -29,7 +30,7 @@ tracks/1/keys = {
 tracks/2/type = "bezier"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Label3D:scale:y")
+tracks/2/path = NodePath("Anchor:scale:y")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -40,7 +41,7 @@ tracks/2/keys = {
 tracks/3/type = "bezier"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Label3D:scale:z")
+tracks/3/path = NodePath("Anchor:scale:z")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -55,7 +56,7 @@ length = 1.2
 tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Label3D:position:y")
+tracks/0/path = NodePath("Anchor:position:y")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -66,14 +67,14 @@ tracks/0/keys = {
 tracks/1/type = "scale_3d"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Label3D")
+tracks/1/path = NodePath("Anchor")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = PackedFloat32Array()
 tracks/2/type = "bezier"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Label3D:scale:x")
+tracks/2/path = NodePath("Anchor:scale:x")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -84,7 +85,7 @@ tracks/2/keys = {
 tracks/3/type = "bezier"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Label3D:scale:y")
+tracks/3/path = NodePath("Anchor:scale:y")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -95,7 +96,7 @@ tracks/3/keys = {
 tracks/4/type = "bezier"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Label3D:scale:z")
+tracks/4/path = NodePath("Anchor:scale:z")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -110,13 +111,37 @@ _data = {
 &"Rise": SubResource("Animation_cbsxk")
 }
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_damage_pixelation"]
+resource_local_to_scene = true
+shader = ExtResource("2_pixelation")
+shader_parameter/pixel_size = 1.0
+shader_parameter/chromatic_aberration_pixels = 0.0
+shader_parameter/isolated_content = true
+
 [node name="NumberDisplay" type="Node3D" unique_id=1680829570]
+process_priority = 1
 script = ExtResource("1_xu5cc")
 
-[node name="Label3D" type="Label3D" parent="." unique_id=2129484214]
+[node name="Anchor" type="Node3D" parent="." unique_id=2129484214]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-pixel_size = 0.01
-text = "-123"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 8
+
+[node name="Pixelation" type="CanvasGroup" parent="CanvasLayer"]
+material = SubResource("ShaderMaterial_damage_pixelation")
+fit_margin = 16.0
+clear_margin = 16.0
+
+[node name="Number" type="Label" parent="CanvasLayer/Pixelation"]
+visible = false
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=998804468]
 libraries/ = SubResource("AnimationLibrary_f7rco")

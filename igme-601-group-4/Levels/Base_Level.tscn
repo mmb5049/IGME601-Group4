@@ -49,6 +49,7 @@ ability_sequence_ui = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 [node name="Enemies" type="Node3D" parent="." unique_id=931866839]
 
 [node name="EnemyQueueVisibilityManager" type="CanvasLayer" parent="." unique_id=1173028787]
+layer = 4
 script = ExtResource("12_ygjew")
 
 [node name="GlobalUIRoot" type="Control" parent="." unique_id=1402711124]

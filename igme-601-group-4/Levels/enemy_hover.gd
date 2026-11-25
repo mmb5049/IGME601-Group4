@@ -3,6 +3,8 @@ extends Node
 @onready var _arena: Node = get_parent()
 @onready var _game_over: CanvasLayer = _arena.get_node("%GameOver")
 
+@onready var _queues = _arena.get_node("EnemyQueueVisibilityManager")
+
 var hovered_enemy: Enemy
 var _mouse_inside: bool = true
 
@@ -23,7 +25,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var viewport := get_viewport()
-	if not _mouse_inside or _game_over.visible or viewport.gui_get_hovered_control() != null:
+	if not _mouse_inside or _game_over.visible or _queues.has_icon_hover() or viewport.gui_get_hovered_control() != null:
 		_set_hovered_enemy(null)
 		return
 	update_hover(CRTOverlay.get_content_mouse_position(viewport))
