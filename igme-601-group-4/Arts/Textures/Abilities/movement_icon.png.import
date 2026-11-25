@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dtakd72l1qpwy"
-path="res://.godot/imported/Whirlwind.png-611c0f744ac2bb24ecb003a3ef103937.ctex"
+uid="uid://cu4vhbgijk5gg"
+path="res://.godot/imported/movement_icon.png-47630b35bf7887fa6e3a5cc19aaf5dbf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Dev Art/Whirlwind.png"
-dest_files=["res://.godot/imported/Whirlwind.png-611c0f744ac2bb24ecb003a3ef103937.ctex"]
+source_file="res://Arts/Textures/Abilities/movement_icon.png"
+dest_files=["res://.godot/imported/movement_icon.png-47630b35bf7887fa6e3a5cc19aaf5dbf.ctex"]
 
 [params]
 

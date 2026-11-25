@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://gg4f8bytiflp"
-path="res://.godot/imported/Self_Enhancement.png-bd06367170296027c0f80478fee15a22.ctex"
+uid="uid://dtakd72l1qpwy"
+path="res://.godot/imported/Whirlwind.png-1b3ee3a6a78344eeca38ab5ad64fbeca.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Dev Art/Self_Enhancement.png"
-dest_files=["res://.godot/imported/Self_Enhancement.png-bd06367170296027c0f80478fee15a22.ctex"]
+source_file="res://Arts/Textures/Abilities/Whirlwind.png"
+dest_files=["res://.godot/imported/Whirlwind.png-1b3ee3a6a78344eeca38ab5ad64fbeca.ctex"]
 
 [params]
 

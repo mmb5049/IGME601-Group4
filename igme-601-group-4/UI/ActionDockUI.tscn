@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://de63b0j3p4me7" path="res://UI/OperationIndicatorUI.tscn" id="3_indicator"]
 
 [node name="ActionDockUI" type="CanvasLayer" unique_id=35991687]
+layer = 3
 script = ExtResource("1_dock_script")
 
 [node name="ExecuteButtonUI" parent="." unique_id=573216314 instance=ExtResource("2_execute_button")]

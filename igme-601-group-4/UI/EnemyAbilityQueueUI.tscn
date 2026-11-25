@@ -6,6 +6,7 @@
 script = ExtResource("1")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1719739736]
+layer = 4
 
 [node name="ScreenRoot" type="Control" parent="CanvasLayer" unique_id=395699571]
 layout_mode = 3

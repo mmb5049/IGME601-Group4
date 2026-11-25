@@ -32,11 +32,15 @@ var _dying: bool = false
 var is_model_hovered: bool = false
 var hover_scale: float = 1.0
 var _hover_progress: float = 0.0
+var _model_hover: bool = false
+var _queue_hover: bool = false
+@onready var _ghost_mesh: MeshInstance3D = $PivotHolo/Skeleton3D/Cube
+var _ghost_overlay: Material
 var _normal_overlay: Material
 
 @onready var _health_bar: EnemyHealthBar = $UI/HealthBar
 @onready var _ability_queue_ui: EnemyAbilityQueueUI = get_node_or_null("UI/EnemyAbilityQueueUI")
-@onready var _action_number_label: Label = get_node_or_null("UI/ActionNumberUI/CanvasLayer/Number")
+@onready var _action_number_label: Label = get_node_or_null("UI/ActionNumberUI/CanvasLayer/Pixelation/Number")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -66,14 +70,26 @@ func get_hover_distance_squared(ray_start: Vector3, ray_end: Vector3) -> float:
 
 
 func set_model_hovered(hovered: bool) -> void:
+	_model_hover = hovered
+	_update_hover()
+
+func set_queue_hovered(hovered: bool) -> void:
+	_queue_hover = hovered
+	_update_hover()
+
+func _update_hover() -> void:
+	var hovered := _model_hover or _queue_hover
 	if is_model_hovered == hovered:
 		return
 	is_model_hovered = hovered
 	if hovered:
 		_normal_overlay = mesh.material_overlay
 		mesh.material_overlay = HOVER_MATERIAL
+		_ghost_overlay = _ghost_mesh.material_overlay
+		_ghost_mesh.material_overlay = HOVER_MATERIAL
 	else:
 		mesh.material_overlay = _normal_overlay
+		_ghost_mesh.material_overlay = _ghost_overlay
 	_health_bar.set_show_through_walls(hovered)
 	set_process(true)
 
@@ -128,9 +144,12 @@ func prepare_turn(player: PlayerController) -> void:
 	for index in range(randi_range(minimum_actions, maxi(minimum_actions, maximum_actions))):
 		var distance: int = HexGrid.hex_distance(planned_cell, player_cell)
 		if attack_ability != null and distance >= 1 and distance <= attack_ability.range:
-			var target := AbilityTarget.new(Global.TargetingType.ANNULAR)
-			target.ring_radius = distance
-			target.target_cells = HexGrid.get_ring(Vector2i.ZERO, distance)
+			var target := AbilityTarget.new(attack_ability.targeting_type)
+			if target.targeting_type == Global.TargetingType.ANNULAR:
+				target.ring_radius = distance
+				target.target_cells = HexGrid.get_ring(Vector2i.ZERO, distance)
+			else:
+				target.target_cell = player_cell - planned_cell
 			target.is_valid = true
 			ability_queue.add_ability(attack_ability, target)
 		elif move_ability != null:
@@ -201,17 +220,32 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 		return false
 	if not entry.target.is_valid:
 		return false
+	face_attack_target(entry.ability, entry.target)
+	var succeeded := await _execute_action(entry)
+	if not health.is_dead and not is_queued_for_deletion():
+		face_player()
+	return succeeded
+
+func face_player() -> void:
+	if is_instance_valid(Global.player) and not Global.player.is_queued_for_deletion():
+		movement.face_movement_direction(Global.player.global_position - global_position)
+
+func _execute_action(entry: QueuedAbility) -> bool:
 	match entry.ability.type:
 		Global.AbilityType.MOVEMENT:
 			return await movement.execute_directional_move(entry.target.direction, entry.ability.range)
 		Global.AbilityType.ATTACK:
 			if entry.ability.presentation != null:
 				@warning_ignore("redundant_await")
-				if not await entry.ability.presentation.play(self, mesh, entry.target):
+				if not await entry.ability.presentation.play(self, movement.facing_visual, entry.target):
 					return false
 			if health.is_dead or is_queued_for_deletion():
 				return false
 			_apply_attack(entry.ability,entry.target)
+			return true
+		Global.AbilityType.STATUS:
+			if entry.ability.ability_name == "Attack_Up":
+				activate_self_enhance()
 			return true
 	return false
 	
@@ -221,10 +255,11 @@ func die() -> void:
 	_dying = true
 	var lethal_hit := health.is_dead
 	health.is_dead = true
+	set_queue_hovered(false)
 	set_model_hovered(false)
 	if HexGrid.occupied_cells.get(movement.current_cell) == self:
 		HexGrid.set_occupied(movement.current_cell, false)
-	$Pivot.hide()
+	movement.facing_visual.hide()
 	died.emit()
 	if lethal_hit and _health_bar.is_animating_damage():
 		await _health_bar.damage_animation_finished

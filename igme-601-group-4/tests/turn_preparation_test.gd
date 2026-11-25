@@ -67,7 +67,7 @@ func run() -> void:
 	check(observed == [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 3, 5], "Must execute one entry per actor, in number order")
 	check(controller.turn_number == 2, "Completion must enter the next preparation exactly once")
 	for actor in controller.action_order:
-		var label: Label = actor.get_node("ActionNumberUI/CanvasLayer/Number")
+		var label: Label = actor.get_node("UI/ActionNumberUI/CanvasLayer/Pixelation/Number")
 		check(label.text == str(actor.action_number), "Head numbers must refresh after each preparation")
 	check(controller.player_queue._interaction_enabled, "Preparation must unlock player queue")
 	check(controller.player_actor.current_mode == PlayerController.PlayerMode.NONE, "Player must return to planning mode")

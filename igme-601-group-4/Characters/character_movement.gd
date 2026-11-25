@@ -21,6 +21,7 @@ var _blocked_sideways: Vector3
 var current_cell:Vector2i = Vector2i.MIN
 var target_cell:Vector2i
 var path:Array[Vector2i]
+var _face_path: bool = true
 
 var floorHeight:float 
 
@@ -33,8 +34,8 @@ func _ready():
 	floorHeight = HexGrid.hex_height
 	
 	# Release an awaiting queue action if its actor dies during feedback.
-	if character.has_signal("player_died"):
-		character.connect("player_died", _finish_blocked_move)
+	if character is PlayerController:
+		character.health.died.connect(_stop_moving)
 	elif character.has_signal("died"):
 		character.connect("died", _stop_moving)
 
@@ -64,7 +65,7 @@ func execute_directional_move(direction: Vector2i, distance: int) -> bool:
 	if destination == current_cell or not HexGrid.is_valid_cell(destination):
 		await _play_blocked_move(direction)
 		return false
-	pathfind(destination)
+	pathfind(destination, false)
 	if target_cell == current_cell and not is_moving:
 		await _play_blocked_move(direction)
 		return false
@@ -137,7 +138,8 @@ func _exit_tree() -> void:
 
 
 # Creates a path toward the requested destination.
-func pathfind(end_cell:Vector2i):
+func pathfind(end_cell:Vector2i, face_path: bool = true):
+	_face_path = face_path
 	path = HexGrid.find_path(current_cell, end_cell)
 	## Old code... Checks if path has enough tiles to move
 	if path.is_empty():
@@ -172,7 +174,8 @@ func move_to(cell:Vector2i, delta) -> bool:
 	
 	# Adjust target height
 	target_position.y = floorHeight
-	face_movement_direction(target_position - character.global_position)
+	if _face_path:
+		face_movement_direction(target_position - character.global_position)
 	
 	# Set speed
 	var current_speed = move_speed
@@ -208,7 +211,7 @@ func set_pos(cell:Vector2i, set_occupancy_preview = false):
 			HexGrid.set_occupied(current_cell, false)
 		HexGrid.set_occupied(cell, character)
 	else:
-		if current_cell != Vector2i.MIN:
+		if HexGrid.occupied_cells_preview.get(current_cell) == character:
 			HexGrid.set_occupied_preview(current_cell, false)
 		HexGrid.set_occupied_preview(cell, character)
 	

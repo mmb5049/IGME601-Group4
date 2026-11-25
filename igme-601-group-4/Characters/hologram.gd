@@ -27,6 +27,7 @@ func reset() -> void:
 	if(health):
 		health.copy(parent.health)
 	if(parent is Character):
+		self_enhance_stacks = parent.self_enhance_stacks
 		ability_queue.copy(parent.ability_queue)
 		attack_mask = parent.attack_mask | Global.EntityMask.HOLOGRAM
 
@@ -43,12 +44,8 @@ func execute_queued_ability(entry: QueuedAbility) -> bool:
 			_apply_attack(entry.ability,entry.target,0,attack_mask,true)
 		
 		Global.AbilityType.TRAP:
-			# TODO: Implement traps for preview
-			succeeded = false
-			for trap_cell: Vector2i in target.resolve_cells(movement.current_cell):
-				if not HexGrid.traps.has(trap_cell):
-					if HexGrid.place_trap(trap_cell, ability.damage):
-						succeeded = true
+			# Trap placement belongs to live execution.
+			pass
 		Global.AbilityType.STATUS:
 			activate_self_enhance()
 	return succeeded

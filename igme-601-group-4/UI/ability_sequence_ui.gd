@@ -19,20 +19,31 @@ var _preview_insertion_index: int = -1
 var _pending_reveal_entry_ids: Dictionary[int, bool] = {}
 var _interaction_enabled: bool = true
 var _scroll_restore_pending: bool = false
+var _player: PlayerController
+var _queue: AbilityQueue:
+	get:
+		if not is_instance_valid(_player) or not _player.is_inside_tree() or _player.is_queued_for_deletion():
+			return null
+		return _player.ability_queue
 
 @onready var _drop_region: Control = %SequenceDropRegion
 @onready var _scroll_container: ScrollContainer = %ScrollContainer
 @onready var _item_container: VBoxContainer = %SequenceContainer
 
+## The scene's player binds its own queue before the scene accepts gameplay input.
+func bind_player(player: PlayerController) -> void:
+	_player = player
+
+
 ## Connected to PlayerController after targeting is confirmed. Repeated Ability
 ## resources are allowed; each entry keeps its own target and stable ID.
 func add_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
-	if ability == null or target == null or not target.is_valid:
+	if _queue == null or ability == null or target == null or not target.is_valid:
 		return
 
-	var added_entry_id: int = Global.player.ability_queue._next_entry_id
-	Global.player.ability_queue.queue.append(QueuedAbility.new(added_entry_id, ability, target))
-	Global.player.ability_queue._next_entry_id += 1
+	var added_entry_id: int = _queue._next_entry_id
+	_queue.queue.append(QueuedAbility.new(added_entry_id, ability, target))
+	_queue._next_entry_id += 1
 	_rebuild_items(added_entry_id)
 	queue_changed.emit()
 
@@ -40,13 +51,12 @@ func add_confirmed_ability(ability: Ability, target: AbilityTarget) -> void:
 ## animation. The returned stable ID lets ActionDockUI animate the large
 ## operation indicator into this reserved queue position.
 func add_confirmed_ability_pending(ability: Ability, target: AbilityTarget) -> int:
-	if ability == null or target == null or not target.is_valid:
+	if _queue == null or ability == null or target == null or not target.is_valid:
 		return -1
 
-	var added_entry_id: int = Global.player.ability_queue._next_entry_id
-	Global.player.ability_queue.add_ability(ability, target)
+	var added_entry_id: int = _queue._next_entry_id
+	_queue.add_ability(ability, target)
 	_pending_reveal_entry_ids[added_entry_id] = true
-	Global.player.ability_queue._next_entry_id += 1
 	_rebuild_items()
 	queue_changed.emit()
 	ability_confirmed.emit()
@@ -94,7 +104,8 @@ func add_ability(ability: Ability) -> void:
 	add_confirmed_ability(ability, target)
 
 func clear_queue() -> void:
-	Global.player.queued_entries.clear()
+	if _queue != null:
+		_queue.queue.clear()
 	_pending_reveal_entry_ids.clear()
 	_rebuild_items()
 	queue_changed.emit()
@@ -103,10 +114,10 @@ func clear_queue() -> void:
 ## the entry rather than only its Ability preserves the confirmed target and
 ## stable ID required to consume the correct repeated Ability instance.
 func has_entries() -> bool:
-	return not Global.player.ability_queue.queue.is_empty()
+	return _queue != null and _queue.has_entries()
 
 func peek_front_entry() -> QueuedAbility:
-	return Global.player.queued_entries.front() if has_entries() else null
+	return _queue.peek_front_entry() if _queue != null else null
 
 ## Removes one resolved action by stable ID and reuses the existing layout
 ## animation. The executor may call this while player editing is locked.
@@ -120,7 +131,7 @@ func consume_entry(entry_id: int, release_viewport_position: Vector2 = Vector2.I
 	if removed_item != null:
 		removed_item.reparent(self, true)
 	removed_item.play_removal_animation(layout_animation_duration, release_viewport_position)
-	Global.player.ability_queue.queue.remove_at(index)
+	_queue.queue.remove_at(index)
 	_pending_reveal_entry_ids.erase(entry_id)
 	_rebuild_items()
 	_animate_rebuilt_items(previous_positions)
@@ -140,7 +151,9 @@ func set_interaction_enabled(enabled: bool) -> void:
 
 func get_queued_abilities() -> Array[Ability]:
 	var result: Array[Ability] = []
-	for entry in Global.player.queued_entries:
+	if _queue == null:
+		return result
+	for entry in _queue.queue:
 		result.append(entry.ability)
 	return result
 
@@ -153,18 +166,21 @@ func _rebuild_items(animated_entry_id: int = -1) -> void:
 		_item_container.remove_child(child)
 		child.queue_free()
 
+	if _queue == null:
+		return
 	if item_scene == null:
 		push_warning("AbilitySequenceUI needs an Item Scene.")
 		return
 
 	# The VBox lays out top to bottom, so its last child is the first action.
-	for index in range(Global.player.ability_queue.queue.size() - 1, -1, -1):
+	for index in range(_queue.queue.size() - 1, -1, -1):
 		var item := item_scene.instantiate() as AbilitySequenceItemUI
 		if item == null:
 			push_error("Sequence Item Scene must have an AbilitySequenceItemUI root.")
 			return
 
-		var entry:QueuedAbility = Global.player.ability_queue.queue[index]
+		var entry:QueuedAbility = _queue.queue[index]
+		item.preview_player = _player
 		item.configure(
 			entry.id,
 			index,
@@ -206,7 +222,7 @@ func _on_item_removal_requested(entry_id: int, release_viewport_position: Vector
 	if index < 0:
 		return
 
-	var ability: Ability = Global.player.ability_queue.queue[index].ability
+	var ability: Ability = _queue.queue[index].ability
 
 	# Refund mana before removing the entry.
 	ability_removed.emit(ability)
@@ -239,18 +255,18 @@ func _on_item_reorder_requested(
 	if source_index < 0:
 		return
 
-	var moved_entry: QueuedAbility = Global.player.ability_queue.queue[source_index]
-	Global.player.ability_queue.queue.remove_at(source_index)
+	var moved_entry: QueuedAbility = _queue.queue[source_index]
+	_queue.queue.remove_at(source_index)
 
 	var target_index: int = _find_entry_index(target_entry_id)
 	if target_index < 0:
 		# This should only happen if the queue changed during the drag. Restore the
 		# entry instead of silently losing it.
-		Global.player.queued_entries.insert(source_index, moved_entry)
+		_queue.queue.insert(source_index, moved_entry)
 		return
 
 	var insertion_index: int = target_index + 1 if insert_after else target_index
-	Global.player.ability_queue.queue.insert(insertion_index, moved_entry)
+	_queue.queue.insert(insertion_index, moved_entry)
 	_rebuild_items()
 	_animate_rebuilt_items(previous_positions)
 	queue_changed.emit()
@@ -305,7 +321,7 @@ func _on_item_reorder_preview_requested(
 		if target_index > source_index:
 			compact_target_index -= 1
 		insertion_index = compact_target_index + 1 if insert_after else compact_target_index
-		insertion_index = clampi(insertion_index, 0, Global.player.ability_queue.size() - 1)
+		insertion_index = clampi(insertion_index, 0, _queue.size() - 1)
 
 	if insertion_index == _preview_insertion_index:
 		return
@@ -322,7 +338,7 @@ func _on_item_reorder_preview_requested(
 
 		# First close the source's empty row, then open one row at the proposed
 		# insertion point. The result can move an Item up, down, or not at all.
-		var index: int = Global.player.ability_queue.size() - 1 - child_index
+		var index: int = _queue.size() - 1 - child_index
 		var compact_index: int = index - 1 if index > source_index else index
 		var preview_index: int = compact_index
 		if compact_index >= insertion_index:
@@ -408,8 +424,10 @@ func _animate_rebuilt_items(previous_positions: Dictionary[int, Vector2]) -> voi
 		item.animate_from_global_position(start_position, layout_animation_duration)
 
 func _find_entry_index(entry_id: int) -> int:
-	for index in range(Global.player.ability_queue.queue.size()):
-		if Global.player.ability_queue.queue[index].id == entry_id:
+	if _queue == null:
+		return -1
+	for index in range(_queue.queue.size()):
+		if _queue.queue[index].id == entry_id:
 			return index
 	return -1
 

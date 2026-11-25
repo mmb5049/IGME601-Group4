@@ -6,10 +6,13 @@ const VIEWPORT_KEY := &"crt_overlay"
 var _forwarded_event: InputEventMouse
 @onready var _screen: ColorRect = $Screen
 @onready var _pixelation_layer: CanvasLayer = $PixelationLayer
+@onready var _pixelation_screen: ColorRect = $PixelationLayer/Screen
 
 
 func _ready() -> void:
 	get_viewport().set_meta(VIEWPORT_KEY, self)
+	# Pixelation samples gameplay and the low HUD layers before the ability canvases draw.
+	# The final CRT pass then samples the composed screen, including ability UI.
 	# When CRT is placed behind the UI, keep both passes behind it.
 	_pixelation_layer.layer = mini(_pixelation_layer.layer, layer - 1)
 	visibility_changed.connect(_sync_pixelation_visibility)
@@ -23,6 +26,13 @@ func _sync_pixelation_visibility() -> void:
 func _exit_tree() -> void:
 	if _get_overlay(get_viewport()) == self:
 		get_viewport().remove_meta(VIEWPORT_KEY)
+
+
+static func get_active_pixelation_material(viewport: Viewport) -> ShaderMaterial:
+	var overlay := _get_overlay(viewport)
+	if is_instance_valid(overlay) and overlay._pixelation_screen.is_visible_in_tree():
+		return overlay._pixelation_screen.material as ShaderMaterial
+	return null
 
 
 static func get_content_mouse_position(viewport: Viewport) -> Vector2:

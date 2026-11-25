@@ -3,7 +3,7 @@
 [ext_resource type="Shader" uid="uid://s8vnyjhd8qdn" path="res://Materials/Shaders/hex_ui_mask.gdshader" id="1_mask_shader"]
 [ext_resource type="Texture2D" uid="uid://5j07m71nm74a" path="res://Arts/Textures/HexShaderTexture.png" id="2_hex_mask"]
 [ext_resource type="Script" uid="uid://bitukguieuk4m" path="res://UI/ability_hex_display_ui.gd" id="4_display_script"]
-[ext_resource type="Texture2D" uid="uid://vgikm1bpam1o" path="res://Arts/Textures/Abilities/abilities-04.png" id="5_bipd8"]
+[ext_resource type="Texture2D" uid="uid://dl63bux8kddhv" path="res://Arts/Textures/Abilities/Slash.png" id="5_bipd8"]
 [ext_resource type="Resource" uid="uid://c67pwnn5oxebi" path="res://Abilities/Slash.tres" id="5_slash"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hex_mask"]
@@ -39,13 +39,14 @@ expand_mode = 1
 [node name="AbilityIcon" type="TextureRect" parent="VisualContent" unique_id=1967219022]
 unique_name_in_owner = true
 material = SubResource("ShaderMaterial_hex_mask")
-clip_contents = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -10.0
-offset_right = 11.0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = -7.0
+offset_bottom = -7.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2

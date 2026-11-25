@@ -53,7 +53,7 @@ func run() -> void:
 	check(is_equal_approx(lower._screen_root.modulate.a, 1.0), "Lower world-Z queue must remain opaque")
 	check(upper._screen_root.z_index < lower._screen_root.z_index, "Lower queue must draw in front")
 	check(upper._screen_root.get_parent() == lower._screen_root.get_parent(), "Queues must share a canvas for sorting")
-	var label: Label = upper._enemy.get_node("ActionNumberUI/CanvasLayer/Number")
+	var label: Label = upper._enemy.get_node("UI/ActionNumberUI/CanvasLayer/Pixelation/Number")
 	check(is_equal_approx(label.modulate.a, 1.0), "Action number must not fade with queue")
 	await capture("queue-overlap-default.png")
 

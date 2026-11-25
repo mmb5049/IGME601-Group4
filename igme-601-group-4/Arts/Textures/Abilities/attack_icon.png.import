@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cwnot23vjglye"
-path="res://.godot/imported/Wait.png-61144e3451dff16394dfa2ecf3d4306f.ctex"
+uid="uid://dt6n6p7e2fdmr"
+path="res://.godot/imported/attack_icon.png-d4760064d9274193a41dd0741abd6399.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Arts/Textures/Dev Art/Wait.png"
-dest_files=["res://.godot/imported/Wait.png-61144e3451dff16394dfa2ecf3d4306f.ctex"]
+source_file="res://Arts/Textures/Abilities/attack_icon.png"
+dest_files=["res://.godot/imported/attack_icon.png-d4760064d9274193a41dd0741abd6399.ctex"]
 
 [params]
 

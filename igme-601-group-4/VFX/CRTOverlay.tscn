@@ -7,13 +7,14 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pixelation"]
 resource_local_to_scene = true
 shader = ExtResource("3_pixelation")
-shader_parameter/pixel_size = 2.0
+shader_parameter/pixel_size = 3.0000000298024
 shader_parameter/chromatic_aberration_pixels = 1.0
+shader_parameter/isolated_content = false
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
 resource_local_to_scene = true
 shader = ExtResource("1_crt")
-shader_parameter/scanline_strength = 0.30000001192093
+shader_parameter/scanline_strength = 0.11999999731776
 shader_parameter/scanline_spacing_pixels = 4.0
 shader_parameter/scanline_width_pixels = 1.0
 shader_parameter/scanline_softness_pixels = 0.20000000298024
@@ -26,7 +27,7 @@ layer = 1025
 script = ExtResource("2_crt_input")
 
 [node name="PixelationLayer" type="CanvasLayer" parent="." unique_id=1730637569]
-layer = 1000
+layer = 2
 
 [node name="BackBufferCopy" type="BackBufferCopy" parent="PixelationLayer" unique_id=487184428]
 copy_mode = 2

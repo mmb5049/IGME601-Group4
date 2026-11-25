@@ -16,3 +16,4 @@ ability = ExtResource("3_slash")
 
 [node name="AbilityHexDisplayUI" parent="." unique_id=116455222 instance=ExtResource("2_hex_display")]
 position = Vector2(64, 64)
+frame_color = Color(0.23529412, 0.58431375, 1, 0.6784314)

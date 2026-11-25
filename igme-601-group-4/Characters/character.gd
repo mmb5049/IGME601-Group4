@@ -23,6 +23,12 @@ func activate_self_enhance() -> void:
 func execute_queued_ability(_entry: QueuedAbility) -> bool:
 	return false
 
+## Single-tile attacks store their target relative to the execution cell.
+func face_attack_target(ability: Ability, target: AbilityTarget) -> void:
+	if ability.type == Global.AbilityType.ATTACK and target.targeting_type == Global.TargetingType.SINGLE_TILE:
+		var cell := movement.current_cell + target.target_cell
+		movement.face_movement_direction(HexGrid.to_global(HexGrid.hex_to_world(cell)) - global_position)
+
 ## Connected to AnimationManager.take_action, and also called directly as a fallback.
 # Deals damage based on ability and target. Enter a character_mask to only 
 # damage entities with that flag

@@ -40,7 +40,11 @@ func record_movement_finished(_sender: Signal) -> void:
 ## Observe the full queued action, including each visible phase and grid safety.
 func check_blocked_action(actor: Node3D, ability: Ability, direction: Vector2i) -> void:
 	var queue := AbilityQueue.new()
-	queue.add_ability(ability, directional_target(direction))
+	if actor is PlayerController:
+		queue = actor.ability_queue
+		controller.player_queue_UI.add_confirmed_ability(ability, directional_target(direction))
+	else:
+		queue.add_ability(ability, directional_target(direction))
 	var origin: Vector3 = actor.global_position
 	var actor_basis: Basis = actor.global_basis
 	var cell: Vector2i = actor.movement.current_cell
@@ -87,25 +91,50 @@ func check_legal_facing(actor: Node3D, ability: Ability, direction: Vector2i) ->
 	var visual_scale: Vector3 = visual.scale
 	var forward: Vector3 = HexGrid.hex_to_world(direction).normalized()
 	var queue := AbilityQueue.new()
-	queue.add_ability(ability, directional_target(direction))
+	if actor is PlayerController:
+		queue = actor.ability_queue
+		controller.player_queue_UI.add_confirmed_ability(ability, directional_target(direction))
+	else:
+		queue.add_ability(ability, directional_target(direction))
+	var start_position := actor.global_position
+	var saw_travel := false
 	action_done = false
 	controller.execute_next(actor, queue)
 	while not action_done:
 		check(visual.global_basis.z.normalized().dot(forward) > 0.999, "Body must face travel direction throughout legal movement")
+		if actor is Enemy and not actor.global_position.is_equal_approx(start_position):
+			saw_travel = true
+			check(enemy_model_forward(actor).dot(forward) > 0.95, "Animated enemy model must face along the movement direction")
 		await get_tree().physics_frame
 	await get_tree().create_timer(0.05).timeout
 	check(action_succeeded and actor.movement.current_cell == direction, "Facing must preserve normal movement completion")
-	check(visual.global_basis.z.normalized().dot(forward) > 0.999, "Body must retain its last facing after stopping and animation updates")
+	if actor is Enemy:
+		check(saw_travel, "Facing test must observe the enemy in motion")
+		forward = actor.global_position.direction_to(controller.player_actor.global_position)
+		check(enemy_model_forward(actor).dot(forward) > 0.95, "Animated enemy must turn toward the player upon arrival")
+	check(visual.global_basis.z.normalized().dot(forward) > 0.999, "Actor must settle on its post-action heading")
 	check(actor.global_basis.is_equal_approx(actor_basis), "Legal movement must rotate only the body")
 	check(visual.position.is_equal_approx(visual_position) and visual.scale.is_equal_approx(visual_scale), "Turning must preserve visual position and scale")
 
 
+func enemy_model_forward(enemy: Enemy) -> Vector3:
+	var skeleton := enemy.mesh.get_parent() as Skeleton3D
+	# The foot-to-toe vector follows the animated model, including its imported rotation.
+	var foot := skeleton.get_bone_global_pose(skeleton.find_bone("mixamorig_LeftFoot")).origin
+	var toe := skeleton.get_bone_global_pose(skeleton.find_bone("mixamorig_LeftToeBase")).origin
+	var forward := skeleton.global_basis * (toe - foot)
+	forward.y = 0.0
+	return forward.normalized()
+
+
 func run() -> void:
 	var arena: Node = load("res://Levels/Arena.tscn").instantiate()
+	arena.current_level = &"3"
 	get_tree().root.add_child(arena)
 	get_tree().current_scene = arena
 	controller = arena.get_node("ActionExecutionController")
 	await controller.preparation_started
+	await get_tree().create_timer(0.3).timeout
 	controller.action_finished.connect(record_finished)
 	var player: PlayerController = controller.player_actor
 	var enemies: Array[Node] = arena.get_node("Enemies").get_children()
@@ -145,14 +174,14 @@ func run() -> void:
 	# Death must restore position and release the suspended queue exactly once.
 	player.movement.set_pos(Vector2i.ZERO)
 	blocker.movement.set_pos(Vector2i(1, 0))
-	var queue := AbilityQueue.new()
-	queue.add_ability(player.get_ability("Move"), directional_target(Vector2i(1, 0)))
+	var queue := player.ability_queue
+	controller.player_queue_UI.add_confirmed_ability(player.get_ability("Move"), directional_target(Vector2i(1, 0)))
 	var origin: Vector3 = player.global_position
 	var completions_before: int = completion_count
 	action_done = false
 	controller.execute_next(player, queue)
 	await get_tree().create_timer(0.05).timeout
-	player.damage(player.max_health)
+	player.health.damage(player.health.max)
 	check(action_done and not action_succeeded and not queue.has_entries(), "Death must release the pending blocked action")
 	check(player.global_position == origin and not player.movement.is_moving, "Death must restore position and clear movement state")
 	await get_tree().create_timer(0.7).timeout

@@ -4,6 +4,7 @@ signal damage_animation_finished
 
 const DAMAGE_DURATION: float = 0.2
 const FILL_LIFT: float = 0.004
+const HEALTH_VALUE_GAP: float = 4.0
 const DAMAGE_SHADER := preload("res://Materials/Shaders/enemy_health_loss.gdshader")
 const DAMAGE_THROUGH_WALL_SHADER := preload("res://Materials/Shaders/enemy_health_loss_through_wall.gdshader")
 # Draw after the model outline, then layer the backing, cells and damage in order.
@@ -21,6 +22,7 @@ const DAMAGE_PRIORITY: int = 25
 @export var damage_color: Color = Color(1.0, 0.85, 0.15)
 
 var _backing: MeshInstance3D
+var _backing_vertices: PackedVector3Array
 var _cells: Array[MeshInstance3D] = []
 var _filled: int = 0
 var _damage_materials: Array[ShaderMaterial] = []
@@ -28,6 +30,38 @@ var _show_through_walls: bool = false
 
 @onready var _normal_position := position
 @onready var _normal_scale := scale
+@onready var _health_value: Label = $CanvasLayer/Pixelation/HealthValue
+
+
+func _ready() -> void:
+	set_process(false)
+
+
+func _process(_delta: float) -> void:
+	_update_health_value_position()
+
+
+func _update_health_value_position() -> void:
+	var viewport := get_viewport()
+	var camera := viewport.get_camera_3d()
+	if camera == null or _backing == null or not is_visible_in_tree() \
+			or camera.is_position_behind(global_position):
+		_health_value.hide()
+		return
+
+	# Position the label below the projected arc, including the hover scale.
+	var top_left := Vector2.INF
+	var bottom_right := -Vector2.INF
+	for vertex in _backing_vertices:
+		var point := camera.unproject_position(_backing.to_global(vertex))
+		top_left = top_left.min(point)
+		bottom_right = bottom_right.max(point)
+	_health_value.size = _health_value.get_minimum_size()
+	_health_value.position = Vector2(
+		(top_left.x + bottom_right.x - _health_value.size.x) * 0.5,
+		bottom_right.y + HEALTH_VALUE_GAP
+	)
+	_health_value.show()
 
 
 func set_hover_scale(factor: float, model_origin: Vector3) -> void:
@@ -39,6 +73,11 @@ func set_hover_scale(factor: float, model_origin: Vector3) -> void:
 
 func set_show_through_walls(enabled: bool) -> void:
 	_show_through_walls = enabled
+	set_process(enabled)
+	if enabled:
+		_update_health_value_position()
+	else:
+		_health_value.hide()
 	if _backing != null:
 		_set_flat_depth(_backing.material_override, BACKING_PRIORITY)
 		_set_flat_depth(_cells[0].material_override, CELL_PRIORITY)
@@ -59,6 +98,7 @@ func is_animating_damage() -> bool:
 func _update_health(current_health: int, max_health: int, play_animation:bool = true) -> void:
 	var capacity := maxi(0, max_health)
 	var filled := clampi(current_health, 0, capacity)
+	_health_value.text = "%d/%d" % [filled, capacity]
 	if _cells.size() != capacity:
 		_rebuild(capacity)
 		_filled = filled
@@ -100,6 +140,7 @@ func _rebuild(capacity: int) -> void:
 		_strip_mesh(-half_angle, half_angle, half_fill + outline_width),
 		_flat_material(Color.BLACK, BACKING_PRIORITY), 0.0
 	)
+	_backing_vertices = _backing.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var red := _flat_material(fill_color, CELL_PRIORITY)
 	for index in range(capacity):
 		var start := -half_angle + end_border + index * step
