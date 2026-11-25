@@ -6,12 +6,13 @@ enum TutorialStep {
 	HOVER_ENEMY,
 	PROMPT_ABILITY,
 	SELECT_ABILITY,
-	CHOOSE_DIRECTION
+	SHOW_ENEMY_PREVIEW
 }
 
 var current_step: TutorialStep = TutorialStep.SHOW_ENEMY
 
 @export var ability_bar: AbilityBarUI
+@export var ability_sequence: AbilitySequenceUI
 @export var darken_ui:DarkenUI
 @onready var welcome_panel: PanelContainer = $Welcome
 @onready var prompt_panel:PanelContainer = $TutorialPrompt
@@ -19,14 +20,15 @@ var current_step: TutorialStep = TutorialStep.SHOW_ENEMY
 @export var enemyParent:Node
 @export var enemy:Enemy
 @export var task_panel: PanelContainer
-
+var ability_chosen: int = 2
 
 signal user_input
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	ability_bar.ability_selected.connect(_on_ability_selected)
-	
+	ability_bar.visible = false
+	ability_sequence.ability_confirmed.connect(_on_ability_confirmed)
+	ability_bar.ability_selected.connect(_on_show_enemy_preview)
 	await user_input
 	await get_tree().process_frame
 	welcome_panel.fade_in()
@@ -70,28 +72,41 @@ func hover_enemy() -> void:
 	await user_input
 	await get_tree().process_frame
 	current_step = TutorialStep.PROMPT_ABILITY
-	finish_enemy_tutorial()
+	prompt_choosing_ability()
 	
-func promt_choosing_ability() -> void:
+func prompt_choosing_ability() -> void:
 	if current_step != TutorialStep.PROMPT_ABILITY:
 		return
 	current_step = TutorialStep.SELECT_ABILITY
-	prompt_text.text = "Select an ability"
+	prompt_text.text = "Select an ability (%d)" %ability_chosen
+	ability_bar.visible = true
 	#continue_label.text = "(Click on ability to continue)"
 	enable_mouse_for_canvas(ability_bar, true)
 
 	# Highlight the entire ability bar.
 	darken_ui.highlight_UI(ability_bar)
 	
-func _on_ability_selected(_ability: Ability) -> void:
-	print("being called")
+func _on_ability_confirmed() -> void:
 	if current_step != TutorialStep.SELECT_ABILITY:
 		return
+	
+	ability_chosen -= 1
+	prompt_text.text = "Select an ability (%d)" %ability_chosen
+	print("Ability Chosen: ", ability_chosen)
 		
-	print("passed")
-	current_step = TutorialStep.CHOOSE_DIRECTION
-	prompt_panel.show()
-	prompt_text.text = "Select a direction"
+	if ability_chosen > 2:
+		return
+	current_step = TutorialStep.SHOW_ENEMY_PREVIEW
+	
+func _on_show_enemy_preview(_ability: Ability) -> void:
+	print("After Step: ", current_step)
+	if current_step != TutorialStep.SHOW_ENEMY_PREVIEW:
+		return
+		
+	prompt_text.text = "You can also see the preview of the enemy"
+	await user_input
+	await get_tree().process_frame
+	finish_enemy_tutorial()
 	
 func finish_enemy_tutorial() -> void:
 	darken_ui.clear()
@@ -100,7 +115,6 @@ func finish_enemy_tutorial() -> void:
 	
 func get_enemy() -> void:
 	enemy = enemyParent.get_child(0)
-	print(enemy)
 	if enemy:
 		enemy.being_hovered.connect(hover_enemy)
 
@@ -109,3 +123,9 @@ func enable_mouse_for_canvas(canvas:CanvasLayer, enable:bool) -> void:
 		if control is Control:
 			(control as Control).mouse_behavior_recursive = (
 			Control.MOUSE_BEHAVIOR_ENABLED if enable else Control.MOUSE_BEHAVIOR_DISABLED)
+			
+func disable_mouse_for_canvas(canvas:CanvasLayer, enable:bool) -> void:
+	for control in canvas.get_children():
+		if control is Control:
+			(control as Control).mouse_behavior_recursive = (
+			Control.MOUSE_BEHAVIOR_DISABLED if enable else Control.MOUSE_BEHAVIOR_ENABLED)			

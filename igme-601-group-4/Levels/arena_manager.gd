@@ -30,7 +30,6 @@ var last_scene_unloaded:bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	print("Current Level: ", current_level)
 	if not game_over_screen:
 		push_warning("No game over screen found!")
 	if not scene_transition:
@@ -58,7 +57,6 @@ func _ready() -> void:
 			new_scene.unlock_level(current_level)
 			Global.switch_scenes(new_scene)
 		)
-	print(current_stage)
 	if current_stage > 0:
 		load_level_data()
 		if not current_level_data.is_empty():

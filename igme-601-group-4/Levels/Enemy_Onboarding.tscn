@@ -101,6 +101,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="AbilityBarUI" parent="GlobalUIRoot/SwayLayer" unique_id=516815699 instance=ExtResource("13_l1np0")]
+visible = false
 abilities = Array[ExtResource("7_recak")]([ExtResource("9_lejm7"), ExtResource("8_cv1qy"), ExtResource("11_0gipd"), ExtResource("12_recak"), ExtResource("13_cv1qy"), ExtResource("14_lejm7")])
 rotation_step_degrees = 3.0
 breathing_amplitude_pixels = 2.0
@@ -166,10 +167,11 @@ horizontal_alignment = 1
 
 [node name="CRTOverlay" parent="." unique_id=1019875901 instance=ExtResource("24_q1uay")]
 
-[node name="EnemyOnboardUI" type="CanvasLayer" parent="." unique_id=345218347 node_paths=PackedStringArray("ability_bar", "darken_ui", "enemyParent", "task_panel")]
+[node name="EnemyOnboardUI" type="CanvasLayer" parent="." unique_id=345218347 node_paths=PackedStringArray("ability_bar", "ability_sequence", "darken_ui", "enemyParent", "task_panel")]
 layer = 3
 script = ExtResource("24_pa47a")
 ability_bar = NodePath("../GlobalUIRoot/SwayLayer/AbilityBarUI")
+ability_sequence = NodePath("../GlobalUIRoot/SwayLayer/AbilitySequenceUI")
 darken_ui = NodePath("../DarkenUI")
 enemyParent = NodePath("../Enemies")
 task_panel = NodePath("../TVGlitch/Task")

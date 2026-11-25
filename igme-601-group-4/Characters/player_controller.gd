@@ -440,7 +440,6 @@ func get_clicked_hex(mouse_position: Vector2) -> Vector2i:
 	return HexGrid.world_to_hex(local_position)
 
 func spend_mana(amount: int) -> bool:
-	print("spending mana: " + str(amount))
 	if amount < 0 or current_mana < amount:
 		return false
 
