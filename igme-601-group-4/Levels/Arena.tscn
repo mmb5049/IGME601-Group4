@@ -69,6 +69,7 @@ glow_hdr_luminance_cap = 46.67
 
 [node name="Arena2" type="Node3D" unique_id=1193273823]
 script = ExtResource("1_5o1c7")
+current_stage = 1
 walls = Array[ExtResource("2_44qxj")]([SubResource("Resource_ix0gq"), SubResource("Resource_5wh74"), SubResource("Resource_wg0dr"), SubResource("Resource_nngry"), SubResource("Resource_ylnl5"), SubResource("Resource_ubyhg")])
 
 [node name="SceneTransition" type="Node" parent="." unique_id=1494329090]

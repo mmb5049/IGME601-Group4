@@ -134,12 +134,20 @@ func get_level_from_id(id:StringName) -> LevelNode:
 				return level
 	return null
 
-func unlock_level(origin_level_id:StringName) -> void:
+func unlock_level(origin_level_id: StringName) -> void:
 	if not is_node_ready():
 		await ready
-	var origin_level = get_level_from_id(origin_level_id)
+
+	var origin_level: LevelNode = get_level_from_id(origin_level_id)
+
 	if origin_level:
-		for level in origin_level.next_levels:
-			level.active = true
+		origin_level.active = true
+		for level: LevelNode in origin_level.next_levels:
+			if level:
+				level.active = true
+			
+		for level: LevelNode in origin_level.previous_levels:
+			if level:
+				level.active = true
 	else:
-		push_error("id not found: " + origin_level_id)
+		push_error("id not found: " + str(origin_level_id))

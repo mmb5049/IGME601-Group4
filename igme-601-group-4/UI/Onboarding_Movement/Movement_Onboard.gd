@@ -84,7 +84,6 @@ func _on_ability_hovered(_ability: Ability = null, _slot: Control = null) -> voi
 		return
 	current_step = TutorialStep.ABILITY_DETAILS
 	if ability_bar.is_hovered:
-		print("Already hovered")
 		ability_bar.hovered_slot._on_mouse_entered()
 	ability_bar.set_click_enabled(false)
 
@@ -180,7 +179,6 @@ func complete_ability_tutorial() -> void:
 	tutorial_panel.hide()
 	darkenUI.clear()
 
-	print("Ability tutorial completed!")
 	if Global.player.movement.current_cell == Vector2i(2,2):
 		tutorial_complete.emit(Vector2i(-2,-2))
 	else:

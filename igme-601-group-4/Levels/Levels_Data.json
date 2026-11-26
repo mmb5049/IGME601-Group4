@@ -7,27 +7,59 @@
 			],
 		},
 		{
-			"level_number": 1,
+			"level_number": "1",
 			"enemies": [
 				{ "position": [1, 1] },
 				{ "position": [3, -1] },
-				{ "position": [-2, -2] }
+				{ "position": [-2, -2] },
+				{ "position": [-4, 3]}
 			],
 			"walls": [
-				{ "position": [0, 1], "type": "NORMAL" },
-				{ "position": [1, 2], "type": "BREAKABLE" }
+				{ "position": [-1, -1], "type": "NORMAL" },
+				{ "position": [0, -1], "type": "NORMAL" },
+				{ "position": [1, -1], "type": "NORMAL" },
+				{ "position": [-2, 0], "type": "BREAKABLE" },
+				{ "position": [-3, 1], "type": "BREAKABLE" },
+				{ "position": [-3, 2], "type": "BREAKABLE" }
 			]
 		},
 		{
-			"level_number": 2,
+			"level_number": "2",
 			"enemies": [
-				{ "position": [2, 0] },
-				{ "position": [-2, 1] }
+				{ "position": [-4, 2] },
+				{ "position": [-2, -2] },
+				{ "position": [-2, 4] },
+				{ "position": [2, -4] },
+				{ "position": [2, 2] },
+				{ "position": [4, -2] }
+				
 			],
 			"walls": [
-				{ "position": [0, 1], "type": "NORMAL" },
-				{ "position": [-1, -1], "type": "BREAKABLE" }
+				{ "position": [0, -2], "type": "BREAKABLE" },
+				{ "position": [0, -3], "type": "NORMAL" },
+				{ "position": [0, -4], "type": "NORMAL" },
+				{ "position": [0, 2], "type": "BREAKABLE" },
+				{ "position": [0, 3], "type": "NORMAL" },
+				{ "position": [0, 4], "type": "NORMAL" },
+				
+				{ "position": [2, -2], "type": "BREAKABLE" },
+				{ "position": [3, -3], "type": "NORMAL" },
+				{ "position": [4, -4], "type": "NORMAL" },
+				{ "position": [-2, 2], "type": "BREAKABLE" },
+				{ "position": [-3, 3], "type": "NORMAL" },
+				{ "position": [-4, 4], "type": "NORMAL" },
+				
+				{ "position": [-4, 0], "type": "NORMAL" },
+				{ "position": [-3, 0], "type": "NORMAL" },
+				{ "position": [-2, 0], "type": "BREAKABLE" },
+				{ "position": [2, 0], "type": "BREAKABLE" },
+				{ "position": [3, 0], "type": "NORMAL" },
+				{ "position": [4, 0], "type": "NORMAL" }
 			]
-		}
+		},
+		
+		
+		
+		
 	]
 }

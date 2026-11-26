@@ -12,6 +12,8 @@ class_name LevelNode
 	set(value):
 		level_id = value
 		update_configuration_warnings()
+
+@export var previous_levels: Array[LevelNode] = []
 @export var next_levels: Array[LevelNode] = []
 @export var level_name: String:
 	set(value):
