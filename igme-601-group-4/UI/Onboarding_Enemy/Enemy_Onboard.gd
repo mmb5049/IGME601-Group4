@@ -6,7 +6,8 @@ enum TutorialStep {
 	HOVER_ENEMY,
 	PROMPT_ABILITY,
 	SELECT_ABILITY,
-	SHOW_ENEMY_PREVIEW
+	SHOW_ENEMY_PREVIEW,
+	FINISHED
 }
 
 var current_step: TutorialStep = TutorialStep.SHOW_ENEMY
@@ -17,6 +18,7 @@ var current_step: TutorialStep = TutorialStep.SHOW_ENEMY
 @onready var welcome_panel: PanelContainer = $Welcome
 @onready var prompt_panel:PanelContainer = $TutorialPrompt
 @onready var prompt_text:Label = $TutorialPrompt/TutorialText
+@onready var continue_label: Label = $TutorialPrompt/TutorialText/ContinueText
 @export var enemyParent:Node
 @export var enemy:Enemy
 @export var task_panel: PanelContainer
@@ -51,6 +53,7 @@ func start_enemy_tutorial() -> void:
 	darken_ui.highlight_3D(enemy)
 	prompt_panel.show()
 	prompt_text.text = "Enemy on the field can damage you!"
+	continue_label.text = "(Click to continue)"
 	await user_input
 	await get_tree().process_frame
 	
@@ -61,6 +64,7 @@ func prompt_hover()-> void:
 	if current_step != TutorialStep.PROMP_HOVER:
 		return
 	prompt_text.text = "Hover over the enemy to learn more!"
+	continue_label.text = "(Hover to continue)"
 	darken_ui.clear()
 	current_step = TutorialStep.HOVER_ENEMY
 	
@@ -69,6 +73,7 @@ func hover_enemy() -> void:
 		return
 	
 	prompt_text.text = "Enemy have their own ability queue \n And the number 2 mean that they will move after us (1)"
+	continue_label.text = "(Click to continue)"
 	await user_input
 	await get_tree().process_frame
 	current_step = TutorialStep.PROMPT_ABILITY
@@ -79,6 +84,7 @@ func prompt_choosing_ability() -> void:
 		return
 	current_step = TutorialStep.SELECT_ABILITY
 	prompt_text.text = "Select an ability (%d)" %ability_chosen
+	continue_label.text = "(Click on ability to continue)"
 	ability_bar.visible = true
 	#continue_label.text = "(Click on ability to continue)"
 	enable_mouse_for_canvas(ability_bar, true)
@@ -92,7 +98,6 @@ func _on_ability_confirmed() -> void:
 	
 	ability_chosen -= 1
 	prompt_text.text = "Select an ability (%d)" %ability_chosen
-	print("Ability Chosen: ", ability_chosen)
 		
 	if ability_chosen > 2:
 		return
@@ -104,8 +109,11 @@ func _on_show_enemy_preview(_ability: Ability) -> void:
 		return
 		
 	prompt_text.text = "You can also see the preview of the enemy"
+	continue_label.text = "(Click to continue)"
+	darken_ui.highlight_3D(enemy)
 	await user_input
 	await get_tree().process_frame
+	current_step = TutorialStep.FINISHED
 	finish_enemy_tutorial()
 	
 func finish_enemy_tutorial() -> void:

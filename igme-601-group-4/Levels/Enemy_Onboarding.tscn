@@ -217,6 +217,25 @@ text = "Hover to view the ability's detail"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="ContinueText" type="Label" parent="EnemyOnboardUI/TutorialPrompt/TutorialText" unique_id=760899946]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -142.5
+offset_top = 15.474998
+offset_right = 142.5
+offset_bottom = 48.475014
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("21_axbvx")
+theme_override_font_sizes/font_size = 32
+text = "(Click to continue)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [connection signal="ability_confirmed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="commit_confirmed_ability"]
 [connection signal="target_preview_changed" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="set_target_preview"]
 [connection signal="targeting_ended" from="Player" to="GlobalUIRoot/SwayLayer/ActionDockUI" method="end_targeting"]
