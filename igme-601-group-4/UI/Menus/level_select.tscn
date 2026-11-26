@@ -28,30 +28,32 @@ size = 15.259
 [node name="Levels" type="Node3D" parent="." unique_id=332864055]
 
 [node name="IO Panel" parent="Levels" unique_id=1224281857 node_paths=PackedStringArray("next_levels") instance=ExtResource("3_ccgke")]
+level_id = &"0"
 next_levels = [NodePath("../Motherboard")]
 level_name = "I/O Panel"
 level_scene = ExtResource("4_qaiwm")
 
-[node name="Motherboard" parent="Levels" unique_id=1205440517 node_paths=PackedStringArray("previous_level", "next_levels") instance=ExtResource("3_ccgke")]
+[node name="Motherboard" parent="Levels" unique_id=1205440517 node_paths=PackedStringArray("previous_levels", "next_levels") instance=ExtResource("3_ccgke")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 9.744285, 0, 4.3709435)
 active = false
 level_id = &"Onboard-1"
-previous_level = NodePath("../IO Panel")
+previous_levels = [NodePath("../IO Panel")]
 next_levels = [NodePath("../Hard Drive")]
 level_name = "Motherboard"
 level_scene = ExtResource("5_tinl6")
 
-[node name="Hard Drive" parent="Levels" unique_id=470409494 node_paths=PackedStringArray("previous_level", "next_levels") instance=ExtResource("3_ccgke")]
+[node name="Hard Drive" parent="Levels" unique_id=470409494 node_paths=PackedStringArray("previous_levels", "next_levels") instance=ExtResource("3_ccgke")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 17.493511, 1.9073486e-06, -3.9307866)
-previous_level = NodePath("../Motherboard")
+active = false
+previous_levels = [NodePath("../Motherboard"), NodePath("../IO Panel")]
 next_levels = [NodePath("../RAM")]
 level_name = "Hard Drive"
 level_scene = ExtResource("5_4hgqp")
 
-[node name="RAM" parent="Levels" unique_id=865771352 node_paths=PackedStringArray("previous_level") instance=ExtResource("3_ccgke")]
+[node name="RAM" parent="Levels" unique_id=865771352 node_paths=PackedStringArray("previous_levels") instance=ExtResource("3_ccgke")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 24.759428, 1.9073486e-06, 1.7010651)
 active = false
 level_id = &"2"
-previous_level = NodePath("../Hard Drive")
+previous_levels = [NodePath("../Hard Drive"), NodePath("../Motherboard"), NodePath("../IO Panel")]
 level_name = "RAM"
 level_scene = ExtResource("5_4hgqp")

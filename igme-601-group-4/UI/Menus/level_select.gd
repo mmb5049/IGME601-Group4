@@ -141,25 +141,13 @@ func unlock_level(origin_level_id: StringName) -> void:
 	var origin_level: LevelNode = get_level_from_id(origin_level_id)
 
 	if origin_level:
+		origin_level.active = true
 		for level: LevelNode in origin_level.next_levels:
-			activate_previous_levels(level)
+			if level:
+				level.active = true
+			
+		for level: LevelNode in origin_level.previous_levels:
+			if level:
+				level.active = true
 	else:
 		push_error("id not found: " + str(origin_level_id))
-
-
-func activate_previous_levels(level: LevelNode, visited: Dictionary = {}) -> void:
-	if level == null:
-		return
-
-	# Prevent infinite loops
-	if visited.has(level.level_id):
-		return
-
-	visited[level.level_id] = true
-
-	# Activate this level
-	level.active = true
-
-	# Recursively activate its previous level
-	if level.previous_level != null:
-		activate_previous_levels(level.previous_level, visited)
