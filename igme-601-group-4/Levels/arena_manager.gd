@@ -136,7 +136,6 @@ func load_level_data() -> void:
 	var all_levels: Array = parsed_data.get("levels", [])
 
 	for level in all_levels:
-		print(level.get("level_number"))
 		if str(level.get("level_number", "")) == str(current_level):
 			current_level_data = level
 			print("Loaded Level: ", level.get("level_name", "Unnamed"))

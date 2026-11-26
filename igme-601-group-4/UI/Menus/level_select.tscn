@@ -41,18 +41,17 @@ next_levels = [NodePath("../Hard Drive")]
 level_name = "Motherboard"
 level_scene = ExtResource("5_tinl6")
 
-[node name="Hard Drive" parent="Levels" unique_id=470409494 node_paths=PackedStringArray("previous_level") instance=ExtResource("3_ccgke")]
+[node name="Hard Drive" parent="Levels" unique_id=470409494 node_paths=PackedStringArray("previous_level", "next_levels") instance=ExtResource("3_ccgke")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 17.493511, 1.9073486e-06, -3.9307866)
-active = false
-level_id = &"3"
 previous_level = NodePath("../Motherboard")
+next_levels = [NodePath("../RAM")]
 level_name = "Hard Drive"
 level_scene = ExtResource("5_4hgqp")
 
 [node name="RAM" parent="Levels" unique_id=865771352 node_paths=PackedStringArray("previous_level") instance=ExtResource("3_ccgke")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 24.759428, 1.9073486e-06, 1.7010651)
 active = false
-level_id = &"4"
+level_id = &"2"
 previous_level = NodePath("../Hard Drive")
 level_name = "RAM"
 level_scene = ExtResource("5_4hgqp")
